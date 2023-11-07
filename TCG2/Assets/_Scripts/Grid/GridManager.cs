@@ -1,71 +1,88 @@
 using System.Collections.Generic;
 using System.Linq;
-using _Scripts.Tiles;
-using Tarodev_Pathfinding._Scripts.Grid.Scriptables;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Tarodev_Pathfinding._Scripts.Grid 
+public class GridManager : MonoBehaviour
 {
-    public class GridManager : MonoBehaviour 
+    public static GridManager Inst;
+    void Awake() => Inst = this;
+
+    private static readonly Color MoveColor = new Color(1, 1, .4f);
+    private static readonly Color AttackColor = new Color(1, .4f, .4f);
+
+    [SerializeField] Sprite _playerSprite, _goalSprite;
+    [SerializeField] Unit _unitPrefab;
+    [SerializeField] ScriptableGrid _scriptableGrid;
+    [SerializeField] bool _drawConnections;
+
+    public Dictionary<Vector2, NodeBase> Tiles { get; private set; }
+
+    NodeBase _playerNodeBase, _goalNodeBase;
+    Unit _spawnedPlayer, _spawnedGoal;
+
+    void Start()
     {
-        public static GridManager Instance;
+        Tiles = _scriptableGrid.GenerateGrid();
 
-        [SerializeField] private Sprite _playerSprite, _goalSprite;
-        [SerializeField] private Unit _unitPrefab;
-        [SerializeField] private ScriptableGrid _scriptableGrid;
-        [SerializeField] private bool _drawConnections;
+        foreach (var tile in Tiles.Values) tile.CacheNeighbors();
 
-        public Dictionary<Vector2, NodeBase> Tiles { get; private set; }
+        //SpawnUnits();
+        NodeBase.OnHoverTile += OnTileHover;
+    }
 
-        private NodeBase _playerNodeBase, _goalNodeBase;
-        private Unit _spawnedPlayer, _spawnedGoal;
+    void OnDestroy() => NodeBase.OnHoverTile -= OnTileHover;
 
-        void Awake() => Instance = this;
+    void OnTileHover(NodeBase nodeBase)
+    {
+        //_goalNodeBase = nodeBase;
+        //_spawnedGoal.transform.position = _goalNodeBase.Coords.Pos;
 
-        private void Start() 
+        //foreach (var t in Tiles.Values) t.RevertTile();
+
+        //var path = Pathfinding.FindPath(_playerNodeBase, _goalNodeBase);
+    }
+
+    public void OnMoveSelect(HexCoords hexCoords)
+    {
+        if(Tiles.ContainsKey(hexCoords.Pos))
+            Tiles[hexCoords.Pos].SetColor(MoveColor);
+    }
+    public void OnMoveSelect(Vector2 hexPos)
+    {
+        if (Tiles.ContainsKey(hexPos))
+            Tiles[hexPos].SetColor(MoveColor);
+    }
+
+    public void OnAttackSelect(HexCoords hexCoords)
+    {
+        Tiles[hexCoords.Pos].SetColor(AttackColor);
+    }
+    public void OnAttackSelect(Vector2 hexPos)
+    {
+        Tiles[hexPos].SetColor(AttackColor);
+    }
+
+    void SpawnUnits()
+    {
+        _playerNodeBase = Tiles.Where(t => t.Value.Walkable).OrderBy(t => Random.value).First().Value;
+        _spawnedPlayer = Instantiate(_unitPrefab, _playerNodeBase.Coords.Pos, Quaternion.identity);
+        _spawnedPlayer.Init(_playerSprite);
+
+        _spawnedGoal = Instantiate(_unitPrefab, new Vector3(50, 50, 50), Quaternion.identity);
+        _spawnedGoal.Init(_goalSprite);
+    }
+
+    public NodeBase GetTileAtPosition(Vector2 pos) => Tiles.TryGetValue(pos, out var tile) ? tile : null;
+
+    void OnDrawGizmos()
+    {
+        if (!Application.isPlaying || !_drawConnections) return;
+        Gizmos.color = Color.red;
+        foreach (var tile in Tiles)
         {
-            Tiles = _scriptableGrid.GenerateGrid();
-         
-            foreach (var tile in Tiles.Values) tile.CacheNeighbors();
-
-            //SpawnUnits();
-            NodeBase.OnHoverTile += OnTileHover;
-        }
-
-        private void OnDestroy() => NodeBase.OnHoverTile -= OnTileHover;
-
-        private void OnTileHover(NodeBase nodeBase) 
-        {
-            //_goalNodeBase = nodeBase;
-            //_spawnedGoal.transform.position = _goalNodeBase.Coords.Pos;
-
-            //foreach (var t in Tiles.Values) t.RevertTile();
-
-            //var path = Pathfinding.FindPath(_playerNodeBase, _goalNodeBase);
-        }
-
-        void SpawnUnits() 
-        {
-            _playerNodeBase = Tiles.Where(t => t.Value.Walkable).OrderBy(t => Random.value).First().Value;
-            _spawnedPlayer = Instantiate(_unitPrefab, _playerNodeBase.Coords.Pos, Quaternion.identity);
-            _spawnedPlayer.Init(_playerSprite);
-
-            _spawnedGoal = Instantiate(_unitPrefab, new Vector3(50, 50, 50), Quaternion.identity);
-            _spawnedGoal.Init(_goalSprite);
-        }
-
-        public NodeBase GetTileAtPosition(Vector2 pos) => Tiles.TryGetValue(pos, out var tile) ? tile : null;
-
-        private void OnDrawGizmos() 
-        {
-            if (!Application.isPlaying || !_drawConnections) return;
-            Gizmos.color = Color.red;
-            foreach (var tile in Tiles) 
-            {
-                if (tile.Value.Connection == null) continue;
-                Gizmos.DrawLine((Vector3)tile.Key + new Vector3(0, 0, -1), (Vector3)tile.Value.Connection.Coords.Pos + new Vector3(0, 0, -1));
-            }
+            if (tile.Value.Connection == null) continue;
+            Gizmos.DrawLine((Vector3)tile.Key + new Vector3(0, 0, -1), (Vector3)tile.Value.Connection.Coords.Pos + new Vector3(0, 0, -1));
         }
     }
 }
