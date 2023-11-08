@@ -1,21 +1,94 @@
-using System.Linq;
-using UnityEngine;
 using System;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using Random = UnityEngine.Random;
+using System.Linq;
 
-public class HexNode : NodeBase
+public class HexNode : MonoBehaviour
 {
-    public override void CacheNeighbors()
+    [Header("References")]
+    [SerializeField]
+    Color _obstacleColor;
+
+    [SerializeField] Gradient _walkableColor;
+    [SerializeField] protected SpriteRenderer _renderer;
+    [SerializeField] TMP_Text _coordsText;
+
+    public HexCoords Coords;
+    public float GetDistance(HexNode other) => Coords.GetDistance(other.Coords); // Helper to reduce noise in pathfinding
+    public bool Walkable { get; private set; }
+    bool _selected;
+    Color _defaultColor;
+
+    public virtual void Init(bool walkable, HexCoords coords)
     {
-        Neighbors = GridManager.Inst.Tiles.Where(t => Coords.GetDistance(t.Value.Coords) == 1).Select(t => t.Value).ToList();
+        Walkable = walkable;
+
+        _renderer.color = walkable ? _walkableColor.Evaluate(Random.Range(0f, 1f)) : _obstacleColor;
+        _defaultColor = _renderer.color;
+
+        OnHoverTile += OnOnHoverTile;
+
+        Coords = coords;
+        _coordsText.text = "q: " + coords._q + ", r: " + coords._r;
+        transform.position = Coords.Pos;
     }
+
+    public static event Action<HexNode> OnHoverTile;
+    void OnEnable() => OnHoverTile += OnOnHoverTile;
+    void OnDisable() => OnHoverTile -= OnOnHoverTile;
+    void OnOnHoverTile(HexNode selected)
+    {
+        _selected = selected == this;
+    }
+
+
+    protected virtual void OnMouseDown()
+    {
+        if (!Walkable) return;
+        OnHoverTile?.Invoke(this);
+    }
+
+    public void SetColor(Color color) => _renderer.color = color;
+
+    public void RevertTile()
+    {
+        _renderer.color = _defaultColor;
+    }
+
+    #region Pathfinding
+    public List<HexNode> Neighbors { get; protected set; }
+    public HexNode Connection { get; private set; }
+    public float G { get; private set; }
+    public float H { get; private set; }
+    public float F => G + H;
+
+    public void SetConnection(HexNode nodeBase)
+    {
+        Connection = nodeBase;
+    }
+
+    public void SetG(float g)
+    {
+        G = g;
+    }
+
+    public void SetH(float h)
+    {
+        H = h;
+    }
+
+    #endregion
 }
-public struct HexCoords : ICoords 
+
+public struct HexCoords
 {
     public int _q { get; set; }
     public int _r { get; set; }
     public int _s { get; set; }
 
-    public HexCoords(int q, int r) 
+    public HexCoords(int q, int r)
     {
         _q = q;
         _r = r;
@@ -47,13 +120,13 @@ public struct HexCoords : ICoords
     public static HexCoords operator *(int a, HexCoords b)
         => b * a;
 
-    public float GetDistance(ICoords other) => (this - (HexCoords)other).AxialLength();
+    public float GetDistance(HexCoords other) => (this - (HexCoords)other).AxialLength();
 
     private static readonly float Sqrt3 = Mathf.Sqrt(3);
 
     public Vector2 Pos { get; set; }
 
-    private int AxialLength() 
+    private int AxialLength()
     {
         if (_q == 0 && _r == 0) return 0;
         if (_q > 0 && _r >= 0) return _q + _r;

@@ -93,14 +93,17 @@ public static class HexDirectionExtension
     public static int Cube_distance(HexCoords hexPlayer, HexCoords hexTarget)
     {
         var vec = Cube_subtract(hexPlayer, hexTarget);
-        return Mathf.Max(vec._q, vec._r, vec._s);
+        return Mathf.Max(Mathf.Abs(vec._q), Mathf.Abs(vec._r), Mathf.Abs(vec._s));
     }
 
-    public static void Area(int range)
+    public static void Area(HexCoords unitCoords, int range)
     {
-        foreach(KeyValuePair<Vector2, NodeBase> tile in GridManager.Inst.Tiles)
+        foreach(KeyValuePair<Vector2, HexNode> tile in GridManager.Inst.Tiles)
         {
-            //if(Cube_distance(new HexCoords(0, 0), tile.Key) <= range)
+            if(Cube_distance(unitCoords, tile.Value.Coords) <= range)
+            {
+                GridManager.Inst.OnMoveSelect(tile.Value.Coords);
+            }
         }
     }
 

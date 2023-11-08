@@ -8,9 +8,9 @@ public class ScriptableHexGrid : ScriptableGrid
     [SerializeField, Range(1, 50)] private int _gridWidth = 16;
     [SerializeField, Range(1, 50)] private int _gridDepth = 9;
 
-    public override Dictionary<Vector2, NodeBase> GenerateGrid()
+    public override Dictionary<Vector2, HexNode> GenerateGrid()
     {
-        var tiles = new Dictionary<Vector2, NodeBase>();
+        var tiles = new Dictionary<Vector2, HexNode>();
         var grid = new GameObject
         {
             name = "Grid"

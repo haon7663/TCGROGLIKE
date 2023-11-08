@@ -394,7 +394,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ef0b4302d2c9134bb58f9621df1489f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: 4
+  range: 2
+  rangeType: 1
 --- !u!4 &7341151216578487424
 Transform:
   m_ObjectHideFlags: 0

@@ -6,7 +6,15 @@ using Random = UnityEngine.Random;
 public class GridManager : MonoBehaviour
 {
     public static GridManager Inst;
-    void Awake() => Inst = this;
+    void Awake()
+    {
+        Inst = this;
+
+        Tiles = _scriptableGrid.GenerateGrid();
+
+        //SpawnUnits();
+        HexNode.OnHoverTile += OnTileHover;
+    }
 
     private static readonly Color MoveColor = new Color(1, 1, .4f);
     private static readonly Color AttackColor = new Color(1, .4f, .4f);
@@ -16,24 +24,13 @@ public class GridManager : MonoBehaviour
     [SerializeField] ScriptableGrid _scriptableGrid;
     [SerializeField] bool _drawConnections;
 
-    public Dictionary<Vector2, NodeBase> Tiles { get; private set; }
+    public Dictionary<Vector2, HexNode> Tiles { get; private set; }
 
-    NodeBase _playerNodeBase, _goalNodeBase;
-    Unit _spawnedPlayer, _spawnedGoal;
+    HexNode _playerNodeBase, _goalNodeBase;   Unit _spawnedPlayer, _spawnedGoal;
 
-    void Start()
-    {
-        Tiles = _scriptableGrid.GenerateGrid();
+    void OnDestroy() => HexNode.OnHoverTile -= OnTileHover;
 
-        foreach (var tile in Tiles.Values) tile.CacheNeighbors();
-
-        //SpawnUnits();
-        NodeBase.OnHoverTile += OnTileHover;
-    }
-
-    void OnDestroy() => NodeBase.OnHoverTile -= OnTileHover;
-
-    void OnTileHover(NodeBase nodeBase)
+    void OnTileHover(HexNode nodeBase)
     {
         //_goalNodeBase = nodeBase;
         //_spawnedGoal.transform.position = _goalNodeBase.Coords.Pos;
@@ -73,7 +70,7 @@ public class GridManager : MonoBehaviour
         _spawnedGoal.Init(_goalSprite);
     }
 
-    public NodeBase GetTileAtPosition(Vector2 pos) => Tiles.TryGetValue(pos, out var tile) ? tile : null;
+    public HexNode GetTileAtPosition(Vector2 pos) => Tiles.TryGetValue(pos, out var tile) ? tile : null;
 
     void OnDrawGizmos()
     {

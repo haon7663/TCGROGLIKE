@@ -9,10 +9,10 @@ public static class Pathfinding
     private static readonly Color OpenColor = new Color(.4f, .6f, .4f);
     private static readonly Color ClosedColor = new Color(0.35f, 0.4f, 0.5f);
 
-    public static List<NodeBase> FindPath(NodeBase startNode, NodeBase targetNode)
+    public static List<HexNode> FindPath(HexNode startNode, HexNode targetNode)
     {
-        var toSearch = new List<NodeBase>() { startNode };
-        var processed = new List<NodeBase>();
+        var toSearch = new List<HexNode>() { startNode };
+        var processed = new List<HexNode>();
 
         while (toSearch.Any())
         {
@@ -28,7 +28,7 @@ public static class Pathfinding
             if (current == targetNode)
             {
                 var currentPathTile = targetNode;
-                var path = new List<NodeBase>();
+                var path = new List<HexNode>();
                 var count = 100;
                 while (currentPathTile != startNode)
                 {
