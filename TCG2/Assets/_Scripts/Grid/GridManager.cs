@@ -11,9 +11,6 @@ public class GridManager : MonoBehaviour
         Inst = this;
 
         Tiles = _scriptableGrid.GenerateGrid();
-
-        //SpawnUnits();
-        HexNode.OnHoverTile += OnTileHover;
     }
 
     private static readonly Color MoveColor = new Color(1, 1, .4f);
@@ -26,29 +23,29 @@ public class GridManager : MonoBehaviour
 
     public Dictionary<Vector2, HexNode> Tiles { get; private set; }
 
-    HexNode _playerNodeBase, _goalNodeBase;   Unit _spawnedPlayer, _spawnedGoal;
+    HexNode _playerNodeBase, _goalNodeBase;
+    Unit _spawnedPlayer, _spawnedGoal;
 
-    void OnDestroy() => HexNode.OnHoverTile -= OnTileHover;
-
-    void OnTileHover(HexNode nodeBase)
+    public void RevertTiles()
     {
-        //_goalNodeBase = nodeBase;
-        //_spawnedGoal.transform.position = _goalNodeBase.Coords.Pos;
-
-        //foreach (var t in Tiles.Values) t.RevertTile();
-
-        //var path = Pathfinding.FindPath(_playerNodeBase, _goalNodeBase);
+        foreach (var t in Tiles.Values) t.RevertTile();
     }
 
     public void OnMoveSelect(HexCoords hexCoords)
     {
-        if(Tiles.ContainsKey(hexCoords.Pos))
+        if (Tiles.ContainsKey(hexCoords.Pos))
+        {
             Tiles[hexCoords.Pos].SetColor(MoveColor);
+            Tiles[hexCoords.Pos].moveable = true;
+        }
     }
     public void OnMoveSelect(Vector2 hexPos)
     {
         if (Tiles.ContainsKey(hexPos))
+        {
             Tiles[hexPos].SetColor(MoveColor);
+            Tiles[hexPos].moveable = true;
+        }
     }
 
     public void OnAttackSelect(HexCoords hexCoords)

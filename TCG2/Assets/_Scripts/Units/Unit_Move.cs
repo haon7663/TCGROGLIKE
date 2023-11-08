@@ -31,9 +31,12 @@ public class Unit_Move : MonoBehaviour
         }
     }
 
-    public void OnMove(HexCoords targetCoords, bool useDotween = true, float dotweenTime = 0.3f, Ease ease = Ease.InCirc)
+    public void OnMove(HexCoords targetCoords, bool useDotween = true, float dotweenTime = 0.2f, Ease ease = Ease.InCirc)
     {
-        if(useDotween)
+        Debug.Log(targetCoords);
+
+        GridManager.Inst.RevertTiles();
+        if (useDotween)
         {
             transform.DOMove(targetCoords.Pos, dotweenTime).SetEase(ease);
         }

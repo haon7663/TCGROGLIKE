@@ -469,7 +469,7 @@ PolygonCollider2D:
       - {x: 0, y: -1}
       - {x: -0.87, y: -0.5}
       - {x: -0.87, y: 0.5}
---- !u!114 &2493037438632103429
+--- !u!114 &1980007268269064329
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -478,14 +478,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 7674716067429212732}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78e6269a60bc0c74a997f4d9e12526ed, type: 3}
+  m_Script: {fileID: 11500000, guid: e3a97552866d3ae499089b8a4adb04f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _obstacleColor: {r: 0.103773594, g: 0.103773594, b: 0.103773594, a: 1}
-  _walkableColor:
+  obstacleColor: {r: 0, g: 0, b: 0, a: 0}
+  walkableColor:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 1}
-    key1: {r: 0.764151, g: 0.764151, b: 0.764151, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
@@ -511,5 +511,7 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
-  _renderer: {fileID: 1817317257368798094}
-  _coordsText: {fileID: 9185826340887873900}
+  spriteRenderer: {fileID: 1817317257368798094}
+  coordsText: {fileID: 9185826340887873900}
+  moveable: 0
+  attackAble: 0

@@ -9,52 +9,56 @@ public class HexNode : MonoBehaviour
 {
     [Header("References")]
     [SerializeField]
-    Color _obstacleColor;
+    Color obstacleColor;
 
-    [SerializeField] Gradient _walkableColor;
-    [SerializeField] protected SpriteRenderer _renderer;
-    [SerializeField] TMP_Text _coordsText;
+    [SerializeField] Gradient walkableColor;
+    [SerializeField] protected SpriteRenderer spriteRenderer;
+    [SerializeField] TMP_Text coordsText;
 
     public HexCoords Coords;
     public float GetDistance(HexNode other) => Coords.GetDistance(other.Coords); // Helper to reduce noise in pathfinding
     public bool Walkable { get; private set; }
-    bool _selected;
-    Color _defaultColor;
+    public bool moveable, attackAble;
+    Color defaultColor;
 
     public virtual void Init(bool walkable, HexCoords coords)
     {
         Walkable = walkable;
 
-        _renderer.color = walkable ? _walkableColor.Evaluate(Random.Range(0f, 1f)) : _obstacleColor;
-        _defaultColor = _renderer.color;
+        spriteRenderer.color = walkable ? walkableColor.Evaluate(Random.Range(0f, 1f)) : obstacleColor;
+        defaultColor = spriteRenderer.color;
 
-        OnHoverTile += OnOnHoverTile;
+        Debug.Log("init");
 
         Coords = coords;
-        _coordsText.text = "q: " + coords._q + ", r: " + coords._r;
+        coordsText.text = "q: " + coords._q + ", r: " + coords._r;
         transform.position = Coords.Pos;
     }
 
-    public static event Action<HexNode> OnHoverTile;
-    void OnEnable() => OnHoverTile += OnOnHoverTile;
-    void OnDisable() => OnHoverTile -= OnOnHoverTile;
-    void OnOnHoverTile(HexNode selected)
+    void OnHoverTile(HexNode selected)
     {
-        _selected = selected == this;
+        if(moveable)
+        {
+            UnitManager.Inst.selectedUnit.GetComponent<Unit_Move>().OnMove(selected.Coords);
+        }
+        else if(attackAble)
+        {
+
+        }
     }
-
-
     protected virtual void OnMouseDown()
     {
         if (!Walkable) return;
-        OnHoverTile?.Invoke(this);
+        OnHoverTile(this);
     }
 
-    public void SetColor(Color color) => _renderer.color = color;
+    public void SetColor(Color color) => spriteRenderer.color = color;
 
     public void RevertTile()
     {
-        _renderer.color = _defaultColor;
+        spriteRenderer.color = defaultColor;
+        moveable = false;
+        attackAble = false;
     }
 
     #region Pathfinding
