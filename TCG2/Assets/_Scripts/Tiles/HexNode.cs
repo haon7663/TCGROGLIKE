@@ -14,11 +14,13 @@ public class HexNode : MonoBehaviour
     [SerializeField] Gradient walkableColor;
     [SerializeField] protected SpriteRenderer spriteRenderer;
     [SerializeField] TMP_Text coordsText;
+    [SerializeField] GameObject displayMoveObject;
+    [SerializeField] GameObject displayAttackObject;
 
     public HexCoords Coords;
     public float GetDistance(HexNode other) => Coords.GetDistance(other.Coords); // Helper to reduce noise in pathfinding
     public bool Walkable { get; private set; }
-    public bool moveable, attackAble;
+    public bool moveable, attackable;
     Color defaultColor;
 
     public virtual void Init(bool walkable, HexCoords coords)
@@ -28,25 +30,43 @@ public class HexNode : MonoBehaviour
         spriteRenderer.color = walkable ? walkableColor.Evaluate(Random.Range(0f, 1f)) : obstacleColor;
         defaultColor = spriteRenderer.color;
 
-        Debug.Log("init");
-
         Coords = coords;
-        coordsText.text = "q: " + coords._q + ", r: " + coords._r;
+        coordsText.text = "q: " + coords._q + ", r: " + coords._r + "  s: " + coords._s;
         transform.position = Coords.Pos;
     }
 
-    void OnHoverTile(HexNode selected)
+    void OnClickTile(HexNode selected)
     {
         if(moveable)
         {
             UnitManager.Inst.selectedUnit.GetComponent<Unit_Move>().OnMove(selected.Coords);
         }
-        else if(attackAble)
+        else if(attackable)
         {
 
         }
     }
+    void OnHoverTile(HexNode selected)
+    {
+        if (moveable)
+        {
+            displayMoveObject.SetActive(true);
+        }
+        else if (attackable)
+        {
+            Debug.Log("attackH");
+            foreach (HexNode hexNode in UnitManager.Inst.selectedUnit.GetComponent<Unit_Attack>().GetArea(selected))
+            {
+                hexNode.displayAttackObject.SetActive(true);
+            }
+        }
+    }
     protected virtual void OnMouseDown()
+    {
+        if (!Walkable) return;
+        OnClickTile(this);
+    }
+    protected virtual void OnMouseOver()
     {
         if (!Walkable) return;
         OnHoverTile(this);
@@ -58,7 +78,13 @@ public class HexNode : MonoBehaviour
     {
         spriteRenderer.color = defaultColor;
         moveable = false;
-        attackAble = false;
+        attackable = false;
+    }
+
+    public void RevertAble()
+    {
+        displayMoveObject.SetActive(false);
+        displayAttackObject.SetActive(false);
     }
 
     #region Pathfinding
@@ -99,9 +125,18 @@ public struct HexCoords
         _s = -q - r;
         Pos = _q * new Vector2(Sqrt3, 0) + _r * new Vector2(Sqrt3 / 2, 1.5f);
     }
+    public HexCoords(float q, float r)
+    {
+        int sq = (int)q;
+        int sr = (int)r;
+        _q = sq;
+        _r = sr;
+        _s = -sq - sr;
+        Pos = sq * new Vector2(Sqrt3, 0) + sr * new Vector2(Sqrt3 / 2, 1.5f);
+    }
 
     public static HexCoords operator +(HexCoords a, HexCoords b)
-    => new HexCoords(a._q + b._q, a._r + b._r);
+        => new HexCoords(a._q + b._q, a._r + b._r);
 
     public static HexCoords operator +(HexCoords a, HexDirection b)
         => a + b.Coords();
@@ -123,6 +158,17 @@ public struct HexCoords
 
     public static HexCoords operator *(int a, HexCoords b)
         => b * a;
+
+    public static bool operator ==(HexCoords a, HexCoords b)
+        => a._q == b._q && a._r == b._r;
+
+    public static bool operator !=(HexCoords a, HexCoords b)
+        => a._q != b._q || a._r != b._r;
+
+    public static HexCoords MultiDirection(HexDirection a, int b)
+    {
+        return a.Coords() * b;
+    }
 
     public float GetDistance(HexCoords other) => (this - (HexCoords)other).AxialLength();
 

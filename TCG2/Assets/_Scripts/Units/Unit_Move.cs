@@ -3,38 +3,44 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
-public enum RangeType { Liner, Area }
-
 public class Unit_Move : MonoBehaviour
 {
-    public HexCoords hexCoords = new HexCoords(2, 0);
     public int range;
     public RangeType rangeType;
 
-    void Start()
+    Unit unit;
+    void Awake()
     {
-        transform.position = hexCoords.Pos;
+        unit = GetComponent<Unit>();
+    }
 
+    void OnEnable()
+    {
         if (rangeType == RangeType.Liner)
         {
             for (int i = 1; i <= range; i++)
             {
                 foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                 {
-                    GridManager.Inst.OnMoveSelect(hexCoords + hexDirection.Coords() * i);
+                    GridManager.Inst.OnMoveSelect(unit.hexCoords + hexDirection.Coords() * i);
                 }
             }
         }
         else if (rangeType == RangeType.Area)
         {
-            HexDirectionExtension.Area(hexCoords, range);
+            foreach (HexNode hexNode in HexDirectionExtension.Area(unit.hexCoords, range))
+            {
+                GridManager.Inst.OnMoveSelect(hexNode.Coords);
+            }
         }
+    }
+    void OnDisable()
+    {
+        GridManager.Inst.RevertTiles();
     }
 
     public void OnMove(HexCoords targetCoords, bool useDotween = true, float dotweenTime = 0.2f, Ease ease = Ease.InCirc)
     {
-        Debug.Log(targetCoords);
-
         GridManager.Inst.RevertTiles();
         if (useDotween)
         {
@@ -44,5 +50,7 @@ public class Unit_Move : MonoBehaviour
         {
             transform.position = targetCoords.Pos;
         }
+
+        unit.hexCoords = targetCoords;
     }
 }

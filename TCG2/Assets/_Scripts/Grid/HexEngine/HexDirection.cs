@@ -96,15 +96,17 @@ public static class HexDirectionExtension
         return Mathf.Max(Mathf.Abs(vec._q), Mathf.Abs(vec._r), Mathf.Abs(vec._s));
     }
 
-    public static void Area(HexCoords unitCoords, int range)
+    public static List<HexNode> Area(HexCoords unitCoords, int range, bool onSelf = false)
     {
+        List<HexNode> hexNodes = new List<HexNode>();
         foreach(KeyValuePair<Vector2, HexNode> tile in GridManager.Inst.Tiles)
         {
-            if(Cube_distance(unitCoords, tile.Value.Coords) <= range)
-            {
-                GridManager.Inst.OnMoveSelect(tile.Value.Coords);
-            }
+            if (!onSelf && tile.Value.Coords == unitCoords) continue;
+            if (Cube_distance(unitCoords, tile.Value.Coords) <= range)
+                hexNodes.Add(tile.Value);
         }
+
+        return hexNodes;
     }
 
     /// <summary>

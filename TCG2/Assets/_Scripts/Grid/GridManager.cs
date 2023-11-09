@@ -30,6 +30,11 @@ public class GridManager : MonoBehaviour
     {
         foreach (var t in Tiles.Values) t.RevertTile();
     }
+    public void RevertAbles()
+    {
+        foreach (var t in Tiles.Values) t.RevertAble();
+    }
+
 
     public void OnMoveSelect(HexCoords hexCoords)
     {
@@ -50,11 +55,19 @@ public class GridManager : MonoBehaviour
 
     public void OnAttackSelect(HexCoords hexCoords)
     {
-        Tiles[hexCoords.Pos].SetColor(AttackColor);
+        if (Tiles.ContainsKey(hexCoords.Pos))
+        {
+            Tiles[hexCoords.Pos].SetColor(AttackColor);
+            Tiles[hexCoords.Pos].attackable = true;
+        }
     }
     public void OnAttackSelect(Vector2 hexPos)
     {
-        Tiles[hexPos].SetColor(AttackColor);
+        if (Tiles.ContainsKey(hexPos))
+        {
+            Tiles[hexPos].SetColor(AttackColor);
+            Tiles[hexPos].attackable = true;
+        }
     }
 
     void SpawnUnits()
