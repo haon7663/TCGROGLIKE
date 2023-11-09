@@ -256,7 +256,6 @@ MonoBehaviour:
   - {fileID: 6740468202279022001}
   Mercenaries: []
   Enemies: []
-  selectedUnit: {fileID: 0}
 --- !u!1 &1066785912
 GameObject:
   m_ObjectHideFlags: 0
@@ -433,7 +432,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rangeType: 1
-  range: 2
+  range: 4
   attackType: 1
   wideRange: 3
   splashRange: 0

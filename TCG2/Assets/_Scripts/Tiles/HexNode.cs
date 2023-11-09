@@ -39,23 +39,22 @@ public class HexNode : MonoBehaviour
     {
         if(moveable)
         {
-            UnitManager.Inst.selectedUnit.GetComponent<Unit_Move>().OnMove(selected.Coords);
+            UnitManager.sUnit_Move.OnMove(selected.Coords);
         }
         else if(attackable)
         {
-
+            UnitManager.sUnit_Attack.OnAttack();
         }
     }
     void OnHoverTile(HexNode selected)
     {
         if (moveable)
         {
-            displayMoveObject.SetActive(true);
+            UnitManager.sUnit_Move.GetArea(selected).displayMoveObject.SetActive(true);
         }
         else if (attackable)
         {
-            Debug.Log("attackH");
-            foreach (HexNode hexNode in UnitManager.Inst.selectedUnit.GetComponent<Unit_Attack>().GetArea(selected))
+            foreach (HexNode hexNode in UnitManager.sUnit_Attack.GetArea(selected))
             {
                 hexNode.displayAttackObject.SetActive(true);
             }
@@ -164,11 +163,6 @@ public struct HexCoords
 
     public static bool operator !=(HexCoords a, HexCoords b)
         => a._q != b._q || a._r != b._r;
-
-    public static HexCoords MultiDirection(HexDirection a, int b)
-    {
-        return a.Coords() * b;
-    }
 
     public float GetDistance(HexCoords other) => (this - (HexCoords)other).AxialLength();
 

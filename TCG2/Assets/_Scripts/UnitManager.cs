@@ -15,10 +15,19 @@ public class UnitManager : Unit
     public List<Unit> Mercenaries;
     public List<Unit> Enemies;
 
-    public Unit selectedUnit;
+    public static Unit sUnit;
+    public static Unit_Move sUnit_Move;
+    public static Unit_Attack sUnit_Attack;
 
     void Start()
     {
-        selectedUnit = Commanders[0];
+        SelectUnit(Commanders[0]);
     }
+
+    public void SelectUnit(Unit unit)
+    {
+        sUnit = unit;
+        sUnit_Move = sUnit.GetComponent<Unit_Move>();
+        sUnit_Attack = sUnit.GetComponent<Unit_Attack>();
+    }    
 }

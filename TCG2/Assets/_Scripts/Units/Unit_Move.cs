@@ -39,6 +39,13 @@ public class Unit_Move : MonoBehaviour
         GridManager.Inst.RevertTiles();
     }
 
+    public HexNode GetArea(HexNode hexNode)
+    {
+        GridManager.Inst.RevertAbles();
+
+        return hexNode;
+    }
+
     public void OnMove(HexCoords targetCoords, bool useDotween = true, float dotweenTime = 0.2f, Ease ease = Ease.InCirc)
     {
         GridManager.Inst.RevertTiles();

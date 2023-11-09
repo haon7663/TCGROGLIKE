@@ -64,16 +64,6 @@ public static class HexDirectionExtension
     public static Vector3 Direction(this HexDirection direction) => _directions[(int)direction] * (Mathf.Sqrt(3) / 2);
 
     /// <summary>
-    /// Normalized vector of direction to the left corner of the hex edge in given direction.
-    /// </summary>
-    public static Vector3 LeftCornerDirection(this HexDirection direction) => _vertexDirections[(int)direction];
-
-    /// <summary>
-    /// Normalized vector of direction to the right corner of the hex edge in given direction.
-    /// </summary>
-    public static Vector3 RightCornerDirection(this HexDirection direction) => _vertexDirections[((int)direction + 1) % 6];
-
-    /// <summary>
     /// Iterates through all hex directions starting from this direction and going clockwise.
     /// </summary>
     public static IEnumerable<HexDirection> Loop(this HexDirection direction)
@@ -107,6 +97,29 @@ public static class HexDirectionExtension
         }
 
         return hexNodes;
+    }
+
+    public static List<HexNode> GetDiagonal(HexCoords hexCoords, List<HexNode> hexNodes, Unit unit, int range)
+    {
+        List<HexNode> resultNode = new List<HexNode>();
+        foreach (HexNode hexNode in Area(unit.hexCoords, range))
+            if (!hexNodes.Contains(hexNode))
+                if (DiagonalRange(hexCoords._q, hexNode.Coords._q, range) && DiagonalRange(hexCoords._r, hexNode.Coords._r, range) && DiagonalRange(hexCoords._s, hexNode.Coords._s, range))
+                    resultNode.Add(hexNode);
+
+        return resultNode;
+    }
+
+    public static bool DiagonalRange(int value, int nodeValue, int range)
+    {
+        if (value == 0)
+            return true;
+        if (value == range && nodeValue >= 0 && nodeValue <= range)
+            return true;
+        else if (value == -range && nodeValue <= 0 && nodeValue >= -range)
+            return true;
+        else
+            return false;
     }
 
     /// <summary>

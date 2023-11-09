@@ -44,11 +44,6 @@ public class Unit_Attack : MonoBehaviour
         GridManager.Inst.RevertTiles();
     }
 
-    public void OnAttack()
-    {
-
-    }
-
     public List<HexNode> GetArea(HexNode hexNode)
     {
         GridManager.Inst.RevertAbles();
@@ -63,14 +58,22 @@ public class Unit_Attack : MonoBehaviour
                 var hexDirection = new HexCoords(SignZero(hexCoords._q), SignZero(hexCoords._r)).ToDirection();
                 for(int i = 1; i <= range; i++)
                 {
-                    for (int j = -Mathf.FloorToInt((float)wideRange / 2); j <= Mathf.FloorToInt((float)wideRange / 2); j++)
+                    var floorWide = Mathf.FloorToInt((float)wideRange / 2);
+                    for (int j = -floorWide; j <= floorWide; j++)
                     {
-                        hexNodes.Add(GridManager.Inst.GetTileAtPosition((unit.hexCoords + hexDirection.Rotate(j).Coords() * i).Pos));
+                        var pos = (unit.hexCoords + hexDirection.Rotate(j).Coords() * i).Pos;
+                        if (GridManager.Inst.Tiles.ContainsKey(pos))
+                            hexNodes.Add(GridManager.Inst.GetTileAtPosition(pos));
                     }
                 }
+                hexNodes.AddRange(HexDirectionExtension.GetDiagonal(unit.hexCoords + hexDirection.Coords() * range, hexNodes, unit, range));
                 break;
         }
         return hexNodes;
+    }
+    public void OnAttack()
+    {
+        GridManager.Inst.RevertTiles();
     }
 
     int SignZero(int value)
