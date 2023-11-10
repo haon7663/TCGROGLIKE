@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum UnitType { Mercenary, Enemy, Commander }
 public enum RangeType { Liner, Area }
-public enum AttackType { Single, Wide, Splash, Long, Emission, Entire }
+public enum AttackType { Single, Wide, Splash, Liner, Emission, Entire,  }
 
 public class UnitManager : Unit
 {

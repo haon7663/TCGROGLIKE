@@ -432,10 +432,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rangeType: 1
-  range: 4
+  range: 2
   attackType: 1
-  wideRange: 3
   splashRange: 0
+  lineWide: 1
 --- !u!114 &6740468202279022003
 MonoBehaviour:
   m_ObjectHideFlags: 0
