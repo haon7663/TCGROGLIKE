@@ -22,6 +22,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] bool _drawConnections;
 
     public Dictionary<Vector2, HexNode> Tiles { get; private set; }
+    public HexNode selectedTiles { get; private set; }
 
     HexNode _playerNodeBase, _goalNodeBase;
     Unit _spawnedPlayer, _spawnedGoal;

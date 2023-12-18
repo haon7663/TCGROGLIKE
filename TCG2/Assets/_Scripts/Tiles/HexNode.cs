@@ -12,7 +12,7 @@ public class HexNode : MonoBehaviour
     Color obstacleColor;
 
     [SerializeField] Gradient walkableColor;
-    [SerializeField] protected SpriteRenderer spriteRenderer;
+    [SerializeField] SpriteRenderer spriteRenderer;
     [SerializeField] TMP_Text coordsText;
     [SerializeField] GameObject displayMoveObject;
     [SerializeField] GameObject displayAttackObject;

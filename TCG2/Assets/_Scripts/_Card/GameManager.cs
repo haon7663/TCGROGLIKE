@@ -24,16 +24,16 @@ public class GameManager : MonoBehaviour
     void InputCheatKey()
     {
         if (Input.GetKeyDown(KeyCode.Keypad1))
-            TurnManager.OnAddCard?.Invoke(true);
+            TurnManager.OnAddCard?.Invoke();
 
         if (Input.GetKeyDown(KeyCode.Keypad2))
-            TurnManager.OnAddCard?.Invoke(false);
+            TurnManager.OnAddCard?.Invoke();
 
         if (Input.GetKeyDown(KeyCode.Keypad3))
             TurnManager.Inst.EndTurn();
 
         if (Input.GetKeyDown(KeyCode.Keypad4))
-            CardManager.Inst.TryPutCard(false);
+            CardManager.Inst.TryPutCard();
     }
 
     void StartGame()

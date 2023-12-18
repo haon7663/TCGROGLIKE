@@ -4,7 +4,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Scriptable Hex Grid")]
 public class ScriptableHexGrid : ScriptableGrid
 {
-
     [SerializeField, Range(1, 50)] private int _gridWidth = 16;
     [SerializeField, Range(1, 50)] private int _gridDepth = 9;
 

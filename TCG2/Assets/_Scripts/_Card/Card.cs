@@ -8,59 +8,51 @@ public class Card : MonoBehaviour
 {
     [SerializeField] SpriteRenderer card;
     [SerializeField] SpriteRenderer character;
+    [SerializeField] LineRenderer lineRenderer;
     [SerializeField] TMP_Text nameTMP;
     [SerializeField] TMP_Text attackTMP;
-    [SerializeField] TMP_Text healthTMP;
+    [SerializeField] TMP_Text energyTMP;
     [SerializeField] Sprite cardFront;
     [SerializeField] Sprite cardBack;
 
     public Item item;
-    bool isFront;
     public PRS originPRS;
 
-    public void SetUp(Item item, bool isFront)
+    Camera  mainCamera;
+
+    void Start()
+    {
+        mainCamera = Camera.main;
+    }
+
+    public void SetUp(Item item)
     {
         this.item = item;
-        this.isFront = isFront;
 
-        if(this.isFront)
-        {
-            character.sprite = this.item.sprite;
-            nameTMP.text = this.item.name;
-            attackTMP.text = this.item.attack.ToString();
-            healthTMP.text = this.item.health.ToString();
-        }
-        else
-        {
-            card.sprite = cardBack;
-            nameTMP.text = "";
-            attackTMP.text = "";
-            healthTMP.text = "";
-        }
+        character.sprite = this.item.sprite;
+        nameTMP.text = this.item.name;
+        attackTMP.text = this.item.attackDamage.ToString();
+        energyTMP.text = this.item.energy.ToString();
     }
 
     void OnMouseOver()
     {
-        if (isFront)
-            CardManager.Inst.CardMouseOver(this);
+        CardManager.Inst.CardMouseOver(this);
     }
 
     void OnMouseExit()
     {
-        if (isFront)
-            CardManager.Inst.CardMouseExit(this);
+        CardManager.Inst.CardMouseExit(this);
     }
 
     void OnMouseDown()
     {
-        if (isFront)
-            CardManager.Inst.CardMouseDown();
+        CardManager.Inst.CardMouseDown(this);
     }
 
     void OnMouseUp()
     {
-        if (isFront)
-            CardManager.Inst.CardMouseUp();
+        CardManager.Inst.CardMouseUp(this);
     }
 
     public void MoveTransform(PRS prs, bool useDotween, float dotweenTime = 0)
@@ -77,5 +69,11 @@ public class Card : MonoBehaviour
             transform.rotation = prs.rot;
             transform.localScale = prs.scale;
         }
+    }
+
+    public void ShowLiner()
+    {
+        lineRenderer.SetPosition(0, new Vector2(transform.position.x, transform.position.y + 1.75f));
+        lineRenderer.SetPosition(1, Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0)));
     }
 }

@@ -4,49 +4,42 @@ using UnityEngine;
 
 public class Unit_Attack : MonoBehaviour
 {
-    [Header("범위 표시")]
-    public RangeType rangeType;
-    public int range;
-
-    [Header("공격 타입")]
-    public AttackType attackType;
-    [DrawIf("attackType", AttackType.Splash)] public int splashRange = 1;
-    [DrawIf("attackType", AttackType.Liner)] public int lineWide = 1;
-
     Unit unit;
+    public Item item;
     void Awake()
     {
         unit = GetComponent<Unit>();
     }
 
-    void OnEnable()
+    public void OnDrawArea(bool isDraw, Item item = null)
     {
-        if (rangeType == RangeType.Liner)
+        GridManager.Inst.RevertTiles();
+        this.item = item;
+        if (isDraw)
         {
-            for (int i = 0; i < range; i++)
+            if (item.rangeType == RangeType.Liner)
             {
-                foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
+                for (int i = 0; i < item.range; i++)
                 {
-                    var floorWide = Mathf.FloorToInt((float)lineWide / 2);
-                    for (int j = -floorWide; j <= floorWide; j++)
+                    foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                     {
-                        var pos = (unit.hexCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i).Pos;
-                        GridManager.Inst.OnAttackSelect(pos);
+                        var floorWide = Mathf.FloorToInt((float)item.lineWide / 2);
+                        for (int j = -floorWide; j <= floorWide; j++)
+                        {
+                            var pos = (unit.hexCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i).Pos;
+                            GridManager.Inst.OnAttackSelect(pos);
+                        }
                     }
                 }
             }
-        }
-        else if (rangeType == RangeType.Area)
-        {
-            foreach (HexNode hexNode in HexDirectionExtension.Area(unit.hexCoords, range))
+            else if (item.rangeType == RangeType.Area)
             {
-                GridManager.Inst.OnAttackSelect(hexNode.Coords);
+                foreach (HexNode hexNode in HexDirectionExtension.Area(unit.hexCoords, item.range))
+                {
+                    GridManager.Inst.OnAttackSelect(hexNode.Coords);
+                }
             }
         }
-    }
-    void OnDisable()
-    {
-        GridManager.Inst.RevertTiles();
     }
 
     public List<HexNode> GetArea(HexNode hexNode)
@@ -56,18 +49,18 @@ public class Unit_Attack : MonoBehaviour
 
         var hexCoords = hexNode.Coords - unit.hexCoords;
         var hexDirection = new HexCoords(SignZero(hexCoords._q), SignZero(hexCoords._r)).ToDirection();
-        switch (attackType)
+        switch (item.attackType)
         {
             case AttackType.Single:
                 hexNodes.Add(hexNode);
                 break;
             case AttackType.Wide:
-                hexNodes.AddRange(HexDirectionExtension.GetDiagonal(unit.hexCoords + hexDirection.Coords() * range, hexNodes, unit, range));
+                hexNodes.AddRange(HexDirectionExtension.GetDiagonal(unit.hexCoords + hexDirection.Coords() * item.range, hexNodes, unit, item.range));
                 break;
             case AttackType.Liner:
-                for (int i = 0; i < range; i++)
+                for (int i = 0; i < item.range; i++)
                 {
-                    var floorWide = Mathf.FloorToInt((float)lineWide / 2);
+                    var floorWide = Mathf.FloorToInt((float)item.lineWide / 2);
                     for (int j = -floorWide; j <= floorWide; j++)
                     {
                         var pos = (unit.hexCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i).Pos;
