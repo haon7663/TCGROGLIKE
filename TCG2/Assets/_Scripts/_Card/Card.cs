@@ -59,6 +59,7 @@ public class Card : MonoBehaviour
     {
         if(useDotween)
         {
+            transform.DOKill();
             transform.DOMove(prs.pos, dotweenTime);
             transform.DORotateQuaternion(prs.rot, dotweenTime);
             transform.DOScale(prs.scale, dotweenTime);

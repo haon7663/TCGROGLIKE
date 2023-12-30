@@ -22,7 +22,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] bool _drawConnections;
 
     public Dictionary<Vector2, HexNode> Tiles { get; private set; }
-    public HexNode selectedTiles { get; private set; }
+    public List<HexNode> selectedNode;
 
     HexNode _playerNodeBase, _goalNodeBase;
     Unit _spawnedPlayer, _spawnedGoal;
@@ -30,6 +30,7 @@ public class GridManager : MonoBehaviour
     public void RevertTiles()
     {
         foreach (var t in Tiles.Values) t.RevertTile();
+        RevertAbles();
     }
     public void RevertAbles()
     {

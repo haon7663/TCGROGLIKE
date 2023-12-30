@@ -13,7 +13,17 @@ MonoBehaviour:
   m_Name: ItemSO
   m_EditorClassIdentifier: 
   items:
-  - name: "\uD64D\uC2DD"
+  - name: Area Single
+    sprite: {fileID: 21300000, guid: daf2ab606d4db0d4f9ecf4c02137d2a8, type: 3}
+    energy: 1
+    rangeType: 1
+    range: 2
+    attackDamage: 5
+    attackType: 0
+    splashRange: 1
+    lineWide: 1
+    cardCount: 5
+  - name: Liner
     sprite: {fileID: 21300000, guid: daf2ab606d4db0d4f9ecf4c02137d2a8, type: 3}
     energy: 1
     rangeType: 0
@@ -22,4 +32,24 @@ MonoBehaviour:
     attackType: 3
     splashRange: 1
     lineWide: 1
-    cardCount: 10
+    cardCount: 5
+  - name: Area Splash
+    sprite: {fileID: 21300000, guid: daf2ab606d4db0d4f9ecf4c02137d2a8, type: 3}
+    energy: 1
+    rangeType: 1
+    range: 2
+    attackDamage: 5
+    attackType: 2
+    splashRange: 1
+    lineWide: 1
+    cardCount: 5
+  - name: Area Wide1
+    sprite: {fileID: 21300000, guid: daf2ab606d4db0d4f9ecf4c02137d2a8, type: 3}
+    energy: 1
+    rangeType: 1
+    range: 3
+    attackDamage: 8
+    attackType: 1
+    splashRange: 1
+    lineWide: 1
+    cardCount: 1241243

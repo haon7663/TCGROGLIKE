@@ -99,8 +99,45 @@ public static class HexDirectionExtension
         return hexNodes;
     }
 
-    public static List<HexNode> GetDiagonal(HexCoords hexCoords, List<HexNode> hexNodes, Unit unit, int range)
+    public static List<HexNode> diagonalNode;
+    public static HexNode GetThisHexNode(HexNode hexNode, bool isNeighbor = false)
     {
+        HexNode resultNode = hexNode;
+        if(isNeighbor && diagonalNode.Contains(resultNode))
+        {
+            float distance = 999999;
+            foreach(HexNode hex in GridManager.Inst.selectedNode)
+            {
+            }
+        }
+        return resultNode;
+    }
+
+    public static void SetDiagonal(HexCoords hexCoords, HexDirection direction, List<HexNode> hexNodes, Unit unit, int range)
+    {
+        List<HexNode> linerNode = new List<HexNode>();
+        for (int i = 0; i < range; i++)
+        {
+            foreach (HexDirection hexDirection in Loop(HexDirection.E))
+            {
+                var pos = (hexCoords + hexDirection.Coords() * (i + 1)).Pos;
+                linerNode.Add(GridManager.Inst.GetTileAtPosition(pos));
+            }
+        }
+
+        hexCoords += direction.Coords() * range;
+        List<HexNode> resultNode = new List<HexNode>();
+        foreach (HexNode hexNode in Area(unit.hexCoords, range))
+            if (!hexNodes.Contains(hexNode) && !linerNode.Contains(hexNode))
+                if (DiagonalRange(hexCoords._q, hexNode.Coords._q, range) && DiagonalRange(hexCoords._r, hexNode.Coords._r, range) && DiagonalRange(hexCoords._s, hexNode.Coords._s, range))
+                    resultNode.Add(hexNode);
+
+        diagonalNode = resultNode;
+    }
+
+    public static List<HexNode> GetDiagonal(HexCoords hexCoords, HexDirection direction, List<HexNode> hexNodes, Unit unit, int range)
+    {
+        hexCoords += hexCoords + direction.Coords() * range;
         List<HexNode> resultNode = new List<HexNode>();
         foreach (HexNode hexNode in Area(unit.hexCoords, range))
             if (!hexNodes.Contains(hexNode))

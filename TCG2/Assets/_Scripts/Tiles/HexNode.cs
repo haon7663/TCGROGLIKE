@@ -71,11 +71,16 @@ public class HexNode : MonoBehaviour
         OnHoverTile(this);
     }
 
-    public void SetColor(Color color) => spriteRenderer.color = color;
+    public void SetColor(Color color)
+    {
+        GridManager.Inst.selectedNode.Add(this);
+        spriteRenderer.color = color;
+    }
 
     public void RevertTile()
     {
         spriteRenderer.color = defaultColor;
+        GridManager.Inst.selectedNode.Remove(this);
         moveable = false;
         attackable = false;
     }

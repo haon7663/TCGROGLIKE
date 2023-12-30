@@ -55,7 +55,7 @@ public class Unit_Attack : MonoBehaviour
                 hexNodes.Add(hexNode);
                 break;
             case AttackType.Wide:
-                hexNodes.AddRange(HexDirectionExtension.GetDiagonal(unit.hexCoords + hexDirection.Coords() * item.range, hexNodes, unit, item.range));
+                hexNodes.AddRange(HexDirectionExtension.GetDiagonal(unit.hexCoords, hexDirection, hexNodes, unit, item.range));
                 break;
             case AttackType.Liner:
                 for (int i = 0; i < item.range; i++)

@@ -121,7 +121,6 @@ public class CardManager : MonoBehaviour
 
     List<PRS> RoundAlignment(int objCount, float height, Vector3 scale)
     {
-        Debug.Log(objCount);
         float[] objLerps = new float[objCount];
         List<PRS> results = new List<PRS>(objCount);
 
@@ -189,6 +188,9 @@ public class CardManager : MonoBehaviour
     {
         if (selectedCard == card) return;
         EnlargeCard(false, card);
+
+        if (!selectedCard) GridManager.Inst.RevertTiles();
+        if (hoveredCard == card) hoveredCard = null;
     }
     public void CardMouseDown(Card card)
     {
@@ -204,11 +206,15 @@ public class CardManager : MonoBehaviour
         if (eCardState != ECardState.CanMouseDrag)
             return;
 
-        selectedCard = null;
+        GridManager.Inst.RevertTiles();
         if (!onMyCardArea)
             TryPutCard();
         else
+        {
+            selectedCard = null;
+            hoveredCard = null;
             EnlargeCard(false, card);
+        }
     }
 
     void CardDrag()
