@@ -14,6 +14,8 @@ public class HexNode : MonoBehaviour
     [SerializeField] Gradient walkableColor;
     [SerializeField] SpriteRenderer spriteRenderer;
     [SerializeField] TMP_Text coordsText;
+    [SerializeField] GameObject selectAbleObject;
+    [SerializeField] GameObject attackAbleObject;
     [SerializeField] GameObject displayMoveObject;
     [SerializeField] GameObject displayAttackObject;
 
@@ -63,23 +65,23 @@ public class HexNode : MonoBehaviour
     protected virtual void OnMouseDown()
     {
         if (!Walkable) return;
-        OnClickTile(this);
+        OnClickTile(HexDirectionExtension.GetThisHexNode(this));
     }
     protected virtual void OnMouseOver()
     {
         if (!Walkable) return;
-        OnHoverTile(this);
+        OnHoverTile(HexDirectionExtension.GetThisHexNode(this));
     }
 
     public void SetColor(Color color)
     {
         GridManager.Inst.selectedNode.Add(this);
-        spriteRenderer.color = color;
+        selectAbleObject.SetActive(true);
     }
 
     public void RevertTile()
     {
-        spriteRenderer.color = defaultColor;
+        selectAbleObject.SetActive(false);
         GridManager.Inst.selectedNode.Remove(this);
         moveable = false;
         attackable = false;
@@ -127,7 +129,7 @@ public struct HexCoords
         _q = q;
         _r = r;
         _s = -q - r;
-        Pos = _q * new Vector2(Sqrt3, 0) + _r * new Vector2(Sqrt3 / 2, 1.5f);
+        Pos = _q * new Vector2(HexSize * 2, 0) + _r * new Vector2(HexSize, HexSize);
     }
     public HexCoords(float q, float r)
     {
@@ -136,7 +138,7 @@ public struct HexCoords
         _q = sq;
         _r = sr;
         _s = -sq - sr;
-        Pos = sq * new Vector2(Sqrt3, 0) + sr * new Vector2(Sqrt3 / 2, 1.5f);
+        Pos = sq * new Vector2(HexSize * 2, 0) + sr * new Vector2(HexSize, HexSize);
     }
 
     public static HexCoords operator +(HexCoords a, HexCoords b)
@@ -169,9 +171,11 @@ public struct HexCoords
     public static bool operator !=(HexCoords a, HexCoords b)
         => a._q != b._q || a._r != b._r;
 
-    public float GetDistance(HexCoords other) => (this - (HexCoords)other).AxialLength();
+    public float GetDistance(HexCoords other) => (this - other).AxialLength();
 
     private static readonly float Sqrt3 = Mathf.Sqrt(3);
+
+    private static readonly float HexSize = 1.0625f;
 
     public Vector2 Pos { get; set; }
 

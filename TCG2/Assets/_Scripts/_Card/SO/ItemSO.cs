@@ -18,7 +18,7 @@ public class Item
     public int attackDamage;
     public AttackType attackType;
     [DrawIf("attackType", AttackType.Splash)] public int splashRange = 1;
-    [DrawIf("attackType", AttackType.Liner)] public int lineWide = 1;
+    [DrawIf("attackType", AttackType.Liner)] public int lineWidth = 1;
 
     [Header("카드 개수")]
     public int cardCount;

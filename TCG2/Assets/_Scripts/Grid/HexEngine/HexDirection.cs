@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -99,61 +100,61 @@ public static class HexDirectionExtension
         return hexNodes;
     }
 
-    public static List<HexNode> diagonalNode;
     public static HexNode GetThisHexNode(HexNode hexNode, bool isNeighbor = false)
     {
         HexNode resultNode = hexNode;
-        if(isNeighbor && diagonalNode.Contains(resultNode))
+        /*if (isNeighbor && blindNode.Contains(hexNode))
         {
-            float distance = 999999;
-            foreach(HexNode hex in GridManager.Inst.selectedNode)
+            float minDistance = 10000;
+            var findedNode = GridManager.Inst.selectedNode.Except(blindNode).ToList();
+            foreach (HexNode hex in findedNode)
             {
+                if(hex.GetDistance(hexNode) < minDistance)
+                {
+                    minDistance = hex.GetDistance(hexNode);
+                    resultNode = hex;
+                }
             }
-        }
+        }*/
         return resultNode;
     }
 
-    public static void SetDiagonal(HexCoords hexCoords, HexDirection direction, List<HexNode> hexNodes, Unit unit, int range)
+    public static List<HexNode> GetLiner(HexCoords hexCoords, HexDirection hexDirection, int range, int width = 1)
     {
         List<HexNode> linerNode = new List<HexNode>();
         for (int i = 0; i < range; i++)
         {
-            foreach (HexDirection hexDirection in Loop(HexDirection.E))
+            var floorWide = Mathf.FloorToInt((float)width / 2);
+            for (int j = -floorWide; j <= floorWide; j++)
             {
-                var pos = (hexCoords + hexDirection.Coords() * (i + 1)).Pos;
-                linerNode.Add(GridManager.Inst.GetTileAtPosition(pos));
+                var pos = (hexCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i).Pos;
+                if (GridManager.Inst.Tiles.ContainsKey(pos))
+                    linerNode.Add(GridManager.Inst.GetTileAtPosition(pos));
             }
         }
-
-        hexCoords += direction.Coords() * range;
-        List<HexNode> resultNode = new List<HexNode>();
-        foreach (HexNode hexNode in Area(unit.hexCoords, range))
-            if (!hexNodes.Contains(hexNode) && !linerNode.Contains(hexNode))
-                if (DiagonalRange(hexCoords._q, hexNode.Coords._q, range) && DiagonalRange(hexCoords._r, hexNode.Coords._r, range) && DiagonalRange(hexCoords._s, hexNode.Coords._s, range))
-                    resultNode.Add(hexNode);
-
-        diagonalNode = resultNode;
+        return linerNode;
     }
 
-    public static List<HexNode> GetDiagonal(HexCoords hexCoords, HexDirection direction, List<HexNode> hexNodes, Unit unit, int range)
+    public static List<HexNode> GetDiagonal(HexCoords hexCoords, HexDirection hexDirection, int range, bool isSubtract = false)
     {
-        hexCoords += hexCoords + direction.Coords() * range;
         List<HexNode> resultNode = new List<HexNode>();
-        foreach (HexNode hexNode in Area(unit.hexCoords, range))
-            if (!hexNodes.Contains(hexNode))
-                if (DiagonalRange(hexCoords._q, hexNode.Coords._q, range) && DiagonalRange(hexCoords._r, hexNode.Coords._r, range) && DiagonalRange(hexCoords._s, hexNode.Coords._s, range))
+        var directionCoords = hexCoords + hexDirection.Coords() * range;
+
+        foreach (HexNode hexNode in Area(hexCoords, range))
+            if (!isSubtract || !GetLiner(hexCoords, hexDirection, range).Contains(hexNode))
+                if (DiagonalRange(directionCoords._q, hexNode.Coords._q, hexCoords._q, range) && DiagonalRange(directionCoords._r, hexNode.Coords._r, hexCoords._r, range) && DiagonalRange(directionCoords._s, hexNode.Coords._s, hexCoords._s, range))
                     resultNode.Add(hexNode);
 
         return resultNode;
     }
 
-    public static bool DiagonalRange(int value, int nodeValue, int range)
+    public static bool DiagonalRange(int value, int nodeValue, int unitValue, int range)
     {
-        if (value == 0)
+        if (value == unitValue)
             return true;
-        if (value == range && nodeValue >= 0 && nodeValue <= range)
+        if (value == range + unitValue && nodeValue >= unitValue && nodeValue <= range + unitValue)
             return true;
-        else if (value == -range && nodeValue <= 0 && nodeValue >= -range)
+        else if (value == -range + unitValue && nodeValue <= unitValue && nodeValue >= -range + unitValue)
             return true;
         else
             return false;
@@ -200,5 +201,19 @@ public static class HexDirectionExtension
     public static HexDirection ToDirection(this HexCoords coords)
     {
         return (HexDirection)Array.IndexOf(_coords, coords);
+    }
+
+    public static HexDirection GetSignDirection(this HexCoords coords)
+    {
+        return new HexCoords(SignZero(coords._q), SignZero(coords._r)).ToDirection();
+    }
+    static int SignZero(int value)
+    {
+        if (value > 0)
+            return 1;
+        else if (value < 0)
+            return -1;
+        else
+            return 0;
     }
 }

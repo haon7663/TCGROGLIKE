@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Unit : MonoBehaviour
@@ -8,6 +10,9 @@ public class Unit : MonoBehaviour
 
     public HexCoords hexCoords = new HexCoords(0, 0);
 
+    [HideInInspector] public List<HexNode> selectAbleNodes;
+    [HideInInspector] public List<HexNode> blindNodes;
+     
     void Start()
     {
         if (transform.GetChild(0).TryGetComponent(out SpriteRenderer spriteRenderer))

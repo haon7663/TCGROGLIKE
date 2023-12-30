@@ -23,7 +23,7 @@ public class Unit_Attack : MonoBehaviour
                 {
                     foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                     {
-                        var floorWide = Mathf.FloorToInt((float)item.lineWide / 2);
+                        var floorWide = Mathf.FloorToInt((float)item.lineWidth / 2);
                         for (int j = -floorWide; j <= floorWide; j++)
                         {
                             var pos = (unit.hexCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i).Pos;
@@ -47,27 +47,18 @@ public class Unit_Attack : MonoBehaviour
         GridManager.Inst.RevertAbles();
         List<HexNode> hexNodes = new List<HexNode>();
 
-        var hexCoords = hexNode.Coords - unit.hexCoords;
-        var hexDirection = new HexCoords(SignZero(hexCoords._q), SignZero(hexCoords._r)).ToDirection();
+        var hexDirection = (hexNode.Coords - unit.hexCoords).GetSignDirection();
+        //Debug.Log(hexDirection.Coords()._q.ToString() + "/" + hexDirection.Coords()._r.ToString());
         switch (item.attackType)
         {
             case AttackType.Single:
                 hexNodes.Add(hexNode);
                 break;
             case AttackType.Wide:
-                hexNodes.AddRange(HexDirectionExtension.GetDiagonal(unit.hexCoords, hexDirection, hexNodes, unit, item.range));
+                hexNodes.AddRange(HexDirectionExtension.GetDiagonal(unit.hexCoords, hexDirection, item.range));
                 break;
             case AttackType.Liner:
-                for (int i = 0; i < item.range; i++)
-                {
-                    var floorWide = Mathf.FloorToInt((float)item.lineWide / 2);
-                    for (int j = -floorWide; j <= floorWide; j++)
-                    {
-                        var pos = (unit.hexCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i).Pos;
-                        if (GridManager.Inst.Tiles.ContainsKey(pos))
-                            hexNodes.Add(GridManager.Inst.GetTileAtPosition(pos));
-                    }
-                }
+                hexNodes.AddRange(HexDirectionExtension.GetLiner(unit.hexCoords, hexDirection, item.range, item.lineWidth));
                 break;
         }
         return hexNodes;
@@ -76,15 +67,5 @@ public class Unit_Attack : MonoBehaviour
     public void OnAttack()
     {
         GridManager.Inst.RevertTiles();
-    }
-
-    int SignZero(int value)
-    {
-        if (value > 0)
-            return 1;
-        else if (value < 0)
-            return -1;
-        else
-            return 0;
     }
 }
