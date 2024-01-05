@@ -5,14 +5,11 @@ using DG.Tweening;
 
 public class Unit_Move : MonoBehaviour
 {
+    Unit unit;
+    void Awake() => unit = GetComponent<Unit>();
+
     public int range;
     public RangeType rangeType;
-
-    Unit unit;
-    void Awake()
-    {
-        unit = GetComponent<Unit>();
-    }
 
     void OnEnable()
     {
@@ -22,13 +19,13 @@ public class Unit_Move : MonoBehaviour
             {
                 foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                 {
-                    GridManager.Inst.OnMoveSelect(unit.hexCoords + hexDirection.Coords() * i);
+                    GridManager.Inst.OnMoveSelect(unit.coords + hexDirection.Coords() * i);
                 }
             }
         }
         else if (rangeType == RangeType.Area)
         {
-            foreach (HexNode hexNode in HexDirectionExtension.Area(unit.hexCoords, range))
+            foreach (HexNode hexNode in HexDirectionExtension.Area(unit.coords, range))
             {
                 GridManager.Inst.OnMoveSelect(hexNode.Coords);
             }
@@ -46,18 +43,15 @@ public class Unit_Move : MonoBehaviour
         return hexNode;
     }
 
-    public void OnMove(HexCoords targetCoords, bool useDotween = true, float dotweenTime = 0.2f, Ease ease = Ease.InCirc)
+    public void OnMove(HexCoords targetCoords, bool useDotween = true, float dotweenTime = 0.2f, Ease ease = Ease.Linear)
     {
         GridManager.Inst.RevertTiles();
         if (useDotween)
-        {
             transform.DOMove(targetCoords.Pos, dotweenTime).SetEase(ease);
-        }
         else
-        {
             transform.position = targetCoords.Pos;
-        }
 
-        unit.hexCoords = targetCoords;
+        GridManager.Inst.OnTileMove(unit.coords, targetCoords, unit);
+        unit.coords = targetCoords;
     }
 }

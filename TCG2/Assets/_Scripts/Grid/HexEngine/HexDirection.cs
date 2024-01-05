@@ -96,30 +96,10 @@ public static class HexDirectionExtension
             if (Cube_distance(unitCoords, tile.Value.Coords) <= range)
                 hexNodes.Add(tile.Value);
         }
-
         return hexNodes;
     }
 
-    public static HexNode GetThisHexNode(HexNode hexNode, bool isNeighbor = false)
-    {
-        HexNode resultNode = hexNode;
-        /*if (isNeighbor && blindNode.Contains(hexNode))
-        {
-            float minDistance = 10000;
-            var findedNode = GridManager.Inst.selectedNode.Except(blindNode).ToList();
-            foreach (HexNode hex in findedNode)
-            {
-                if(hex.GetDistance(hexNode) < minDistance)
-                {
-                    minDistance = hex.GetDistance(hexNode);
-                    resultNode = hex;
-                }
-            }
-        }*/
-        return resultNode;
-    }
-
-    public static List<HexNode> GetLiner(HexCoords hexCoords, HexDirection hexDirection, int range, int width = 1)
+    public static List<HexNode> Liner(HexCoords unitCoords, HexDirection hexDirection, int range, int width = 1)
     {
         List<HexNode> linerNode = new List<HexNode>();
         for (int i = 0; i < range; i++)
@@ -127,7 +107,7 @@ public static class HexDirectionExtension
             var floorWide = Mathf.FloorToInt((float)width / 2);
             for (int j = -floorWide; j <= floorWide; j++)
             {
-                var pos = (hexCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i).Pos;
+                var pos = (unitCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i).Pos;
                 if (GridManager.Inst.Tiles.ContainsKey(pos))
                     linerNode.Add(GridManager.Inst.GetTileAtPosition(pos));
             }
@@ -135,15 +115,18 @@ public static class HexDirectionExtension
         return linerNode;
     }
 
-    public static List<HexNode> GetDiagonal(HexCoords hexCoords, HexDirection hexDirection, int range, bool isSubtract = false)
+    public static List<HexNode> Diagonal(HexCoords unitCoords, HexDirection hexDirection, int range, bool onSelf = false, bool isSubtract = false)
     {
         List<HexNode> resultNode = new List<HexNode>();
-        var directionCoords = hexCoords + hexDirection.Coords() * range;
+        var directionCoords = unitCoords + hexDirection.Coords() * range;
 
-        foreach (HexNode hexNode in Area(hexCoords, range))
-            if (!isSubtract || !GetLiner(hexCoords, hexDirection, range).Contains(hexNode))
-                if (DiagonalRange(directionCoords._q, hexNode.Coords._q, hexCoords._q, range) && DiagonalRange(directionCoords._r, hexNode.Coords._r, hexCoords._r, range) && DiagonalRange(directionCoords._s, hexNode.Coords._s, hexCoords._s, range))
+        foreach (HexNode hexNode in Area(unitCoords, range))
+            if (!isSubtract || !Liner(unitCoords, hexDirection, range).Contains(hexNode))
+                if (DiagonalRange(directionCoords._q, hexNode.Coords._q, unitCoords._q, range) && DiagonalRange(directionCoords._r, hexNode.Coords._r, unitCoords._r, range) && DiagonalRange(directionCoords._s, hexNode.Coords._s, unitCoords._s, range))
                     resultNode.Add(hexNode);
+
+        if(onSelf)
+            resultNode.Add(GridManager.Inst.Tiles[unitCoords.Pos]);
 
         return resultNode;
     }

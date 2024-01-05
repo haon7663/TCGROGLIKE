@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nodeBasePrefab: {fileID: 87177624152293783, guid: 238bb54f7085cc2458e7212ed6a73eea, type: 3}
   _obstacleWeight: 0
-  _gridWidth: 11
-  _gridDepth: 9
+  _gridWidth: 13
+  _gridDepth: 11

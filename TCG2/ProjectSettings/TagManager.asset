@@ -44,9 +44,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Player
+  - name: Unit
     uniqueID: 3202566945
+    locked: 0
+  - name: VFX
+    uniqueID: 521828221
     locked: 0
   - name: Card
     uniqueID: 3862007791
+    locked: 0
+  - name: UI
+    uniqueID: 523117631
     locked: 0

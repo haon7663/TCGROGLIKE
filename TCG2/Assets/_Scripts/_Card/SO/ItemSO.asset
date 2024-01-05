@@ -13,53 +13,123 @@ MonoBehaviour:
   m_Name: ItemSO
   m_EditorClassIdentifier: 
   items:
-  - name: Area Single
+  - name: Melee Attack
     sprite: {fileID: 21300000, guid: daf2ab606d4db0d4f9ecf4c02137d2a8, type: 3}
+    prefab: {fileID: 0}
     energy: 1
+    value: 0
+    cardType: 0
     rangeType: 1
-    range: 2
-    attackDamage: 5
+    range: 1
+    canSelectAll: 1
     attackType: 0
     splashRange: 1
     lineWidth: 1
+    multiShot: 1
+    isPenetrate: 0
+    cardCount: 4
+  - name: Area Single
+    sprite: {fileID: 21300000, guid: daf2ab606d4db0d4f9ecf4c02137d2a8, type: 3}
+    prefab: {fileID: 0}
+    energy: 1
+    value: 0
+    cardType: 0
+    rangeType: 1
+    range: 2
+    canSelectAll: 1
+    attackType: 0
+    splashRange: 1
+    lineWidth: 1
+    multiShot: 1
+    isPenetrate: 0
     cardCount: 5
   - name: Liner
     sprite: {fileID: 21300000, guid: daf2ab606d4db0d4f9ecf4c02137d2a8, type: 3}
+    prefab: {fileID: 253454770491110429, guid: 47b824ccd26e83841b6d5339a0288450, type: 3}
     energy: 1
+    value: 7
+    cardType: 0
     rangeType: 0
     range: 5
-    attackDamage: 5
+    canSelectAll: 1
     attackType: 3
     splashRange: 1
     lineWidth: 1
+    multiShot: 1
+    isPenetrate: 0
     cardCount: 5
-  - name: Area Splash
+  - name: Multi Liner
     sprite: {fileID: 21300000, guid: daf2ab606d4db0d4f9ecf4c02137d2a8, type: 3}
+    prefab: {fileID: 253454770491110429, guid: 47b824ccd26e83841b6d5339a0288450, type: 3}
     energy: 1
-    rangeType: 1
-    range: 2
-    attackDamage: 5
-    attackType: 2
+    value: 5
+    cardType: 0
+    rangeType: 0
+    range: 3
+    canSelectAll: 1
+    attackType: 3
     splashRange: 1
     lineWidth: 1
+    multiShot: 3
+    isPenetrate: 0
     cardCount: 5
   - name: Area Wide1
     sprite: {fileID: 21300000, guid: daf2ab606d4db0d4f9ecf4c02137d2a8, type: 3}
+    prefab: {fileID: 0}
     energy: 1
+    value: 0
+    cardType: 0
     rangeType: 1
-    range: 4
-    attackDamage: 8
+    range: 1
+    canSelectAll: 1
     attackType: 1
     splashRange: 1
     lineWidth: 1
+    multiShot: 1
+    isPenetrate: 0
     cardCount: 5
-  - name: Melee Attack
+  - name: Area LongWide
     sprite: {fileID: 21300000, guid: daf2ab606d4db0d4f9ecf4c02137d2a8, type: 3}
+    prefab: {fileID: 0}
     energy: 1
+    value: 0
+    cardType: 0
     rangeType: 1
-    range: 1
-    attackDamage: 1
-    attackType: 0
+    range: 2
+    canSelectAll: 0
+    attackType: 1
     splashRange: 1
     lineWidth: 1
+    multiShot: 1
+    isPenetrate: 0
+    cardCount: 5
+  - name: Area Splash
+    sprite: {fileID: 21300000, guid: daf2ab606d4db0d4f9ecf4c02137d2a8, type: 3}
+    prefab: {fileID: 0}
+    energy: 1
+    value: 0
+    cardType: 0
+    rangeType: 1
+    range: 2
+    canSelectAll: 1
+    attackType: 2
+    splashRange: 1
+    lineWidth: 1
+    multiShot: 1
+    isPenetrate: 0
+    cardCount: 5
+  - name: Emission
+    sprite: {fileID: 21300000, guid: daf2ab606d4db0d4f9ecf4c02137d2a8, type: 3}
+    prefab: {fileID: 0}
+    energy: 1
+    value: 0
+    cardType: 0
+    rangeType: 1
+    range: 3
+    canSelectAll: 0
+    attackType: 4
+    splashRange: 1
+    lineWidth: 1
+    multiShot: 3
+    isPenetrate: 0
     cardCount: 5

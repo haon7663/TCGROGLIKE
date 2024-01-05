@@ -18,7 +18,7 @@ public class TurnManager : MonoBehaviour
     public bool isLoading;
     public bool myTurn;
 
-    enum ETurnMode { Random, My, Other }
+    enum ETurnMode { My, Other }
     WaitForSeconds delay05 = new WaitForSeconds(0.5f);
     WaitForSeconds delay07 = new WaitForSeconds(0.7f);
 
@@ -31,9 +31,6 @@ public class TurnManager : MonoBehaviour
             delay05 = new WaitForSeconds(0.05f);
         switch (eTurnMode)
         {
-            case ETurnMode.Random:
-                myTurn = Random.Range(0, 2) == 0;
-                break;
             case ETurnMode.My:
                 myTurn = true;
                 break;

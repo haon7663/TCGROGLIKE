@@ -5,32 +5,35 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 using System.Linq;
 
+public enum SelectOutline
+{
+    MoveSelect, AttackSelect, DamageAble,
+}
+
 public class HexNode : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField]
-    Color obstacleColor;
+    [SerializeField] Color obstacleColor;
 
     [SerializeField] Gradient walkableColor;
     [SerializeField] SpriteRenderer spriteRenderer;
     [SerializeField] TMP_Text coordsText;
-    [SerializeField] GameObject selectAbleObject;
-    [SerializeField] GameObject attackAbleObject;
+    [SerializeField] GameObject moveSelectObject;
+    [SerializeField] GameObject attackSelectObject;
+    [SerializeField] GameObject damageAbleObject;
     [SerializeField] GameObject displayMoveObject;
     [SerializeField] GameObject displayAttackObject;
 
     public HexCoords Coords;
     public float GetDistance(HexNode other) => Coords.GetDistance(other.Coords); // Helper to reduce noise in pathfinding
     public bool Walkable { get; private set; }
-    public bool moveable, attackable;
-    Color defaultColor;
+    public bool moveAble, attackAble, damageAble;
 
     public virtual void Init(bool walkable, HexCoords coords)
     {
         Walkable = walkable;
 
         spriteRenderer.color = walkable ? walkableColor.Evaluate(Random.Range(0f, 1f)) : obstacleColor;
-        defaultColor = spriteRenderer.color;
 
         Coords = coords;
         coordsText.text = "q: " + coords._q + ", r: " + coords._r + "  s: " + coords._s;
@@ -39,22 +42,26 @@ public class HexNode : MonoBehaviour
 
     void OnClickTile(HexNode selected)
     {
-        if(moveable)
+        //Debug.Log("Moveable: " + moveAble.ToString() + "/ Attackable: " + attackAble.ToString());
+        if(moveAble)
         {
             UnitManager.sUnit_Move.OnMove(selected.Coords);
         }
-        else if(attackable)
+        else if(attackAble)
         {
             UnitManager.sUnit_Attack.OnAttack();
         }
     }
     void OnHoverTile(HexNode selected)
     {
-        if (moveable)
+        if (!moveAble && !attackAble) return;
+        UnitManager.sUnit.Repeat(selected);
+
+        if (moveAble)
         {
             UnitManager.sUnit_Move.GetArea(selected).displayMoveObject.SetActive(true);
         }
-        else if (attackable)
+        else if (attackAble)
         {
             foreach (HexNode hexNode in UnitManager.sUnit_Attack.GetArea(selected))
             {
@@ -62,29 +69,55 @@ public class HexNode : MonoBehaviour
             }
         }
     }
-    protected virtual void OnMouseDown()
+    void OnExitTile(HexNode selected)
     {
-        if (!Walkable) return;
-        OnClickTile(HexDirectionExtension.GetThisHexNode(this));
-    }
-    protected virtual void OnMouseOver()
-    {
-        if (!Walkable) return;
-        OnHoverTile(HexDirectionExtension.GetThisHexNode(this));
+        if (!moveAble && !attackAble) return;
+
+        GridManager.Inst.RevertAbles();
     }
 
-    public void SetColor(Color color)
+    void OnMouseDown()
+    {
+        if (!Walkable) return;
+        OnClickTile(this);
+    }
+    void OnMouseOver()
+    {
+        if (!Walkable) return;
+        OnHoverTile(this);
+    }
+    void OnMouseExit()
+    {
+        OnExitTile(this);
+    }
+
+    public void SetSelectOutline(SelectOutline selectLine)
     {
         GridManager.Inst.selectedNode.Add(this);
-        selectAbleObject.SetActive(true);
+
+        switch (selectLine)
+        {
+            case SelectOutline.MoveSelect:
+                moveSelectObject.SetActive(true);
+                break;
+            case SelectOutline.AttackSelect:
+                attackSelectObject.SetActive(true);
+                break;
+            case SelectOutline.DamageAble:
+                damageAbleObject.SetActive(true);
+                break;
+        }
     }
 
     public void RevertTile()
     {
-        selectAbleObject.SetActive(false);
+        moveSelectObject.SetActive(false);
+        attackSelectObject.SetActive(false);
+        damageAbleObject.SetActive(false);
+
         GridManager.Inst.selectedNode.Remove(this);
-        moveable = false;
-        attackable = false;
+        moveAble = false;
+        attackAble = false;
     }
 
     public void RevertAble()
@@ -129,7 +162,7 @@ public struct HexCoords
         _q = q;
         _r = r;
         _s = -q - r;
-        Pos = _q * new Vector2(HexSize * 2, 0) + _r * new Vector2(HexSize, HexSize);
+        Pos = _q * new Vector2(HexSize * 2, 0) + _r * new Vector2(HexSize, 1.03125f);
     }
     public HexCoords(float q, float r)
     {
@@ -186,5 +219,18 @@ public struct HexCoords
         if (_q <= 0 && _r > 0) return -_q < _r ? _r : -_q;
         if (_q < 0) return -_q - _r;
         return -_r > _q ? -_r : _q;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is HexCoords coords &&
+               _q == coords._q &&
+               _r == coords._r &&
+               _s == coords._s;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(_q, _r, _s);
     }
 }

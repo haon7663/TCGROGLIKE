@@ -23,7 +23,7 @@ public static class Pathfinding
             processed.Add(current);
             toSearch.Remove(current);
 
-            current.SetColor(ClosedColor);
+            current.SetSelectOutline(SelectOutline.MoveSelect);
 
             if (current == targetNode)
             {
@@ -38,8 +38,8 @@ public static class Pathfinding
                     if (count < 0) throw new Exception();
                 }
 
-                foreach (var tile in path) tile.SetColor(PathColor);
-                startNode.SetColor(PathColor);
+                foreach (var tile in path) tile.SetSelectOutline(SelectOutline.MoveSelect);
+                startNode.SetSelectOutline(SelectOutline.MoveSelect);
                 Debug.Log(path.Count);
                 return path;
             }
@@ -59,7 +59,7 @@ public static class Pathfinding
                     {
                         neighbor.SetH(neighbor.GetDistance(targetNode));
                         toSearch.Add(neighbor);
-                        neighbor.SetColor(OpenColor);
+                        neighbor.SetSelectOutline(SelectOutline.MoveSelect);
                     }
                 }
             }
