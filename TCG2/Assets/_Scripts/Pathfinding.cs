@@ -23,7 +23,7 @@ public static class Pathfinding
             processed.Add(current);
             toSearch.Remove(current);
 
-            current.SetSelectOutline(SelectOutline.MoveSelect);
+            //current.SetSelectOutline(SelectOutline.MoveSelect);
 
             if (current == targetNode)
             {
@@ -37,14 +37,11 @@ public static class Pathfinding
                     count--;
                     if (count < 0) throw new Exception();
                 }
-
-                foreach (var tile in path) tile.SetSelectOutline(SelectOutline.MoveSelect);
-                startNode.SetSelectOutline(SelectOutline.MoveSelect);
-                Debug.Log(path.Count);
+                path.Remove(targetNode);
                 return path;
             }
 
-            foreach (var neighbor in current.Neighbors.Where(t => t.Walkable && !processed.Contains(t)))
+            foreach (var neighbor in current.Neighbors.Where(t => (t.walkAble || t == startNode || t == targetNode) && !processed.Contains(t)))
             {
                 var inSearch = toSearch.Contains(neighbor);
 
@@ -59,7 +56,7 @@ public static class Pathfinding
                     {
                         neighbor.SetH(neighbor.GetDistance(targetNode));
                         toSearch.Add(neighbor);
-                        neighbor.SetSelectOutline(SelectOutline.MoveSelect);
+                        //neighbor.SetSelectOutline(SelectOutline.MoveSelect);
                     }
                 }
             }

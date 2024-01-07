@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using Random = UnityEngine.Random;
 
+public enum Paze { Draw, Move, Card, End, Enemy }
 public class TurnManager : MonoBehaviour
 {
     public static TurnManager Inst { get; private set; }
@@ -11,24 +12,27 @@ public class TurnManager : MonoBehaviour
 
     [Header("Develop")]
     [SerializeField][Tooltip("시작 턴 모드를 정합니다")] ETurnMode eTurnMode;
-    [SerializeField][Tooltip("카드 배분이 매우 빨라집니다")] bool fastMode;
     [SerializeField][Tooltip("시작 카드 개수를 정합니다")] int startCardCount;
 
     [Header("Properties")]
-    public bool isLoading;
+    public Paze paze = Paze.Draw;
     public bool myTurn;
 
+    [Header("Resources")]
+    [SerializeField] int maxMoveCost;
+    [SerializeField] int maxEnergy;
+    public int MoveCost { get; private set; }
+    public int Energy { get; private set; }
+
     enum ETurnMode { My, Other }
-    WaitForSeconds delay05 = new WaitForSeconds(0.5f);
-    WaitForSeconds delay07 = new WaitForSeconds(0.7f);
+    readonly WaitForSeconds delay05 = YieldInstructionCache.WaitForSeconds(0.05f);
+    readonly WaitForSeconds delay7 = YieldInstructionCache.WaitForSeconds(0.7f);
 
     public static Action OnAddCard;
     public static event Action<bool> OnTurnStarted;
 
-    void GameSetUp()
+    public void GameSetUp()
     {
-        if (fastMode)
-            delay05 = new WaitForSeconds(0.05f);
         switch (eTurnMode)
         {
             case ETurnMode.My:
@@ -38,37 +42,33 @@ public class TurnManager : MonoBehaviour
                 myTurn = false;
                 break;
         }
-    }
-
-    public IEnumerator StartGameCo()
-    {
-        GameSetUp();
-        isLoading = true;
-        for(int i = 0; i < startCardCount; i++)
-        {
-            yield return delay05;
-            OnAddCard?.Invoke();
-        }
         StartCoroutine(StartTurnCo());
     }
 
     IEnumerator StartTurnCo()
     {
-        isLoading = true;
+        MoveCost = maxMoveCost;
+        Energy = maxEnergy;
 
-        if(myTurn)
-            GameManager.Inst.Nodification("나의 턴");
-
-        yield return delay07;
-        OnAddCard?.Invoke();
-        yield return delay07;
-        isLoading = false;
+        paze = Paze.Draw;
+        for (int i = 0; i < startCardCount; i++)
+        {
+            yield return delay05;
+            OnAddCard?.Invoke();
+        }
+        yield return delay7;
+        paze = Paze.Move;
+        yield return new WaitUntil(() => MoveCost <= 0);
+        paze = Paze.Card;
         OnTurnStarted?.Invoke(myTurn);
     }
+
+    public static void UseMoveCost(int value) => Inst.MoveCost = Inst.MoveCost >= value ? Inst.MoveCost - value : 0;
+    public static void UseEnergy(int value) => Inst.Energy = Inst.Energy >= value ? Inst.Energy - value : 0;
 
     public void EndTurn()
     {
         myTurn = !myTurn;
         StartCoroutine(StartTurnCo());
-    }    
+    }
 }

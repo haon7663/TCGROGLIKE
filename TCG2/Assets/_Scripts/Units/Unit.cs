@@ -31,8 +31,10 @@ public class Unit : MonoBehaviour
         HealthManager.Inst.GenerateHealthBar(this);
 
         coords = new HexCoords(Random.Range(-3, 4), Random.Range(-3, 4));
-        transform.position = coords.Pos;
+        transform.position = (Vector3)coords.Pos - Vector3.forward;
         GridManager.Inst.OnTile(coords, this);
+
+        spriteRenderer.sortingOrder = -coords._r;
     }
 
     public void Repeat(HexNode hexNode)
@@ -49,5 +51,10 @@ public class Unit : MonoBehaviour
             HealthManager.Inst.SetFilled(this);
             return true;
         }
+    }
+
+    void OnMouseDown()
+    {
+        UnitManager.Inst.SelectUnit(this);
     }
 }

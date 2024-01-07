@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class GameManager : MonoBehaviour
     void Awake() => Inst = this;
 
     [SerializeField] NotificationPanel notificationPanel;
+    [SerializeField] TMP_Text pazeText;
 
     void Start()
     {
@@ -16,6 +18,8 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        pazeText.text = "Paze: " + TurnManager.Inst.paze.ToString();
+
 #if UNITY_EDITOR
         InputCheatKey();
 #endif
@@ -38,7 +42,7 @@ public class GameManager : MonoBehaviour
 
     void StartGame()
     {
-        StartCoroutine(TurnManager.Inst.StartGameCo());
+        TurnManager.Inst.GameSetUp();
     }
 
     public void Nodification(string message)

@@ -11,6 +11,7 @@ public class GridManager : MonoBehaviour
         Inst = this;
 
         Tiles = _scriptableGrid.GenerateGrid();
+        foreach (var tile in Tiles.Values) tile.CacheNeighbors();
         OnTileUnits = new Dictionary<HexNode, Unit>();
     }
 
@@ -36,20 +37,20 @@ public class GridManager : MonoBehaviour
     }
 
     #region Move
-    public void OnMoveSelect(HexCoords hexCoords)
+    public void OnMove(HexCoords hexCoords, bool canMove = true)
     {
         if (Tiles.ContainsKey(hexCoords.Pos))
         {
-            Tiles[hexCoords.Pos].SetSelectOutline(SelectOutline.MoveSelect);
-            Tiles[hexCoords.Pos].moveAble = true;
+            Tiles[hexCoords.Pos].SetSelectOutline(canMove ? SelectOutline.MoveSelect : SelectOutline.MoveAble);
+            Tiles[hexCoords.Pos].canMove = canMove;
         }
     }
-    public void OnMoveSelect(Vector2 hexPos)
+    public void OnMove(Vector2 hexPos, bool canMove = true)
     {
         if (Tiles.ContainsKey(hexPos))
         {
-            Tiles[hexPos].SetSelectOutline(SelectOutline.MoveSelect);
-            Tiles[hexPos].moveAble = true;
+            Tiles[hexPos].SetSelectOutline(canMove ? SelectOutline.MoveSelect : SelectOutline.MoveAble);
+            Tiles[hexPos].canMove = canMove;
         }
     }
     #endregion
@@ -59,7 +60,7 @@ public class GridManager : MonoBehaviour
         if (Tiles.ContainsKey(hexCoords.Pos))
         {
             Tiles[hexCoords.Pos].SetSelectOutline(SelectOutline.AttackSelect);
-            Tiles[hexCoords.Pos].attackAble = true;
+            Tiles[hexCoords.Pos].canAttack = true;
         }
     }
     public void OnAttackSelect(Vector2 hexPos)
@@ -67,12 +68,12 @@ public class GridManager : MonoBehaviour
         if (Tiles.ContainsKey(hexPos))
         {
             Tiles[hexPos].SetSelectOutline(SelectOutline.AttackSelect);
-            Tiles[hexPos].attackAble = true;
+            Tiles[hexPos].canAttack = true;
         }
     }
     public void OnAttackRange(HexCoords hexCoords)
     {
-        if (Tiles[hexCoords.Pos].attackAble)
+        if (Tiles[hexCoords.Pos].canAttack)
             return;
 
         if (Tiles.ContainsKey(hexCoords.Pos))
@@ -82,7 +83,7 @@ public class GridManager : MonoBehaviour
     }
     public void OnAttackRange(Vector2 hexPos)
     {
-        if (Tiles[hexPos].attackAble)
+        if (Tiles[hexPos].canAttack)
             return;
 
         if (Tiles.ContainsKey(hexPos))
@@ -98,6 +99,7 @@ public class GridManager : MonoBehaviour
             OnTileUnits.Add(hexNode, unit);
         else
             OnTileUnits.Remove(hexNode);
+        SetWalkable();
     }
     public void OnTile(HexCoords hexCoords, Unit unit, bool onTile = true)
     {
@@ -105,24 +107,29 @@ public class GridManager : MonoBehaviour
             OnTileUnits.Add(Tiles[hexCoords.Pos], unit);
         else
             OnTileUnits.Remove(Tiles[hexCoords.Pos]);
+        SetWalkable();
     }
     public void OnTileMove(HexNode prevNode, HexNode nextNode, Unit unit)
     {
         OnTileUnits.Add(nextNode, unit);
         OnTileUnits.Remove(prevNode);
+        SetWalkable();
     }
     public void OnTileMove(HexCoords prevCoords, HexCoords nextCoords, Unit unit)
     {
         OnTileUnits.Add(Tiles[nextCoords.Pos], unit);
         OnTileUnits.Remove(Tiles[prevCoords.Pos]);
+        SetWalkable();
     }
     public void OnTileRemove(HexNode hexNode)
     {
         OnTileUnits.Remove(hexNode);
+        SetWalkable();
     }
     public void OnTileRemove(HexCoords hexCoords)
     {
         OnTileUnits.Remove(Tiles[hexCoords.Pos]);
+        SetWalkable();
     }
     public Unit ContainsTile(HexNode hexNode)
     {
@@ -135,6 +142,12 @@ public class GridManager : MonoBehaviour
         if (Tiles.ContainsKey(hexCoords.Pos) && OnTileUnits.ContainsKey(Tiles[hexCoords.Pos]))
             return OnTileUnits[Tiles[hexCoords.Pos]];
         return null;
+    }
+
+    public void SetWalkable()
+    {
+        foreach (KeyValuePair<Vector2, HexNode> tile in Tiles)
+            tile.Value.walkAble = !OnTileUnits.ContainsKey(tile.Value);
     }
     #endregion
 

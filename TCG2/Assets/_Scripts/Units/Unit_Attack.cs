@@ -14,10 +14,10 @@ public class Unit_Attack : MonoBehaviour
         _ProjectilePool = new ObjectPool<Projectile>(CreateProjectile, OnGetProjectile, OnReleaseProjectile, OnDestroyProjectile);
     }
 
-    public Item item;
+    [HideInInspector] public Item item;
 
     HexDirection direction;
-    public void OnDrawArea(Item item)
+    public void DrawArea(Item item)
     {
         GridManager.Inst.RevertTiles();
         this.item = item;

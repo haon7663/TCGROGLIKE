@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 using Random = UnityEngine.Random;
 using DG.Tweening;
 
@@ -52,6 +53,7 @@ public class CardManager : MonoBehaviour
             int rand = Random.Range(i, itemBuffer.Count);
             (itemBuffer[rand], itemBuffer[i]) = (itemBuffer[i], itemBuffer[rand]);
         }
+
     }
 
     void Start()
@@ -59,6 +61,12 @@ public class CardManager : MonoBehaviour
         SetupItmeBuffer();
         TurnManager.OnAddCard += AddCard;
         TurnManager.OnTurnStarted += OnTurnStarted;
+
+        itemSO.items.Append(itemSO.items[0]);
+        foreach(Item item in itemSO.items)
+        {
+            print(item.name);
+        }    
     }
 
     void OnDestroy()
@@ -69,7 +77,6 @@ public class CardManager : MonoBehaviour
 
     void OnTurnStarted(bool myTurn)
     {
-
     }
 
     void Update()
@@ -169,7 +176,7 @@ public class CardManager : MonoBehaviour
         if (hoveredCard != card)
         {
             hoveredCard = card;
-            UnitManager.sUnit_Attack.OnDrawArea(card.item);
+            UnitManager.sUnit_Attack.DrawArea(card.item);
             EnlargeCard(true, card);
         }
     }
@@ -262,12 +269,18 @@ public class CardManager : MonoBehaviour
 
     void SetECardState()
     {
-        if (TurnManager.Inst.isLoading)
-            eCardState = ECardState.Noting;
-        else if (!TurnManager.Inst.myTurn)
-            eCardState = ECardState.CanMouseOver;
-        else if (TurnManager.Inst.myTurn)
-            eCardState = ECardState.CanMouseDrag;
+        switch (TurnManager.Inst.paze)
+        {
+            case Paze.Draw | Paze.End | Paze.Enemy:
+                eCardState = ECardState.Noting;
+                break;
+            case Paze.Move:
+                eCardState = ECardState.CanMouseOver;
+                break;
+            case Paze.Card:
+                eCardState = ECardState.CanMouseDrag;
+                break;
+        }
     }
 
     void SetCardLR(int cardCount)

@@ -99,6 +99,33 @@ public static class HexDirectionExtension
         return hexNodes;
     }
 
+    public static List<HexNode> ReachArea(HexCoords unitCoords, int range, bool onSelf = false)
+    {
+        var startNode = GridManager.Inst.GetTileAtPosition(unitCoords.Pos);
+        List<HexNode> visited = new List<HexNode>() { startNode };
+        List<HexNode> fringes = new List<HexNode>() { startNode };
+
+        for (int i = 0; i < range; i++)
+        {
+            var count = fringes.Count;
+            for (int j = 0; j < count; j++)
+            {
+                List<HexNode> neighbors = fringes[j].Neighbors;
+                foreach (HexNode neighbor in neighbors)
+                {
+                    if(!visited.Contains(neighbor) && neighbor.walkAble)
+                    {
+                        visited.Add(neighbor);
+                        fringes.Add(neighbor);
+                    }
+                }
+            }
+        }
+        if (!onSelf)
+            visited.Remove(startNode);
+        return visited;
+    }
+
     public static List<HexNode> Liner(HexCoords unitCoords, HexDirection hexDirection, int range, int width = 1)
     {
         List<HexNode> linerNode = new List<HexNode>();

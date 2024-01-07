@@ -7,7 +7,7 @@ using System.Linq;
 
 public enum SelectOutline
 {
-    MoveSelect, AttackSelect, DamageAble,
+    MoveSelect, MoveAble, AttackSelect, DamageAble,
 }
 
 public class HexNode : MonoBehaviour
@@ -19,6 +19,7 @@ public class HexNode : MonoBehaviour
     [SerializeField] SpriteRenderer spriteRenderer;
     [SerializeField] TMP_Text coordsText;
     [SerializeField] GameObject moveSelectObject;
+    [SerializeField] GameObject moveAbleObject;
     [SerializeField] GameObject attackSelectObject;
     [SerializeField] GameObject damageAbleObject;
     [SerializeField] GameObject displayMoveObject;
@@ -26,14 +27,15 @@ public class HexNode : MonoBehaviour
 
     public HexCoords Coords;
     public float GetDistance(HexNode other) => Coords.GetDistance(other.Coords); // Helper to reduce noise in pathfinding
-    public bool Walkable { get; private set; }
-    public bool moveAble, attackAble, damageAble;
+    public bool walkAble;
+    public bool canMove, canAttack, canDamaged;
 
     public virtual void Init(bool walkable, HexCoords coords)
     {
-        Walkable = walkable;
+        walkAble = walkable;
 
         spriteRenderer.color = walkable ? walkableColor.Evaluate(Random.Range(0f, 1f)) : obstacleColor;
+        spriteRenderer.sortingOrder = -coords._r;
 
         Coords = coords;
         coordsText.text = "q: " + coords._q + ", r: " + coords._r + "  s: " + coords._s;
@@ -43,25 +45,25 @@ public class HexNode : MonoBehaviour
     void OnClickTile(HexNode selected)
     {
         //Debug.Log("Moveable: " + moveAble.ToString() + "/ Attackable: " + attackAble.ToString());
-        if(moveAble)
+        if(canMove)
         {
             UnitManager.sUnit_Move.OnMove(selected.Coords);
         }
-        else if(attackAble)
+        else if(canAttack)
         {
             UnitManager.sUnit_Attack.OnAttack();
         }
     }
     void OnHoverTile(HexNode selected)
     {
-        if (!moveAble && !attackAble) return;
+        if (!canMove && !canAttack) return;
         UnitManager.sUnit.Repeat(selected);
 
-        if (moveAble)
+        if (canMove)
         {
-            UnitManager.sUnit_Move.GetArea(selected).displayMoveObject.SetActive(true);
+            UnitManager.sUnit_Move.TouchArea(selected).displayMoveObject.SetActive(true);
         }
-        else if (attackAble)
+        else if (canAttack)
         {
             foreach (HexNode hexNode in UnitManager.sUnit_Attack.GetArea(selected))
             {
@@ -71,19 +73,19 @@ public class HexNode : MonoBehaviour
     }
     void OnExitTile(HexNode selected)
     {
-        if (!moveAble && !attackAble) return;
+        if (!canMove && !canAttack) return;
 
         GridManager.Inst.RevertAbles();
     }
 
     void OnMouseDown()
     {
-        if (!Walkable) return;
+        if (!walkAble) return;
         OnClickTile(this);
     }
     void OnMouseOver()
     {
-        if (!Walkable) return;
+        if (!walkAble) return;
         OnHoverTile(this);
     }
     void OnMouseExit()
@@ -100,6 +102,9 @@ public class HexNode : MonoBehaviour
             case SelectOutline.MoveSelect:
                 moveSelectObject.SetActive(true);
                 break;
+            case SelectOutline.MoveAble:
+                moveAbleObject.SetActive(true);
+                break;
             case SelectOutline.AttackSelect:
                 attackSelectObject.SetActive(true);
                 break;
@@ -112,12 +117,13 @@ public class HexNode : MonoBehaviour
     public void RevertTile()
     {
         moveSelectObject.SetActive(false);
+        moveAbleObject.SetActive(false);
         attackSelectObject.SetActive(false);
         damageAbleObject.SetActive(false);
 
         GridManager.Inst.selectedNode.Remove(this);
-        moveAble = false;
-        attackAble = false;
+        canMove = false;
+        canAttack = false;
     }
 
     public void RevertAble()
@@ -132,6 +138,11 @@ public class HexNode : MonoBehaviour
     public float G { get; private set; }
     public float H { get; private set; }
     public float F => G + H;
+
+    public void CacheNeighbors()
+    {
+        Neighbors = GridManager.Inst.Tiles.Where(t => Coords.GetDistance(t.Value.Coords) == 1).Select(t => t.Value).ToList();
+    }
 
     public void SetConnection(HexNode nodeBase)
     {
@@ -162,7 +173,7 @@ public struct HexCoords
         _q = q;
         _r = r;
         _s = -q - r;
-        Pos = _q * new Vector2(HexSize * 2, 0) + _r * new Vector2(HexSize, 1.03125f);
+        Pos = _q * new Vector2(HexSize * 2, 0) + _r * new Vector2(HexSize, 1.0625f);
     }
     public HexCoords(float q, float r)
     {
@@ -208,7 +219,7 @@ public struct HexCoords
 
     private static readonly float Sqrt3 = Mathf.Sqrt(3);
 
-    private static readonly float HexSize = 1.0625f;
+    private static readonly float HexSize = 1.125f;
 
     public Vector2 Pos { get; set; }
 

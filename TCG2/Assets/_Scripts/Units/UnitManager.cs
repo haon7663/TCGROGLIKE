@@ -37,16 +37,46 @@ public class UnitManager : MonoBehaviour
                     break;
             }
         }
+        TurnManager.OnTurnStarted += OnTurnStarted;
         SelectUnit(Commanders[0]);
     }
 
-    public void SelectUnit(Unit unit, bool isEnemy = false)
+    void OnDestroy()
     {
+        TurnManager.OnTurnStarted -= OnTurnStarted;
+    }
+
+    void OnTurnStarted(bool myTurn)
+    {
+
+    }
+
+
+    public void SelectUnit(Unit unit)
+    {
+        print("SelectUnit: " + unit.name);
+
         sUnit = unit;
         sUnit_Move = sUnit.GetComponent<Unit_Move>();
         sUnit_Attack = sUnit.GetComponent<Unit_Attack>();
 
-        if (isEnemy) return;
-        cinevirtual.Follow = sUnit.transform;
+        if (Enemies.Contains(unit))
+        {
+            sUnit_Move.DrawArea(false);
+        }
+        else
+        {
+            cinevirtual.Follow = sUnit.transform;
+            switch (TurnManager.Inst.paze)
+            {
+                case Paze.Draw | Paze.End | Paze.Enemy:
+                    break;
+                case Paze.Move:
+                    sUnit_Move.DrawArea();
+                    break;
+                case Paze.Card:
+                    break;
+            }
+        }
     }
 }

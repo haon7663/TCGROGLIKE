@@ -9,47 +9,53 @@ public class Unit_Move : MonoBehaviour
     void Awake() => unit = GetComponent<Unit>();
 
     public int range;
+    public int cost;
     public RangeType rangeType;
 
-    void OnEnable()
+    public void DrawArea(bool canMove = true)
     {
-        if (rangeType == RangeType.Liner)
+        if(canMove)
+            GridManager.Inst.RevertTiles();
+
+        switch(rangeType)
         {
-            for (int i = 1; i <= range; i++)
-            {
-                foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
+            case RangeType.Liner:
+                for (int i = 1; i <= range; i++)
                 {
-                    GridManager.Inst.OnMoveSelect(unit.coords + hexDirection.Coords() * i);
+                    foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
+                    {
+                        GridManager.Inst.OnMove(unit.coords + hexDirection.Coords() * i, canMove);
+                    }
                 }
-            }
-        }
-        else if (rangeType == RangeType.Area)
-        {
-            foreach (HexNode hexNode in HexDirectionExtension.Area(unit.coords, range))
-            {
-                GridManager.Inst.OnMoveSelect(hexNode.Coords);
-            }
+                break;
+            case RangeType.Area:
+                for (int i = 1; i <= range; i++)
+                {
+                    foreach (HexNode hexNode in HexDirectionExtension.ReachArea(unit.coords, range))
+                    {
+                        GridManager.Inst.OnMove(hexNode.Coords, canMove);
+                    }
+                }
+                break;
         }
     }
-    void OnDisable()
-    {
-        GridManager.Inst.RevertTiles();
-    }
 
-    public HexNode GetArea(HexNode hexNode)
+    public HexNode TouchArea(HexNode selected)
     {
-        GridManager.Inst.RevertAbles();
-
-        return hexNode;
+        return selected;
     }
 
     public void OnMove(HexCoords targetCoords, bool useDotween = true, float dotweenTime = 0.2f, Ease ease = Ease.Linear)
     {
         GridManager.Inst.RevertTiles();
+        TurnManager.UseMoveCost(cost);
+        Debug.Log(TurnManager.Inst.MoveCost);
+
+        var targetPos = (Vector3)targetCoords.Pos - Vector3.forward;
         if (useDotween)
-            transform.DOMove(targetCoords.Pos, dotweenTime).SetEase(ease);
+            transform.DOMove(targetPos, dotweenTime).SetEase(ease);
         else
-            transform.position = targetCoords.Pos;
+            transform.position = targetPos;
 
         GridManager.Inst.OnTileMove(unit.coords, targetCoords, unit);
         unit.coords = targetCoords;
