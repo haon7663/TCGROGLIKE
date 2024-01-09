@@ -42,55 +42,41 @@ public class HexNode : MonoBehaviour
         transform.position = Coords.Pos;
     }
 
-    void OnClicked(HexNode selected)
+    void OnMouseDown()
     {
-        //Debug.Log("Moveable: " + moveAble.ToString() + "/ Attackable: " + attackAble.ToString());
-        if(canMove)
+        if (!walkAble) return;
+
+        if (canMove)
         {
-            UnitManager.sUnit_Move.OnMove(selected.Coords);
+            UnitManager.sUnit_Move.OnMove(Coords);
         }
-        else if(canAttack)
+        else if (canAttack)
         {
             UnitManager.sUnit_Attack.OnAttack();
         }
     }
-    void OnHovered(HexNode selected)
+    void OnMouseOver()
     {
-        if (!canMove && !canAttack) return;
-        UnitManager.sUnit.Repeat(selected);
+        if (!walkAble || (!canMove && !canAttack)) return;
+        UnitManager.sUnit.Repeat(this);
 
         if (canMove)
         {
-            UnitManager.sUnit_Move.TouchArea(selected).displayMoveObject.SetActive(true);
+            UnitManager.sUnit_Move.TouchArea(this).displayMoveObject.SetActive(true);
         }
         else if (canAttack)
         {
-            foreach (HexNode hexNode in UnitManager.sUnit_Attack.GetArea(selected))
+            foreach (HexNode hexNode in UnitManager.sUnit_Attack.GetArea(this))
             {
                 hexNode.displayAttackObject.SetActive(true);
             }
         }
     }
-    void OnExited(HexNode selected)
+    void OnMouseExit()
     {
         if (!canMove && !canAttack) return;
 
         GridManager.Inst.RevertAbles();
-    }
-
-    void OnMouseDown()
-    {
-        if (!walkAble) return;
-        OnClicked(this);
-    }
-    void OnMouseOver()
-    {
-        if (!walkAble) return;
-        OnHovered(this);
-    }
-    void OnMouseExit()
-    {
-        OnExited(this);
     }
 
     public void SetSelectOutline(SelectOutline selectLine)
@@ -102,20 +88,35 @@ public class HexNode : MonoBehaviour
         switch (selectLine)
         {
             case SelectOutline.MoveSelect:
+                canMove = true;
                 moveSelectObject.SetActive(true);
                 foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
                 {
-                    moveSelectObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetNode(Coords + direction.Coords())));
+                    moveSelectObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(Coords + direction.Coords())));
                 }
                 break;
             case SelectOutline.MoveAble:
                 moveAbleObject.SetActive(true);
+                foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
+                {
+                    moveAbleObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(Coords + direction.Coords())));
+                }
                 break;
             case SelectOutline.AttackSelect:
+                canAttack = true;
                 attackSelectObject.SetActive(true);
+                foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
+                {
+                    attackSelectObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(Coords + direction.Coords())));
+                }
                 break;
             case SelectOutline.DamageAble:
+                canDamaged = true;
                 damageAbleObject.SetActive(true);
+                foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
+                {
+                    damageAbleObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(Coords + direction.Coords())));
+                }
                 break;
         }
     }
@@ -130,6 +131,7 @@ public class HexNode : MonoBehaviour
         GridManager.Inst.selectedNode.Remove(this);
         canMove = false;
         canAttack = false;
+        canDamaged = false;
     }
 
     public void RevertAble()

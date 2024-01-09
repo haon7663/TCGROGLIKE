@@ -35,73 +35,20 @@ public class GridManager : MonoBehaviour
     {
         foreach (var t in Tiles.Values) t.RevertAble();
     }
-
-    #region Move
-    public void OnMove(List<HexCoords> coordses, bool canMove = true)
+    public void OnSelect(List<HexCoords> coordses, SelectOutline outline)
     {
         List<HexNode> nodes = new();
-        foreach(HexCoords coords in coordses)
+        foreach (HexCoords coords in coordses)
         {
             if (Tiles.ContainsKey(coords.Pos))
                 nodes.Add(Tiles[coords.Pos]);
         }
         foreach (HexNode node in nodes)
         {
-            node.OnDisplay(SelectOutline.MoveSelect, nodes);
-        }
-        /*if (Tiles.ContainsKey(coordses.Pos))
-        {
-            Tiles[coordses.Pos].SetSelectOutline(canMove ? SelectOutline.MoveSelect : SelectOutline.MoveAble);
-            Tiles[coordses.Pos].canMove = canMove;
-        }*/
-    }
-    public void OnMove(Vector2 hexPos, bool canMove = true)
-    {
-        if (Tiles.ContainsKey(hexPos))
-        {
-            Tiles[hexPos].SetSelectOutline(canMove ? SelectOutline.MoveSelect : SelectOutline.MoveAble);
-            Tiles[hexPos].canMove = canMove;
+            node.OnDisplay(outline, nodes);
         }
     }
-    #endregion
-    #region Attack
-    public void OnAttackSelect(HexCoords hexCoords)
-    {
-        if (Tiles.ContainsKey(hexCoords.Pos))
-        {
-            Tiles[hexCoords.Pos].SetSelectOutline(SelectOutline.AttackSelect);
-            Tiles[hexCoords.Pos].canAttack = true;
-        }
-    }
-    public void OnAttackSelect(Vector2 hexPos)
-    {
-        if (Tiles.ContainsKey(hexPos))
-        {
-            Tiles[hexPos].SetSelectOutline(SelectOutline.AttackSelect);
-            Tiles[hexPos].canAttack = true;
-        }
-    }
-    public void OnAttackRange(HexCoords hexCoords)
-    {
-        if (Tiles[hexCoords.Pos].canAttack)
-            return;
 
-        if (Tiles.ContainsKey(hexCoords.Pos))
-        {
-            Tiles[hexCoords.Pos].SetSelectOutline(SelectOutline.DamageAble);
-        }
-    }
-    public void OnAttackRange(Vector2 hexPos)
-    {
-        if (Tiles[hexPos].canAttack)
-            return;
-
-        if (Tiles.ContainsKey(hexPos))
-        {
-            Tiles[hexPos].SetSelectOutline(SelectOutline.DamageAble);
-        }
-    }
-    #endregion
     #region OnTileUnit
     public void OnTile(HexNode hexNode, Unit unit, bool onTile = true)
     {
@@ -141,47 +88,45 @@ public class GridManager : MonoBehaviour
         OnTileUnits.Remove(Tiles[hexCoords.Pos]);
         SetWalkable();
     }
-    #region ContainsOnTileUnits
-    public Unit ContainsOnTileUnits(HexNode hexNode)
+    #endregion    
+    #region GetNode
+    public HexNode GetTile(Unit unit) => Tiles.TryGetValue(unit.coords.Pos, out var tile) ? tile : null;
+    public HexNode GetTile(HexCoords coords) => Tiles.TryGetValue(coords.Pos, out var tile) ? tile : null;
+    public HexNode GetTile(Vector2 pos) => Tiles.TryGetValue(pos, out var tile) ? tile : null;
+    #endregion
+    #region GetUnit
+    public Unit GetUnit(HexNode hexNode)
     {
         if(OnTileUnits.ContainsKey(hexNode))
             return OnTileUnits[hexNode];
         return null;
     }
-    public Unit ContainsOnTileUnits(HexCoords hexCoords)
+    public Unit GetUnit(HexCoords hexCoords)
     {
         if (Tiles.ContainsKey(hexCoords.Pos) && OnTileUnits.ContainsKey(Tiles[hexCoords.Pos]))
             return OnTileUnits[Tiles[hexCoords.Pos]];
         return null;
     }
+    public Unit GetUnit(Vector2 pos)
+    {
+        if (Tiles.ContainsKey(pos) && OnTileUnits.ContainsKey(Tiles[pos]))
+            return OnTileUnits[Tiles[pos]];
+        return null;
+    }
     #endregion
-    public HexNode ContainsUnit(Unit unit)
-    {
-        if (OnTileUnits.ContainsValue(unit))
-            return Tiles[unit.coords.Pos];
-        return null;
-    }
-    public HexNode GetNode(HexCoords coords)
-    {
-        if (Tiles.ContainsKey(coords.Pos))
-            return Tiles[coords.Pos];
-        return null;
-    }
+
 
     public void SetWalkable()
     {
         foreach (KeyValuePair<Vector2, HexNode> tile in Tiles)
             tile.Value.walkAble = !OnTileUnits.ContainsKey(tile.Value);
     }
-    #endregion
 
     void SpawnUnits()
     {
         //_playerNodeBase = Tiles.Where(t => t.Value.Walkable).OrderBy(t => Random.value).First().Value;
         //_spawnedPlayer = Instantiate(_unitPrefab, _playerNodeBase.Coords.Pos, Quaternion.identity);
     }
-
-    public HexNode GetTileAtPosition(Vector2 pos) => Tiles.TryGetValue(pos, out var tile) ? tile : null;
 
     void OnDrawGizmos()
     {

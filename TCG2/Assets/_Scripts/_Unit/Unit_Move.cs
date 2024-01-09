@@ -17,11 +17,15 @@ public class Unit_Move : MonoBehaviour
         switch(unit.unitData.rangeType)
         {
             case RangeType.Liner:
-                for (int i = 1; i <= unit.unitData.range; i++)
+                foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                 {
-                    foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
+                    for (int i = 1; i <= unit.unitData.range; i++)
                     {
-                        selectCoords.Add(unit.coords + hexDirection.Coords() * i);
+                        var coords = unit.coords + hexDirection.Coords() * i;
+                        if (GridManager.Inst.GetUnit(coords) == null)
+                            selectCoords.Add(coords);
+                        else
+                            break;
                     }
                 }
                 break;
@@ -33,7 +37,7 @@ public class Unit_Move : MonoBehaviour
                 break;
         }
 
-        GridManager.Inst.OnMove(selectCoords, canMove);
+        GridManager.Inst.OnSelect(selectCoords, canMove ? SelectOutline.MoveSelect : SelectOutline.MoveAble);
     }
 
     public HexNode TouchArea(HexNode selected)
@@ -46,11 +50,19 @@ public class Unit_Move : MonoBehaviour
         GridManager.Inst.RevertTiles();
         TurnManager.UseMoveCost(unit.unitData.cost);
 
-        var targetPos = (Vector3)targetCoords.Pos - Vector3.forward;
+        var target = (Vector3)targetCoords.Pos - Vector3.forward;
+        var path = Pathfinding.FindPath(GridManager.Inst.GetTile(unit), GridManager.Inst.GetTile(target));
+
         if (useDotween)
-            transform.DOMove(targetPos, dotweenTime).SetEase(ease);
+        {
+            Sequence sequence = DOTween.Sequence();
+            foreach(HexNode tile in path)
+            {
+                sequence.Append(transform.DOMove((Vector3)tile.Coords.Pos - Vector3.forward, dotweenTime).SetEase(ease));
+            }
+        }
         else
-            transform.position = targetPos;
+            transform.position = target;
 
         GridManager.Inst.OnTileMove(unit.coords, targetCoords, unit);
         unit.coords = targetCoords;

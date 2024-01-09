@@ -24,7 +24,7 @@ public class Projectile : MonoBehaviour
                 continue;
             transform.DOMove((coords + direction.Coords() * i).Pos, 0.05f).SetEase(Ease.Linear);
             yield return YieldInstructionCache.WaitForSeconds(0.05f);
-            if(GridManager.Inst.ContainsOnTileUnits(coords + direction.Coords() * i)?.OnDamage(card.value) == true && !card.isPenetrate)
+            if(GridManager.Inst.GetUnit(coords + direction.Coords() * i)?.OnDamage(card.value) == true && !card.isPenetrate)
                 break;
         }
         Release();

@@ -9,7 +9,7 @@ public class EnemyTest : MonoBehaviour
     public List<HexNode> a = new List<HexNode>();
     void OnEnable()
     {
-        a = Pathfinding.FindPath(GridManager.Inst.GetTileAtPosition(startUnit.coords.Pos), GridManager.Inst.GetTileAtPosition(targetUnit.coords.Pos));
+        a = Pathfinding.FindPath(GridManager.Inst.GetTile(startUnit.coords.Pos), GridManager.Inst.GetTile(targetUnit.coords.Pos));
         foreach (HexNode hex in a)
         {
             hex.SetSelectOutline(SelectOutline.DamageAble);

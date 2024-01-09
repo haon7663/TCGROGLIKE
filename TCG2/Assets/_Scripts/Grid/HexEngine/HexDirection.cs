@@ -101,7 +101,7 @@ public static class HexDirectionExtension
 
     public static List<HexNode> ReachArea(HexCoords unitCoords, int range, bool onSelf = false)
     {
-        var startNode = GridManager.Inst.GetTileAtPosition(unitCoords.Pos);
+        var startNode = GridManager.Inst.GetTile(unitCoords.Pos);
         List<HexNode> visited = new List<HexNode>() { startNode };
         List<HexNode> fringes = new List<HexNode>() { startNode };
 
@@ -126,7 +126,30 @@ public static class HexDirectionExtension
         return visited;
     }
 
-    public static List<HexNode> Liner(HexCoords unitCoords, HexDirection hexDirection, int range, int width = 1)
+    public static List<HexNode> Liner(HexCoords unitCoords, HexDirection hexDirection, int range, int width = 1, bool isPenetrate = false)
+    {
+        List<HexNode> linerNode = new List<HexNode>();
+        var isBlocked = false;
+        for (int i = 0; i < range; i++)
+        {
+            var floorWide = Mathf.FloorToInt((float)width / 2);
+            for (int j = -floorWide; j <= floorWide; j++)
+            {
+                var coords = unitCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i;
+                if (GridManager.Inst.Tiles.ContainsKey(coords.Pos) && (isPenetrate || GridManager.Inst.GetUnit(coords) == null))
+                    linerNode.Add(GridManager.Inst.GetTile(coords.Pos));
+                else if(GridManager.Inst.Tiles.ContainsKey(coords.Pos))
+                {
+                    isBlocked = true;
+                    break;
+                }
+            }
+            if (isBlocked)
+                break;
+        }
+        return linerNode;
+    }
+    public static List<HexNode> ReachLiner(HexCoords unitCoords, HexDirection hexDirection, int range, int width = 1)
     {
         List<HexNode> linerNode = new List<HexNode>();
         for (int i = 0; i < range; i++)
@@ -136,7 +159,7 @@ public static class HexDirectionExtension
             {
                 var pos = (unitCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i).Pos;
                 if (GridManager.Inst.Tiles.ContainsKey(pos))
-                    linerNode.Add(GridManager.Inst.GetTileAtPosition(pos));
+                    linerNode.Add(GridManager.Inst.GetTile(pos));
             }
         }
         return linerNode;

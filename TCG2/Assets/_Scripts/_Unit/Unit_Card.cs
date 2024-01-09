@@ -23,18 +23,22 @@ public class Unit_Card : MonoBehaviour
         GridManager.Inst.RevertTiles();
         this.card = card;
 
+        List<HexCoords> selectCoords = new();
         switch (card.rangeType)
         {
             case RangeType.Liner:
-                for (int i = 0; i < card.range; i++)
+                foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                 {
-                    foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
+                    var floorWide = Mathf.FloorToInt((float)card.lineWidth / 2);
+                    for (int j = -floorWide; j <= floorWide; j++)
                     {
-                        var floorWide = Mathf.FloorToInt((float)card.lineWidth / 2);
-                        for (int j = -floorWide; j <= floorWide; j++)
+                        for (int i = 0; i < card.range; i++)
                         {
-                            var pos = (unit.coords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i).Pos;
-                            GridManager.Inst.OnAttackSelect(pos);
+                            var coords = unit.coords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i;
+                            if (GridManager.Inst.GetUnit(coords) == null || card.isPenetrate)
+                                selectCoords.Add(coords);
+                            else
+                                break;
                         }
                     }
                 }
@@ -42,27 +46,28 @@ public class Unit_Card : MonoBehaviour
             case RangeType.Area:
                 if (card.canSelectAll)
                     foreach (HexNode hexNode in HexDirectionExtension.Area(unit.coords, card.range))
-                        GridManager.Inst.OnAttackSelect(hexNode.Coords);
+                        selectCoords.Add(hexNode.Coords);
                 else
                 {
                     foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                     {
-                        var pos = (unit.coords + hexDirection.Coords()).Pos;
-                        GridManager.Inst.OnAttackSelect(pos);
+                        selectCoords.Add(unit.coords + hexDirection.Coords());
                     }
                     foreach (HexNode hexNode in HexDirectionExtension.Area(unit.coords, card.range))
                     {
-                        GridManager.Inst.OnAttackRange(hexNode.Coords);
+                        selectCoords.Add(hexNode.Coords);
                     }
                 }
                 break;
             case RangeType.Our:
                 foreach (var unit in GridManager.Inst.OnTileUnits.Values.Where(t => t.unitData.type != UnitType.Enemy))
                 {
-                    GridManager.Inst.OnAttackSelect(GridManager.Inst.ContainsUnit(unit).Coords);
+                    selectCoords.Add(GridManager.Inst.GetTile(unit).Coords);
                 }
                 break;
         }
+
+        GridManager.Inst.OnSelect(selectCoords, SelectOutline.AttackSelect);
     }
 
     public List<HexNode> GetArea(HexNode hexNode)
@@ -82,7 +87,7 @@ public class Unit_Card : MonoBehaviour
                 break;
             case AttackType.Liner:
                 for(int i = -card.multiShot/2; i <= card.multiShot/2; i++)
-                    hexNodes.AddRange(HexDirectionExtension.Liner(unit.coords, direction.Rotate(i), card.range, card.lineWidth));
+                    hexNodes.AddRange(HexDirectionExtension.Liner(unit.coords, direction.Rotate(i), card.range, card.lineWidth, card.isPenetrate));
                 break;
             case AttackType.Splash:
                 hexNodes.AddRange(HexDirectionExtension.Area(hexNode.Coords, card.splashRange, true));

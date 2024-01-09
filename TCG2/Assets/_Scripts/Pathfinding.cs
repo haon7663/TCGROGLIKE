@@ -37,7 +37,7 @@ public static class Pathfinding
                     count--;
                     if (count < 0) throw new Exception();
                 }
-                path.Remove(targetNode);
+                path.Reverse();
                 return path;
             }
 
