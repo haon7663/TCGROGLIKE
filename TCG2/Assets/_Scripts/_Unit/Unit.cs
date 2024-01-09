@@ -8,26 +8,27 @@ public class Unit : MonoBehaviour
 {
     SpriteRenderer spriteRenderer;
 
-    public UnitType unitType;
     public HexCoords coords;
 
-    public int maxHp;
-    public int curHp;
+    public UnitSO unitData;
+
+    [Header("Stats")]
+    public int hp;
+    public int defence;
 
     void Start()
     {
         if (transform.GetChild(0).TryGetComponent(out SpriteRenderer spriteRenderer))
             this.spriteRenderer = spriteRenderer;
 
-        Init(spriteRenderer.sprite, 50);
+        Init(spriteRenderer.sprite);
     }
-    public void Init(Sprite sprite, int hp)
+    public void Init(Sprite sprite)
     {
         if (sprite)
             spriteRenderer.sprite = sprite;
 
-        maxHp = hp;
-        curHp = hp;
+        hp = unitData.hp;
         HealthManager.Inst.GenerateHealthBar(this);
 
         coords = new HexCoords(Random.Range(-3, 4), Random.Range(-3, 4));
@@ -42,12 +43,33 @@ public class Unit : MonoBehaviour
         spriteRenderer.flipX = hexNode.Coords.Pos.x > transform.position.x;
     }
 
-    public bool OnDamage(int damamge)
+    public bool OnDamage(int value)
     {
         if(true)
         {
             print("Damage");
-            curHp -= damamge;
+            var overDamage = defence -= value;
+            hp -= overDamage;
+            HealthManager.Inst.SetFilled(this);
+            return true;
+        }
+    }
+    public bool OnHealth(int value)
+    {
+        if (true)
+        {
+            print("Health");
+            hp += value;
+            HealthManager.Inst.SetFilled(this);
+            return true;
+        }
+    }
+    public bool OnDefence(int value)
+    {
+        if (true)
+        {
+            print("Defence");
+            defence += value;
             HealthManager.Inst.SetFilled(this);
             return true;
         }

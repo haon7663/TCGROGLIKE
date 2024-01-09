@@ -12,22 +12,22 @@ public class UnitManager : MonoBehaviour
 
     [SerializeField] CinemachineVirtualCamera cinevirtual;
 
-    public List<Unit> Commanders;
+    public Unit Commander;
     public List<Unit> Mercenaries;
     public List<Unit> Enemies;
 
     public static Unit sUnit;
     public static Unit_Move sUnit_Move;
-    public static Unit_Attack sUnit_Attack;
+    public static Unit_Card sUnit_Attack;
 
     void Start()
     {
         foreach(Unit unit in FindObjectsOfType<Unit>())
         {
-            switch(unit.unitType)
+            switch(unit.unitData.type)
             {
                 case UnitType.Commander:
-                    Commanders.Add(unit);
+                    Commander = unit;
                     break;
                 case UnitType.Mercenary:
                     Mercenaries.Add(unit);
@@ -38,7 +38,9 @@ public class UnitManager : MonoBehaviour
             }
         }
         TurnManager.OnTurnStarted += OnTurnStarted;
-        SelectUnit(Commanders[0]);
+        SelectUnit(Commander);
+
+        CardManager.Inst.StartSet();
     }
 
     void OnDestroy()
@@ -54,18 +56,15 @@ public class UnitManager : MonoBehaviour
 
     public void SelectUnit(Unit unit)
     {
-        print("SelectUnit: " + unit.name);
-
-        sUnit = unit;
-        sUnit_Move = sUnit.GetComponent<Unit_Move>();
-        sUnit_Attack = sUnit.GetComponent<Unit_Attack>();
-
         if (Enemies.Contains(unit))
         {
-            sUnit_Move.DrawArea(false);
+            unit.GetComponent<Unit_Move>().DrawArea(false);
         }
         else
         {
+            sUnit = unit;
+            sUnit_Move = sUnit.GetComponent<Unit_Move>();
+            sUnit_Attack = sUnit.GetComponent<Unit_Card>();
             cinevirtual.Follow = sUnit.transform;
             switch (TurnManager.Inst.paze)
             {

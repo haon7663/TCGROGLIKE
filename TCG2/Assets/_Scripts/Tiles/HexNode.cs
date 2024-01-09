@@ -42,7 +42,7 @@ public class HexNode : MonoBehaviour
         transform.position = Coords.Pos;
     }
 
-    void OnClickTile(HexNode selected)
+    void OnClicked(HexNode selected)
     {
         //Debug.Log("Moveable: " + moveAble.ToString() + "/ Attackable: " + attackAble.ToString());
         if(canMove)
@@ -54,7 +54,7 @@ public class HexNode : MonoBehaviour
             UnitManager.sUnit_Attack.OnAttack();
         }
     }
-    void OnHoverTile(HexNode selected)
+    void OnHovered(HexNode selected)
     {
         if (!canMove && !canAttack) return;
         UnitManager.sUnit.Repeat(selected);
@@ -71,7 +71,7 @@ public class HexNode : MonoBehaviour
             }
         }
     }
-    void OnExitTile(HexNode selected)
+    void OnExited(HexNode selected)
     {
         if (!canMove && !canAttack) return;
 
@@ -81,26 +81,32 @@ public class HexNode : MonoBehaviour
     void OnMouseDown()
     {
         if (!walkAble) return;
-        OnClickTile(this);
+        OnClicked(this);
     }
     void OnMouseOver()
     {
         if (!walkAble) return;
-        OnHoverTile(this);
+        OnHovered(this);
     }
     void OnMouseExit()
     {
-        OnExitTile(this);
+        OnExited(this);
     }
 
     public void SetSelectOutline(SelectOutline selectLine)
     {
         GridManager.Inst.selectedNode.Add(this);
-
+    }
+    public void OnDisplay(SelectOutline selectLine, List<HexNode> nodes)
+    {
         switch (selectLine)
         {
             case SelectOutline.MoveSelect:
                 moveSelectObject.SetActive(true);
+                foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
+                {
+                    moveSelectObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetNode(Coords + direction.Coords())));
+                }
                 break;
             case SelectOutline.MoveAble:
                 moveAbleObject.SetActive(true);
@@ -173,7 +179,7 @@ public struct HexCoords
         _q = q;
         _r = r;
         _s = -q - r;
-        Pos = _q * new Vector2(HexSize * 2, 0) + _r * new Vector2(HexSize, 1.0625f);
+        Pos = _q * new Vector2(HexSize * 2, 0) + _r * new Vector2(HexSize, Sqrt3 / 2);
     }
     public HexCoords(float q, float r)
     {
@@ -182,7 +188,7 @@ public struct HexCoords
         _q = sq;
         _r = sr;
         _s = -sq - sr;
-        Pos = sq * new Vector2(HexSize * 2, 0) + sr * new Vector2(HexSize, HexSize);
+        Pos = sq * new Vector2(HexSize * 2, 0) + sr * new Vector2(HexSize, Sqrt3 / 2);
     }
 
     public static HexCoords operator +(HexCoords a, HexCoords b)
@@ -219,7 +225,7 @@ public struct HexCoords
 
     private static readonly float Sqrt3 = Mathf.Sqrt(3);
 
-    private static readonly float HexSize = 1.125f;
+    private static readonly float HexSize = 1;
 
     public Vector2 Pos { get; set; }
 

@@ -37,13 +37,23 @@ public class GridManager : MonoBehaviour
     }
 
     #region Move
-    public void OnMove(HexCoords hexCoords, bool canMove = true)
+    public void OnMove(List<HexCoords> coordses, bool canMove = true)
     {
-        if (Tiles.ContainsKey(hexCoords.Pos))
+        List<HexNode> nodes = new();
+        foreach(HexCoords coords in coordses)
         {
-            Tiles[hexCoords.Pos].SetSelectOutline(canMove ? SelectOutline.MoveSelect : SelectOutline.MoveAble);
-            Tiles[hexCoords.Pos].canMove = canMove;
+            if (Tiles.ContainsKey(coords.Pos))
+                nodes.Add(Tiles[coords.Pos]);
         }
+        foreach (HexNode node in nodes)
+        {
+            node.OnDisplay(SelectOutline.MoveSelect, nodes);
+        }
+        /*if (Tiles.ContainsKey(coordses.Pos))
+        {
+            Tiles[coordses.Pos].SetSelectOutline(canMove ? SelectOutline.MoveSelect : SelectOutline.MoveAble);
+            Tiles[coordses.Pos].canMove = canMove;
+        }*/
     }
     public void OnMove(Vector2 hexPos, bool canMove = true)
     {
@@ -131,16 +141,30 @@ public class GridManager : MonoBehaviour
         OnTileUnits.Remove(Tiles[hexCoords.Pos]);
         SetWalkable();
     }
-    public Unit ContainsTile(HexNode hexNode)
+    #region ContainsOnTileUnits
+    public Unit ContainsOnTileUnits(HexNode hexNode)
     {
         if(OnTileUnits.ContainsKey(hexNode))
             return OnTileUnits[hexNode];
         return null;
     }
-    public Unit ContainsTile(HexCoords hexCoords)
+    public Unit ContainsOnTileUnits(HexCoords hexCoords)
     {
         if (Tiles.ContainsKey(hexCoords.Pos) && OnTileUnits.ContainsKey(Tiles[hexCoords.Pos]))
             return OnTileUnits[Tiles[hexCoords.Pos]];
+        return null;
+    }
+    #endregion
+    public HexNode ContainsUnit(Unit unit)
+    {
+        if (OnTileUnits.ContainsValue(unit))
+            return Tiles[unit.coords.Pos];
+        return null;
+    }
+    public HexNode GetNode(HexCoords coords)
+    {
+        if (Tiles.ContainsKey(coords.Pos))
+            return Tiles[coords.Pos];
         return null;
     }
 

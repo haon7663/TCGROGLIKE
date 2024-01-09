@@ -12,61 +12,56 @@ public class CardManager : MonoBehaviour
 
     void Awake() => Inst = this;
 
-    [SerializeField] ItemSO itemSO;
+    public List<CardSO> _CardSO;
+    [Space]
     [SerializeField] GameObject cardPrefab;
     [SerializeField] List<Card> cards;
+    [Space]
     [SerializeField] Transform cardSpawnPoint;
     [SerializeField] Transform cardBundle;
     [SerializeField] Transform cardLeftSetter;
     [SerializeField] Transform cardRightSetter;
     [SerializeField] ECardState eCardState;
 
-    List<Item> itemBuffer;
+    List<CardSO> cardBuffer;
     public Card hoveredCard;
     public Card selectedCard;
-    bool isMyCardDrag;
-    bool onMyCardArea;
+    bool isCardDrag;
+    bool onCardArea;
     enum ECardState { Noting, CanMouseOver, CanMouseDrag }
 
-    public Item PopItem()
+    public CardSO PopItem()
     {
-        if (itemBuffer.Count == 0)
+        if (cardBuffer.Count == 0)
             SetupItmeBuffer();
 
-        Item item = itemBuffer[0];
-        itemBuffer.RemoveAt(0);
-        return item;
+        CardSO card = cardBuffer[0];
+        cardBuffer.RemoveAt(0);
+        return card;
     }
 
     void SetupItmeBuffer()
     {
-        itemBuffer = new List<Item>();
-        for (int i = 0; i < itemSO.items.Length; i++)
+        cardBuffer = new List<CardSO>();
+        foreach(CardSO card in _CardSO)
         {
-            Item item = itemSO.items[i];
-            for (int j = 0; j < item.cardCount; j++)
-                itemBuffer.Add(item);
+            for (int j = 0; j < card.cardCount; j++)
+                cardBuffer.Add(card);
         }
-
-        for(int i = 0; i < itemBuffer.Count; i++)
+        for(int i = 0; i < cardBuffer.Count; i++)
         {
-            int rand = Random.Range(i, itemBuffer.Count);
-            (itemBuffer[rand], itemBuffer[i]) = (itemBuffer[i], itemBuffer[rand]);
+            int rand = Random.Range(i, cardBuffer.Count);
+            (cardBuffer[rand], cardBuffer[i]) = (cardBuffer[i], cardBuffer[rand]);
         }
-
     }
 
-    void Start()
+    public void StartSet()
     {
+        _CardSO.AddRange(UnitManager.Inst.Commander.unitData._CardSO);
+
         SetupItmeBuffer();
         TurnManager.OnAddCard += AddCard;
         TurnManager.OnTurnStarted += OnTurnStarted;
-
-        itemSO.items.Append(itemSO.items[0]);
-        foreach(Item item in itemSO.items)
-        {
-            print(item.name);
-        }    
     }
 
     void OnDestroy()
@@ -81,7 +76,7 @@ public class CardManager : MonoBehaviour
 
     void Update()
     {
-        if (isMyCardDrag)
+        if (isCardDrag)
             CardDrag();
 
         SetCardLR(cards.Count);
@@ -176,7 +171,7 @@ public class CardManager : MonoBehaviour
         if (hoveredCard != card)
         {
             hoveredCard = card;
-            UnitManager.sUnit_Attack.DrawArea(card.item);
+            UnitManager.sUnit_Attack.DrawArea(card.card);
             EnlargeCard(true, card);
         }
     }
@@ -193,17 +188,17 @@ public class CardManager : MonoBehaviour
         if (eCardState != ECardState.CanMouseDrag)
             return;
 
-        isMyCardDrag = true;
+        isCardDrag = true;
     }
     public void CardMouseUp(Card card)
     {
-        isMyCardDrag = false;
+        isCardDrag = false;
 
         if (eCardState != ECardState.CanMouseDrag)
             return;
 
         GridManager.Inst.RevertTiles();
-        if (!onMyCardArea)
+        if (!onCardArea)
             TryPutCard();
         else
         {
@@ -219,7 +214,7 @@ public class CardManager : MonoBehaviour
             return;
 
         SelectCard(true, hoveredCard);
-        if (onMyCardArea)
+        if (onCardArea)
         {
             hoveredCard.MoveTransform(new PRS(Utils.MousePos, Utils.QI, hoveredCard.originPRS.scale), false);
             hoveredCard.ShowLiner(false);
@@ -234,7 +229,7 @@ public class CardManager : MonoBehaviour
     {
         RaycastHit2D[] hits = Physics2D.RaycastAll(Utils.MousePos, Vector3.forward);
         int layer = LayerMask.NameToLayer("CardArea");
-        onMyCardArea = Array.Exists(hits, x => x.collider.gameObject.layer == layer);
+        onCardArea = Array.Exists(hits, x => x.collider.gameObject.layer == layer);
     }
 
     void EnlargeCard(bool isEnlarge, Card card)

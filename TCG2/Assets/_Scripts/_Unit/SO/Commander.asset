@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 090f8a7b5dc4ecd4d8509fbd1619f90f, type: 3}
+  m_Name: Commander
+  m_EditorClassIdentifier: 
+  type: 2
+  hp: 25
+  rangeType: 1
+  range: 2
+  cost: 5
+  _CardSO:
+  - {fileID: 11400000, guid: 04513eede687a974892e16f86d6b9f45, type: 2}
+  - {fileID: 11400000, guid: 90e8f01f2d1d475489d0adf592d96163, type: 2}
+  - {fileID: 11400000, guid: e4fa763d509db6246a4221e2ef1ca394, type: 2}
+  - {fileID: 11400000, guid: 57d070e392d197b4fb84c3d22c87b44d, type: 2}
+  - {fileID: 11400000, guid: 3e284cd5ded5a9c4b99975f910d298ba, type: 2}

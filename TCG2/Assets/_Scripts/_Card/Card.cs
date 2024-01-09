@@ -6,7 +6,6 @@ using DG.Tweening;
 
 public class Card : MonoBehaviour
 {
-    [SerializeField] SpriteRenderer card;
     [SerializeField] SpriteRenderer character;
     [SerializeField] LineRenderer lineRenderer;
     [SerializeField] TMP_Text nameTMP;
@@ -15,7 +14,7 @@ public class Card : MonoBehaviour
     [SerializeField] Sprite cardFront;
     [SerializeField] Sprite cardBack;
 
-    public Item item;
+    public CardSO card;
     public PRS originPRS;
 
     Camera  mainCamera;
@@ -25,14 +24,14 @@ public class Card : MonoBehaviour
         mainCamera = Camera.main;
     }
 
-    public void SetUp(Item item)
+    public void SetUp(CardSO card)
     {
-        this.item = item;
+        this.card = card;
 
-        character.sprite = this.item.sprite;
-        nameTMP.text = this.item.name;
-        attackTMP.text = this.item.value.ToString();
-        energyTMP.text = this.item.energy.ToString();
+        character.sprite = this.card.sprite;
+        nameTMP.text = this.card.name;
+        attackTMP.text = this.card.value.ToString();
+        energyTMP.text = this.card.energy.ToString();
     }
 
     void OnMouseOver()

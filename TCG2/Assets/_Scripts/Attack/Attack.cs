@@ -9,8 +9,8 @@ public abstract class Attack : MonoBehaviour
     public void SetManagedPool(IObjectPool<Attack> pool) => _ManagedPool = pool;
 
     public HexCoords coords;
-    public abstract void Init(Unit unit, HexDirection direction, Item item);
-    public abstract void Init(Unit unit, HexNode hexNode, Item item);
+    public abstract void Init(Unit unit, HexDirection direction, CardSO card);
+    public abstract void Init(Unit unit, HexNode hexNode, CardSO card);
 
     public void Release()
     {

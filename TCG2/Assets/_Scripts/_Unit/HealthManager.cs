@@ -45,7 +45,7 @@ public class HealthManager : MonoBehaviour
 
     public void SetFilled(Unit unit)
     {
-        healthBars[unit].healthFilled.fillAmount = (float)unit.curHp / unit.maxHp;
+        healthBars[unit].healthFilled.fillAmount = (float)unit.hp / unit.unitData.hp;
     }
 
 

@@ -10,21 +10,21 @@ public class Projectile : MonoBehaviour
     public void SetManagedPool(IObjectPool<Projectile> pool) => _ManagedPool = pool;
 
     HexCoords coords;
-    public void Init(Unit unit, HexDirection direction, Item item)
+    public void Init(Unit unit, HexDirection direction, CardSO card)
     {
         coords = unit.coords;
         transform.position = unit.coords.Pos;
-        StartCoroutine(Fire(direction, item));
+        StartCoroutine(Fire(direction, card));
     }
-    IEnumerator Fire(HexDirection direction, Item item)
+    IEnumerator Fire(HexDirection direction, CardSO card)
     {
-        for (int i = 1; i <= item.range; i++)
+        for (int i = 1; i <= card.range; i++)
         {
             if (!GridManager.Inst.Tiles.ContainsKey((coords + direction.Coords() * i).Pos))
                 continue;
             transform.DOMove((coords + direction.Coords() * i).Pos, 0.05f).SetEase(Ease.Linear);
             yield return YieldInstructionCache.WaitForSeconds(0.05f);
-            if(GridManager.Inst.ContainsTile(coords + direction.Coords() * i)?.OnDamage(item.value) == true && !item.isPenetrate)
+            if(GridManager.Inst.ContainsOnTileUnits(coords + direction.Coords() * i)?.OnDamage(card.value) == true && !card.isPenetrate)
                 break;
         }
         Release();

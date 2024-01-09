@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitType: 0
-  maxHp: 0
+  unitData: {fileID: 11400000, guid: 961c0dee51bfc8440814b14c6c0cbea9, type: 2}
   curHp: 0
 --- !u!114 &1700028537984334969
 MonoBehaviour:
@@ -65,6 +65,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   range: 1
+  cost: 0
   rangeType: 1
 --- !u!114 &7767976348556624200
 MonoBehaviour:
@@ -78,22 +79,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc647b41a715c8045b46f52fed61f0de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  item:
-    name: 
-    sprite: {fileID: 0}
-    prefab: {fileID: 0}
-    energy: 0
-    value: 0
-    cardType: 0
-    rangeType: 0
-    range: 0
-    canSelectAll: 1
-    attackType: 0
-    splashRange: 1
-    lineWidth: 1
-    multiShot: 1
-    isPenetrate: 0
-    cardCount: 0
+  card: {fileID: 0}
 --- !u!61 &118337361320573389
 BoxCollider2D:
   m_ObjectHideFlags: 0
