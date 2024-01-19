@@ -13,6 +13,7 @@ public class UnitSO : ScriptableObject
     public RangeType rangeType;
     public int range;
     public int cost;
+    public bool isJump = false;
 
     [Space]
     public List<CardSO> _CardSO;

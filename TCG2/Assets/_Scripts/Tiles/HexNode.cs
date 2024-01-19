@@ -7,7 +7,7 @@ using System.Linq;
 
 public enum SelectOutline
 {
-    MoveSelect, MoveAble, AttackSelect, DamageAble,
+    MoveSelect, MoveAble, AttackSelect, DamageAble, BuffSelect, BuffAble, Default
 }
 
 public class HexNode : MonoBehaviour
@@ -22,56 +22,57 @@ public class HexNode : MonoBehaviour
     [SerializeField] GameObject moveAbleObject;
     [SerializeField] GameObject attackSelectObject;
     [SerializeField] GameObject damageAbleObject;
+    [SerializeField] GameObject buffSelectObject;
+    [SerializeField] GameObject buffAbleObject;
     [SerializeField] GameObject displayMoveObject;
     [SerializeField] GameObject displayAttackObject;
 
-    public HexCoords Coords;
-    public float GetDistance(HexNode other) => Coords.GetDistance(other.Coords); // Helper to reduce noise in pathfinding
-    public bool walkAble;
+    public HexCoords coords;
+    public float GetDistance(HexNode other) => coords.GetDistance(other.coords); // Helper to reduce noise in pathfinding
+    public bool onObstacle, onUnit;
     public bool canMove, canAttack, canDamaged;
 
     public virtual void Init(bool walkable, HexCoords coords)
     {
-        walkAble = walkable;
+        onObstacle = !walkable;
 
-        spriteRenderer.color = walkable ? walkableColor.Evaluate(Random.Range(0f, 1f)) : obstacleColor;
+        spriteRenderer.enabled = walkable;
         spriteRenderer.sortingOrder = -coords._r;
 
-        Coords = coords;
+        this.coords = coords;
         coordsText.text = "q: " + coords._q + ", r: " + coords._r + "  s: " + coords._s;
-        transform.position = Coords.Pos;
+        transform.position = this.coords.Pos;
     }
 
     void OnMouseDown()
     {
-        if (!walkAble) return;
+        if (!CanWalk()) return;
 
         if (canMove)
         {
-            UnitManager.sUnit_Move.OnMove(Coords);
+            StartCoroutine(UnitManager.sUnit_Move.OnMove(coords));
         }
         else if (canAttack)
         {
-            UnitManager.sUnit_Attack.OnAttack();
+            UnitManager.sUnit_Card.UseCard(this);
         }
     }
     void OnMouseOver()
     {
-        if (!walkAble || (!canMove && !canAttack)) return;
-        UnitManager.sUnit.Repeat(this);
+        bool canMoveOrAttack = canMove || canAttack;
+
+        GridManager.Inst.SelectNode(this, canMoveOrAttack);
+
+        if (canMoveOrAttack)
+            UnitManager.sUnit.Repeat(this);
 
         if (canMove)
-        {
             UnitManager.sUnit_Move.TouchArea(this).displayMoveObject.SetActive(true);
-        }
         else if (canAttack)
-        {
-            foreach (HexNode hexNode in UnitManager.sUnit_Attack.GetArea(this))
-            {
+            foreach (HexNode hexNode in UnitManager.sUnit_Card.SelectArea(this))
                 hexNode.displayAttackObject.SetActive(true);
-            }
-        }
     }
+
     void OnMouseExit()
     {
         if (!canMove && !canAttack) return;
@@ -79,10 +80,6 @@ public class HexNode : MonoBehaviour
         GridManager.Inst.RevertAbles();
     }
 
-    public void SetSelectOutline(SelectOutline selectLine)
-    {
-        GridManager.Inst.selectedNode.Add(this);
-    }
     public void OnDisplay(SelectOutline selectLine, List<HexNode> nodes)
     {
         switch (selectLine)
@@ -92,14 +89,14 @@ public class HexNode : MonoBehaviour
                 moveSelectObject.SetActive(true);
                 foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
                 {
-                    moveSelectObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(Coords + direction.Coords())));
+                    moveSelectObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(coords + direction.Coords())));
                 }
                 break;
             case SelectOutline.MoveAble:
                 moveAbleObject.SetActive(true);
                 foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
                 {
-                    moveAbleObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(Coords + direction.Coords())));
+                    moveAbleObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(coords + direction.Coords())));
                 }
                 break;
             case SelectOutline.AttackSelect:
@@ -107,7 +104,7 @@ public class HexNode : MonoBehaviour
                 attackSelectObject.SetActive(true);
                 foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
                 {
-                    attackSelectObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(Coords + direction.Coords())));
+                    attackSelectObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(coords + direction.Coords())));
                 }
                 break;
             case SelectOutline.DamageAble:
@@ -115,10 +112,30 @@ public class HexNode : MonoBehaviour
                 damageAbleObject.SetActive(true);
                 foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
                 {
-                    damageAbleObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(Coords + direction.Coords())));
+                    damageAbleObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(coords + direction.Coords())));
+                }
+                break;
+            case SelectOutline.BuffSelect:
+                canAttack = true;
+                buffSelectObject.SetActive(true);
+                foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
+                {
+                    buffSelectObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(coords + direction.Coords())));
+                }
+                break;
+            case SelectOutline.BuffAble:
+                buffAbleObject.SetActive(true);
+                foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
+                {
+                    buffAbleObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(coords + direction.Coords())));
                 }
                 break;
         }
+    }
+
+    public void DebugColor(Color color)
+    {
+        spriteRenderer.color = color;
     }
 
     public void RevertTile()
@@ -127,8 +144,9 @@ public class HexNode : MonoBehaviour
         moveAbleObject.SetActive(false);
         attackSelectObject.SetActive(false);
         damageAbleObject.SetActive(false);
+        buffSelectObject.SetActive(false);
+        buffAbleObject.SetActive(false);
 
-        GridManager.Inst.selectedNode.Remove(this);
         canMove = false;
         canAttack = false;
         canDamaged = false;
@@ -140,6 +158,11 @@ public class HexNode : MonoBehaviour
         displayAttackObject.SetActive(false);
     }
 
+    public bool CanWalk()
+    {
+        return !onObstacle && !onUnit;
+    }
+
     #region Pathfinding
     public List<HexNode> Neighbors { get; protected set; }
     public HexNode Connection { get; private set; }
@@ -149,7 +172,7 @@ public class HexNode : MonoBehaviour
 
     public void CacheNeighbors()
     {
-        Neighbors = GridManager.Inst.Tiles.Where(t => Coords.GetDistance(t.Value.Coords) == 1).Select(t => t.Value).ToList();
+        Neighbors = GridManager.Inst.Tiles.Where(t => coords.GetDistance(t.Value.coords) == 1).Select(t => t.Value).ToList();
     }
 
     public void SetConnection(HexNode nodeBase)
@@ -181,7 +204,7 @@ public struct HexCoords
         _q = q;
         _r = r;
         _s = -q - r;
-        Pos = _q * new Vector2(HexSize * 2, 0) + _r * new Vector2(HexSize, Sqrt3 / 2);
+        Pos = _q * new Vector2(HexSize * 2, 0) + _r * new Vector2(HexSize, HexSize);
     }
     public HexCoords(float q, float r)
     {
@@ -190,7 +213,7 @@ public struct HexCoords
         _q = sq;
         _r = sr;
         _s = -sq - sr;
-        Pos = sq * new Vector2(HexSize * 2, 0) + sr * new Vector2(HexSize, Sqrt3 / 2);
+        Pos = sq * new Vector2(HexSize * 2, 0) + sr * new Vector2(HexSize, HexSize);
     }
 
     public static HexCoords operator +(HexCoords a, HexCoords b)
@@ -225,6 +248,8 @@ public struct HexCoords
 
     public float GetDistance(HexCoords other) => (this - other).AxialLength();
 
+    public float GetPathDistance(HexCoords other) => Pathfinding.FindPathDistance(GridManager.Inst.GetTile(this), GridManager.Inst.GetTile(other));
+
     private static readonly float Sqrt3 = Mathf.Sqrt(3);
 
     private static readonly float HexSize = 1;
@@ -247,9 +272,13 @@ public struct HexCoords
                _r == coords._r &&
                _s == coords._s;
     }
-
     public override int GetHashCode()
     {
         return HashCode.Combine(_q, _r, _s);
+    }
+
+    public void DebugQRS()
+    {
+        Debug.Log("Q: " + _q + " / R: " + _r + " / S: " + _s);
     }
 }

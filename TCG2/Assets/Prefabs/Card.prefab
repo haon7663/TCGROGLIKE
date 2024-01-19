@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 1745259312873404822}
   - component: {fileID: 1745259312873404821}
   - component: {fileID: 1745259312873404820}
-  - component: {fileID: 1713099468464893639}
+  - component: {fileID: 7898959896176676555}
   - component: {fileID: 6860496211036056244}
   m_Layer: 0
   m_Name: Card
@@ -275,7 +275,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5a9cc77041da1b429be923659a1f026, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  card: {fileID: 1745259312873404822}
   character: {fileID: 1745259313246694168}
   lineRenderer: {fileID: 6860496211036056244}
   nameTMP: {fileID: 1745259313393691746}
@@ -283,22 +282,7 @@ MonoBehaviour:
   energyTMP: {fileID: 1745259313081838378}
   cardFront: {fileID: 1975506095, guid: d1c2ce03f3430924b96a7768d3444fd5, type: 3}
   cardBack: {fileID: -1644381748, guid: d1c2ce03f3430924b96a7768d3444fd5, type: 3}
-  item:
-    name: 
-    sprite: {fileID: 0}
-    prefab: {fileID: 0}
-    energy: 0
-    value: 0
-    cardType: 0
-    rangeType: 0
-    range: 0
-    canSelectAll: 1
-    attackType: 0
-    splashRange: 1
-    lineWidth: 1
-    multiShot: 1
-    isPenetrate: 0
-    cardCount: 0
+  cardData: {fileID: 0}
   originPRS:
     pos: {x: 0, y: 0, z: 0}
     rot: {x: 0, y: 0, z: 0, w: 0}
@@ -323,7 +307,7 @@ MonoBehaviour:
   - {fileID: 1745259312687731054}
   - {fileID: 1745259313081838379}
   sortingLayerName: Card
---- !u!60 &1713099468464893639
+--- !u!60 &7898959896176676555
 PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -369,10 +353,6 @@ PolygonCollider2D:
     m_Paths:
     - - {x: -1.46875, y: 1.9375}
       - {x: -1.46875, y: -1.9375}
-      - {x: -0.8, y: -1.9375}
-      - {x: -0.7, y: -2.6}
-      - {x: 0.7, y: -2.6}
-      - {x: 0.8, y: -1.9375}
       - {x: 1.46875, y: -1.9375}
       - {x: 1.46875, y: 1.9375}
   m_UseDelaunayMesh: 0

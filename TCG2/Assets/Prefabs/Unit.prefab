@@ -49,9 +49,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81f706b22bb85934da1608209c1b5da8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitType: 0
+  move: {fileID: 0}
+  card: {fileID: 0}
   unitData: {fileID: 11400000, guid: 961c0dee51bfc8440814b14c6c0cbea9, type: 2}
-  curHp: 0
+  hp: 0
+  defence: 0
 --- !u!114 &1700028537984334969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64,9 +66,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ef0b4302d2c9134bb58f9621df1489f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: 1
-  cost: 0
-  rangeType: 1
 --- !u!114 &7767976348556624200
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,6 +134,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2761320161037888333}
   - component: {fileID: 6632511146671883630}
+  - component: {fileID: 7784512421129618076}
   m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
@@ -209,6 +209,27 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!95 &7784512421129618076
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3877744928598855744}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 114fe81abea4d4643a0db20b2a566f92, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &7288851113578884946
 GameObject:
   m_ObjectHideFlags: 0

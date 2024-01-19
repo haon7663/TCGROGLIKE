@@ -2,41 +2,58 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
 
 public class Unit_Card : MonoBehaviour
 {
     Unit unit;
-    IObjectPool<Projectile> _ProjectilePool;
     void Awake()
     {
         unit = GetComponent<Unit>();
-
-        _ProjectilePool = new ObjectPool<Projectile>(CreateProjectile, OnGetProjectile, OnReleaseProjectile, OnDestroyProjectile);
     }
 
-    [HideInInspector] public CardSO card;
-
-    HexDirection direction;
-    public void DrawArea(CardSO card)
+    public CardSO cardData;
+    public void DrawArea(CardSO cardData, bool canSelect = true)
     {
-        GridManager.Inst.RevertTiles();
-        this.card = card;
+        if (canSelect)
+            GridManager.Inst.RevertTiles();
 
+        this.cardData = cardData;
+
+        List<HexCoords> selectCoords = GetArea(cardData);
+
+        SelectOutline outline = SelectOutline.Default;
+        switch(cardData.cardType)
+        {
+            case CardType.Attack:
+                outline = canSelect ? SelectOutline.AttackSelect : SelectOutline.DamageAble;
+                break;
+            case CardType.Buff:
+                outline = SelectOutline.BuffAble;
+                break;
+        }
+        GridManager.Inst.SelectNodes(selectCoords, outline);
+    }
+    public List<HexCoords> GetArea(CardSO cardData)
+    {
         List<HexCoords> selectCoords = new();
-        switch (card.rangeType)
+        switch (cardData.rangeType)
         {
             case RangeType.Liner:
                 foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                 {
-                    var floorWide = Mathf.FloorToInt((float)card.lineWidth / 2);
+                    var floorWide = Mathf.FloorToInt((float)cardData.lineWidth / 2);
                     for (int j = -floorWide; j <= floorWide; j++)
                     {
-                        for (int i = 0; i < card.range; i++)
+                        for (int i = 0; i < cardData.range; i++)
                         {
                             var coords = unit.coords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i;
-                            if (GridManager.Inst.GetUnit(coords) == null || card.isPenetrate)
+                            if (GridManager.Inst.GetTile(coords)?.CanWalk() == true || cardData.isPenetrate)
                                 selectCoords.Add(coords);
+                            else if(GridManager.Inst.GetTile(coords)?.onUnit == true)
+                            {
+                                selectCoords.Add(coords);
+                                break;
+                            }
                             else
                                 break;
                         }
@@ -44,95 +61,104 @@ public class Unit_Card : MonoBehaviour
                 }
                 break;
             case RangeType.Area:
-                if (card.canSelectAll)
-                    foreach (HexNode hexNode in HexDirectionExtension.Area(unit.coords, card.range))
-                        selectCoords.Add(hexNode.Coords);
+                if (cardData.canSelectAll)
+                    foreach (HexNode hexNode in HexDirectionExtension.Area(unit.coords, cardData.range, cardData.onSelf))
+                    {
+                        selectCoords.Add(hexNode.coords);
+                    }
                 else
                 {
                     foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                     {
                         selectCoords.Add(unit.coords + hexDirection.Coords());
                     }
-                    foreach (HexNode hexNode in HexDirectionExtension.Area(unit.coords, card.range))
+                    foreach (HexNode hexNode in HexDirectionExtension.Area(unit.coords, cardData.range, cardData.onSelf))
                     {
-                        selectCoords.Add(hexNode.Coords);
+                        selectCoords.Add(hexNode.coords);
                     }
                 }
                 break;
-            case RangeType.Our:
-                foreach (var unit in GridManager.Inst.OnTileUnits.Values.Where(t => t.unitData.type != UnitType.Enemy))
+            case RangeType.OurArea:
+                foreach (HexNode hexNode in HexDirectionExtension.Area(unit.coords, cardData.range, cardData.onSelf))
                 {
-                    selectCoords.Add(GridManager.Inst.GetTile(unit).Coords);
+                    selectCoords.Add(hexNode.coords);
                 }
+                List<HexCoords> unitCoords = new();
+                foreach (var unit in GridManager.Inst.OnTileUnits.Values.Where(t => t.unitData.type != UnitType.Enemy && selectCoords.Contains(t.coords)))
+                {
+                    unitCoords.Add(GridManager.Inst.GetTile(unit).coords);
+                }
+                GridManager.Inst.SelectNodes(unitCoords, SelectOutline.BuffSelect);
+                break;
+            case RangeType.Self:
+                selectCoords.Add(unit.coords);
                 break;
         }
-
-        GridManager.Inst.OnSelect(selectCoords, SelectOutline.AttackSelect);
+        return selectCoords;
     }
-
-    public List<HexNode> GetArea(HexNode hexNode)
+    public List<HexNode> SelectArea(HexNode node)
     {
+        unit.Anim_SetBool("isReady", true);
+
         GridManager.Inst.RevertAbles();
         List<HexNode> hexNodes = new List<HexNode>();
 
-        direction = (hexNode.Coords - unit.coords).GetSignDirection();
+        var direction = (node.coords - unit.coords).GetSignDirection();
         //Debug.Log(hexDirection.Coords()._q.ToString() + "/" + hexDirection.Coords()._r.ToString());
-        switch (card.attackType)
+        switch (cardData.selectType)
         {
-            case AttackType.Single:
-                hexNodes.Add(hexNode);
+            case SelectType.Single:
+                hexNodes.Add(node);
                 break;
-            case AttackType.Wide:
-                hexNodes.AddRange(HexDirectionExtension.Diagonal(unit.coords, direction, card.range));
+            case SelectType.Wide:
+                hexNodes.AddRange(HexDirectionExtension.Diagonal(unit.coords, direction, cardData.range));
                 break;
-            case AttackType.Liner:
-                for(int i = -card.multiShot/2; i <= card.multiShot/2; i++)
-                    hexNodes.AddRange(HexDirectionExtension.Liner(unit.coords, direction.Rotate(i), card.range, card.lineWidth, card.isPenetrate));
+            case SelectType.Liner:
+                for(int i = -cardData.multiShot/2; i <= cardData.multiShot/2; i++)
+                    hexNodes.AddRange(HexDirectionExtension.Liner(unit.coords, direction.Rotate(i), cardData.range, cardData.lineWidth, cardData.isPenetrate));
                 break;
-            case AttackType.Splash:
-                hexNodes.AddRange(HexDirectionExtension.Area(hexNode.Coords, card.splashRange, true));
+            case SelectType.Splash:
+                hexNodes.AddRange(HexDirectionExtension.Area(node.coords, cardData.splashRange, true));
                 break;
-            case AttackType.Emission:
-                hexNodes.AddRange(HexDirectionExtension.Diagonal(unit.coords + direction, direction, card.range - 1, true));
+            case SelectType.Emission:
+                hexNodes.AddRange(HexDirectionExtension.Diagonal(unit.coords + direction, direction, cardData.range - 1, true));
                 break;
         }
         return hexNodes;
     }
 
-    public bool OnAttack()
+    public bool UseCard(HexNode node)
     {
-        switch (card.attackType)
+        if (!node) return false;
+        unit.Anim_SetTrigger("attack");
+        unit.Anim_SetBool("isReady", false);
+
+        TurnManager.UseEnergy(cardData.energy);
+
+        var direction = (node.coords - unit.coords).GetSignDirection();
+        Attack prefab;
+        switch (cardData.selectType)
         {
-            case AttackType.Single:
+            case SelectType.Single:
+                prefab = Instantiate(cardData.prefab).GetComponent<Attack>();
+                prefab.Init(unit, node, cardData);
                 break;
-            case AttackType.Wide:
+            case SelectType.Wide:
                 break;
-            case AttackType.Liner:
-                for (int i = -card.multiShot / 2; i <= card.multiShot / 2; i++)
+            case SelectType.Liner:
+                for (int i = -cardData.multiShot / 2; i <= cardData.multiShot / 2; i++)
                 {
-                    var prefab = _ProjectilePool.Get();
-                    prefab.Init(unit, direction.Rotate(i), card);
+                    prefab = Instantiate(cardData.prefab).GetComponent<Attack>();
+                    prefab.Init(unit, direction.Rotate(i), cardData);
                 }
                 break;
-            case AttackType.Splash:
+            case SelectType.Splash:
                 break;
-            case AttackType.Emission:
+            case SelectType.Emission:
                 break;
         }
 
         GridManager.Inst.RevertTiles();
         return true;
     }
-
-    #region ProjectilePool
-    Projectile CreateProjectile()
-    {
-        Projectile prefab = Instantiate(card.prefab).GetComponent<Projectile>();
-        prefab.SetManagedPool(_ProjectilePool);
-        return prefab;
-    } 
-    void OnGetProjectile(Projectile prefab) => prefab.gameObject.SetActive(true);
-    void OnReleaseProjectile(Projectile prefab) => prefab.gameObject.SetActive(false);
-    void OnDestroyProjectile(Projectile prefab) => Destroy(prefab.gameObject);
-    #endregion
 }

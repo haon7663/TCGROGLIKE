@@ -12,22 +12,33 @@ public class CardManager : MonoBehaviour
 
     void Awake() => Inst = this;
 
-    public List<CardSO> _CardSO;
+    [HideInInspector] public List<CardSO> _CardSO;
+
+    [SerializeField] ECardState eCardState;
     [Space]
     [SerializeField] GameObject cardPrefab;
-    [SerializeField] List<Card> cards;
     [Space]
+    [SerializeField] List<CardSO> cardBuffer;
+    [SerializeField] List<Card> cards;
+    [SerializeField] List<CardSO> trashCards;
+    [SerializeField] List<CardSO> exhaustCards;
+    [Space(20)]
     [SerializeField] Transform cardSpawnPoint;
+    [SerializeField] Transform cardTrashPoint;
     [SerializeField] Transform cardBundle;
+    [SerializeField] Transform cardDeck;
     [SerializeField] Transform cardLeftSetter;
     [SerializeField] Transform cardRightSetter;
-    [SerializeField] ECardState eCardState;
 
-    List<CardSO> cardBuffer;
-    public Card hoveredCard;
-    public Card selectedCard;
+    [SerializeField] int deckCount;
+
+    Card hoveredCard;
+    Card selectedCard;
+
     bool isCardDrag;
     bool onCardArea;
+    bool onCardDeck;
+
     enum ECardState { Noting, CanMouseOver, CanMouseDrag }
 
     public CardSO PopItem()
@@ -43,7 +54,8 @@ public class CardManager : MonoBehaviour
     void SetupItmeBuffer()
     {
         cardBuffer = new List<CardSO>();
-        foreach(CardSO card in _CardSO)
+        trashCards = new List<CardSO>();
+        foreach (CardSO card in _CardSO)
         {
             for (int j = 0; j < card.cardCount; j++)
                 cardBuffer.Add(card);
@@ -62,6 +74,8 @@ public class CardManager : MonoBehaviour
         SetupItmeBuffer();
         TurnManager.OnAddCard += AddCard;
         TurnManager.OnTurnStarted += OnTurnStarted;
+
+        //OpenDeck(cardBuffer);
     }
 
     void OnDestroy()
@@ -86,7 +100,7 @@ public class CardManager : MonoBehaviour
 
     void AddCard()
     {
-        var cardObject = Instantiate(cardPrefab, cardSpawnPoint.position, Utils.QI);
+        var cardObject = Instantiate(cardPrefab, cardSpawnPoint.localPosition, Utils.QI);
         cardObject.transform.SetParent(cardBundle);
         var card = cardObject.GetComponent<Card>();
         card.SetUp(PopItem());
@@ -94,6 +108,18 @@ public class CardManager : MonoBehaviour
 
         SetOriginOrder();
         CardAlignment();
+    }
+
+    public void RemoveCards()
+    {
+        PRS trashCardPRS = new PRS(cardTrashPoint.localPosition, Quaternion.identity, Vector3.one);
+        foreach (Card card in cards)
+        {
+            card.MoveTransform(trashCardPRS, true, 0.7f);
+            trashCards.Add(card.cardData);
+            Destroy(card.gameObject, 0.7f);
+        }
+        cards = new();
     }
 
     void SetOriginOrder()
@@ -150,28 +176,35 @@ public class CardManager : MonoBehaviour
 
     public void TryPutCard()
     {
-        if (!UnitManager.sUnit_Attack.OnAttack())
-            return;
-        cards.Remove(selectedCard);
-        selectedCard.transform.DOKill();
-        DestroyImmediate(selectedCard.gameObject);
+        if (UnitManager.sUnit_Card.UseCard(GridManager.Inst.selectedNode))
+        {
+            cards.Remove(selectedCard);
+            trashCards.Add(selectedCard.cardData);
+            selectedCard.transform.DOKill();
+            DestroyImmediate(selectedCard.gameObject);
+        }
 
         hoveredCard = null;
         selectedCard = null;
         CardAlignment();
     }
 
-
     #region MyCard
 
     public void CardMouseOver(Card card)
     {
+        if (onCardDeck)
+        {
+            EnlargeCard(true, card, true);
+            return;
+        }
+
         if (eCardState == ECardState.Noting || selectedCard)
             return;
         if (hoveredCard != card)
         {
             hoveredCard = card;
-            UnitManager.sUnit_Attack.DrawArea(card.card);
+            UnitManager.sUnit_Card.DrawArea(card.cardData);
             EnlargeCard(true, card);
         }
     }
@@ -185,19 +218,22 @@ public class CardManager : MonoBehaviour
     }
     public void CardMouseDown(Card card)
     {
-        if (eCardState != ECardState.CanMouseDrag)
+        if (eCardState != ECardState.CanMouseDrag || onCardDeck)
             return;
 
         isCardDrag = true;
+        UnitManager.Inst.SetOrder(false);
     }
     public void CardMouseUp(Card card)
     {
         isCardDrag = false;
+        UnitManager.Inst.SetOrder(true);
 
-        if (eCardState != ECardState.CanMouseDrag)
+        if (eCardState != ECardState.CanMouseDrag || onCardDeck)
             return;
 
         GridManager.Inst.RevertTiles();
+        hoveredCard.ShowLiner(false);
         if (!onCardArea)
             TryPutCard();
         else
@@ -232,12 +268,12 @@ public class CardManager : MonoBehaviour
         onCardArea = Array.Exists(hits, x => x.collider.gameObject.layer == layer);
     }
 
-    void EnlargeCard(bool isEnlarge, Card card)
+    void EnlargeCard(bool isEnlarge, Card card, bool isOriginPos = false)
     {
         if (isEnlarge)
         {
             Vector3 enlargePos = new Vector3(card.originPRS.pos.x, -4f, -9);
-            card.MoveTransform(new PRS(enlargePos, Utils.QI, Vector3.one * 1.5f), true, 0.1f);
+            card.MoveTransform(new PRS(isOriginPos ? card.originPRS.pos : enlargePos, Utils.QI, Vector3.one * 1.5f), true, 0.1f);
         }
         else
             card.MoveTransform(card.originPRS, true, 0.3f);
@@ -266,7 +302,7 @@ public class CardManager : MonoBehaviour
     {
         switch (TurnManager.Inst.paze)
         {
-            case Paze.Draw | Paze.End | Paze.Enemy:
+            case Paze.Draw or Paze.End or Paze.Enemy:
                 eCardState = ECardState.Noting;
                 break;
             case Paze.Move:
@@ -295,4 +331,22 @@ public class CardManager : MonoBehaviour
     }
 
     #endregion
+
+    public void OpenDeck(List<CardSO> cards)
+    {
+        onCardDeck = true;
+        cards = cards.OrderBy(x => x.name).ToList();
+        for(int i = 0; i < cards.Count; i++)
+        {
+            var cardObject = Instantiate(cardPrefab);
+            cardObject.transform.SetParent(cardDeck);
+
+            var card = cardObject.GetComponent<Card>();
+            card.originPRS = new PRS(new Vector3(((i % deckCount) - (deckCount - 1f) / 2) * 3.5f, i / deckCount * -4.5f + 7f), Utils.QI, Vector2.one);
+            print(card.originPRS.pos);
+            card.MoveTransform(card.originPRS, false);
+            card.SetUp(cards[i]);
+            card.GetComponent<Order>().SetOriginOrder(99);
+        }
+    }
 }

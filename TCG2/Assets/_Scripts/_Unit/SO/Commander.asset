@@ -14,13 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 2
   hp: 25
-  rangeType: 0
-  range: 5
+  rangeType: 1
+  range: 3
   cost: 5
+  isJump: 0
   _CardSO:
-  - {fileID: 11400000, guid: 04513eede687a974892e16f86d6b9f45, type: 2}
-  - {fileID: 11400000, guid: 90e8f01f2d1d475489d0adf592d96163, type: 2}
-  - {fileID: 11400000, guid: e4fa763d509db6246a4221e2ef1ca394, type: 2}
   - {fileID: 11400000, guid: 57d070e392d197b4fb84c3d22c87b44d, type: 2}
   - {fileID: 11400000, guid: 3e284cd5ded5a9c4b99975f910d298ba, type: 2}
-  - {fileID: 11400000, guid: 20156ef93e4e6d341900b3738cbff453, type: 2}
+  - {fileID: 11400000, guid: 04513eede687a974892e16f86d6b9f45, type: 2}
+  - {fileID: 11400000, guid: d545828b652cb6e438aa98bb62f34708, type: 2}

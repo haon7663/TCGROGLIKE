@@ -15,6 +15,9 @@ MonoBehaviour:
   type: 1
   hp: 25
   rangeType: 1
-  range: 3
+  range: 2
   cost: 4
-  _CardSO: []
+  isJump: 0
+  _CardSO:
+  - {fileID: 11400000, guid: efa01da98005e0545a877216ecfd19bb, type: 2}
+  - {fileID: 11400000, guid: e9bcfcaa262df2441b26637accc57c2a, type: 2}

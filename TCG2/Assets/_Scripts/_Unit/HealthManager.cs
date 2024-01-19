@@ -2,16 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class HealthBar
 {
     public Transform healthBar;
     public Image healthFilled;
+    public TMP_Text defenceText;
 
     public HealthBar(Transform healthBar)
     {
         this.healthBar = healthBar;
         healthFilled = healthBar.GetChild(0).GetComponent<Image>();
+        defenceText = healthBar.GetChild(1).GetComponentInChildren<TMP_Text>();
     }
 }
 
@@ -43,10 +46,9 @@ public class HealthManager : MonoBehaviour
         healthBars.Add(unit, new HealthBar(Instantiate(healthBar, canvas)));
     }
 
-    public void SetFilled(Unit unit)
+    public void SetHealthBar(Unit unit)
     {
         healthBars[unit].healthFilled.fillAmount = (float)unit.hp / unit.unitData.hp;
+        healthBars[unit].defenceText.text = unit.defence.ToString();
     }
-
-
 }

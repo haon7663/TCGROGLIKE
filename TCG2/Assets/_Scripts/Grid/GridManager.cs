@@ -15,14 +15,12 @@ public class GridManager : MonoBehaviour
         OnTileUnits = new Dictionary<HexNode, Unit>();
     }
 
-    [SerializeField] Sprite _playerSprite, _goalSprite;
-    [SerializeField] Unit _unitPrefab;
     [SerializeField] ScriptableGrid _scriptableGrid;
-    [SerializeField] bool _drawConnections;
+    //[SerializeField] bool _drawConnections;
 
     public Dictionary<Vector2, HexNode> Tiles { get; private set; }
     public Dictionary<HexNode, Unit> OnTileUnits { get; private set; }
-    public List<HexNode> selectedNode;
+    public HexNode selectedNode;
 
     HexNode _playerNodeBase, _goalNodeBase;
 
@@ -35,18 +33,25 @@ public class GridManager : MonoBehaviour
     {
         foreach (var t in Tiles.Values) t.RevertAble();
     }
-    public void OnSelect(List<HexCoords> coordses, SelectOutline outline)
+    public void SelectNodes(List<HexCoords> coordses, SelectOutline outline)
     {
-        List<HexNode> nodes = new();
-        foreach (HexCoords coords in coordses)
+        List<HexNode> tiles = new();
+        foreach (HexCoords c in coordses)
         {
-            if (Tiles.ContainsKey(coords.Pos))
-                nodes.Add(Tiles[coords.Pos]);
+            if (Tiles.ContainsKey(c.Pos))
+                tiles.Add(Tiles[c.Pos]);
         }
-        foreach (HexNode node in nodes)
+        foreach (HexNode t in tiles)
         {
-            node.OnDisplay(outline, nodes);
+            t.OnDisplay(outline, tiles);
         }
+    }
+    public void SelectNode(HexNode node, bool isSelect = true)
+    {
+        if (!isSelect)
+            selectedNode = null;
+        else if (node != selectedNode)
+            selectedNode = node;
     }
 
     #region OnTileUnit
@@ -68,12 +73,14 @@ public class GridManager : MonoBehaviour
     }
     public void OnTileMove(HexNode prevNode, HexNode nextNode, Unit unit)
     {
+        if (prevNode == nextNode) return;
         OnTileUnits.Add(nextNode, unit);
         OnTileUnits.Remove(prevNode);
         SetWalkable();
     }
     public void OnTileMove(HexCoords prevCoords, HexCoords nextCoords, Unit unit)
     {
+        if (prevCoords == nextCoords) return;
         OnTileUnits.Add(Tiles[nextCoords.Pos], unit);
         OnTileUnits.Remove(Tiles[prevCoords.Pos]);
         SetWalkable();
@@ -119,23 +126,22 @@ public class GridManager : MonoBehaviour
     public void SetWalkable()
     {
         foreach (KeyValuePair<Vector2, HexNode> tile in Tiles)
-            tile.Value.walkAble = !OnTileUnits.ContainsKey(tile.Value);
+            tile.Value.onUnit = OnTileUnits.ContainsKey(tile.Value);
     }
 
-    void SpawnUnits()
+    public HexNode GetRandomNode()
     {
-        //_playerNodeBase = Tiles.Where(t => t.Value.Walkable).OrderBy(t => Random.value).First().Value;
-        //_spawnedPlayer = Instantiate(_unitPrefab, _playerNodeBase.Coords.Pos, Quaternion.identity);
+        return Tiles.Where(t => t.Value.CanWalk()).OrderBy(t => Random.value).First().Value;
     }
 
-    void OnDrawGizmos()
+    /*void OnDrawGizmos()
     {
         if (!Application.isPlaying || !_drawConnections) return;
         Gizmos.color = Color.red;
-        foreach (var tile in Tiles)
+        foreach (var t in Tiles)
         {
-            if (tile.Value.Connection == null) continue;
-            Gizmos.DrawLine((Vector3)tile.Key + new Vector3(0, 0, -1), (Vector3)tile.Value.Connection.Coords.Pos + new Vector3(0, 0, -1));
+            if (t.Value.Connection == null) continue;
+            Gizmos.DrawLine((Vector3)t.Key + new Vector3(0, 0, -1), (Vector3)t.Value.Connection.Coords.Pos + new Vector3(0, 0, -1));
         }
-    }
+    }*/
 }

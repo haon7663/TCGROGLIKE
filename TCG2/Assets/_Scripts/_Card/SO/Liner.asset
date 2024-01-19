@@ -18,11 +18,13 @@ MonoBehaviour:
   value: 6
   cardType: 0
   rangeType: 0
+  onSelf: 0
   range: 4
   canSelectAll: 1
-  attackType: 3
-  splashRange: 1
   lineWidth: 1
+  selectType: 3
+  splashRange: 1
   multiShot: 1
-  isPenetrate: 1
+  isPenetrate: 0
   cardCount: 8
+  shouldClose: 1

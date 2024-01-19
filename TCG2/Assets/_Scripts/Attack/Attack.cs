@@ -5,15 +5,39 @@ using UnityEngine.Pool;
 
 public abstract class Attack : MonoBehaviour
 {
-    IObjectPool<Attack> _ManagedPool;
-    public void SetManagedPool(IObjectPool<Attack> pool) => _ManagedPool = pool;
+    [HideInInspector] public HexCoords coords;
+    [HideInInspector] public CardSO card;
 
-    public HexCoords coords;
     public abstract void Init(Unit unit, HexDirection direction, CardSO card);
     public abstract void Init(Unit unit, HexNode hexNode, CardSO card);
 
-    public void Release()
+    public bool ActiveEventValue(HexCoords coords, CardSO card)
     {
-        _ManagedPool.Release(this);
+        this.coords = coords;
+        this.card = card;
+        return ActiveEvent();
     }
+    public bool ActiveEvent()
+    {
+        var onUnit = GridManager.Inst.GetUnit(coords);
+        if (onUnit != null)
+        {
+            switch (card.activeType)
+            {
+                case ActiveType.Damage:
+                    onUnit.OnDamage(card.value);
+                    break;
+                case ActiveType.Defence:
+                    onUnit.OnDefence(card.value);
+                    break;
+                case ActiveType.Health:
+                    onUnit.OnDefence(card.value);
+                    break;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public void DestroyEvent() => Destroy(gameObject);
 }

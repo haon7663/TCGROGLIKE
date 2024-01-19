@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] NotificationPanel notificationPanel;
     [SerializeField] TMP_Text pazeText;
+    [SerializeField] TMP_Text energyText;
+    [SerializeField] TMP_Text moveCostText;
 
     void Start()
     {
@@ -19,6 +21,8 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         pazeText.text = "Paze: " + TurnManager.Inst.paze.ToString();
+        energyText.text = TurnManager.Inst.Energy + " / " + TurnManager.Inst.maxEnergy;
+        moveCostText.text = TurnManager.Inst.MoveCost + " / " + TurnManager.Inst.maxMoveCost;
 
 #if UNITY_EDITOR
         InputCheatKey();
@@ -31,13 +35,19 @@ public class GameManager : MonoBehaviour
             TurnManager.OnAddCard?.Invoke();
 
         if (Input.GetKeyDown(KeyCode.Keypad2))
-            TurnManager.OnAddCard?.Invoke();
+            TurnManager.UseEnergy(TurnManager.Inst.Energy);
 
         if (Input.GetKeyDown(KeyCode.Keypad3))
-            TurnManager.Inst.EndTurn();
+            TurnManager.UseMoveCost(TurnManager.Inst.MoveCost);
 
         if (Input.GetKeyDown(KeyCode.Keypad4))
             CardManager.Inst.TryPutCard();
+
+        if (Input.GetKeyDown(KeyCode.Keypad5))
+            foreach(var tile in GridManager.Inst.Tiles)
+            {
+                tile.Value.DebugColor(Color.white);
+            }
     }
 
     void StartGame()

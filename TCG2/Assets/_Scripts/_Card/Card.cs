@@ -11,27 +11,18 @@ public class Card : MonoBehaviour
     [SerializeField] TMP_Text nameTMP;
     [SerializeField] TMP_Text attackTMP;
     [SerializeField] TMP_Text energyTMP;
-    [SerializeField] Sprite cardFront;
-    [SerializeField] Sprite cardBack;
 
-    public CardSO card;
+    [HideInInspector] public CardSO cardData;
     public PRS originPRS;
 
-    Camera  mainCamera;
-
-    void Start()
+    public void SetUp(CardSO cardData)
     {
-        mainCamera = Camera.main;
-    }
+        this.cardData = cardData;
 
-    public void SetUp(CardSO card)
-    {
-        this.card = card;
-
-        character.sprite = this.card.sprite;
-        nameTMP.text = this.card.name;
-        attackTMP.text = this.card.value.ToString();
-        energyTMP.text = this.card.energy.ToString();
+        character.sprite = this.cardData.sprite;
+        nameTMP.text = this.cardData.name;
+        attackTMP.text = this.cardData.value.ToString();
+        energyTMP.text = this.cardData.energy.ToString();
     }
 
     void OnMouseOver()
@@ -66,7 +57,7 @@ public class Card : MonoBehaviour
         else
         {
             transform.DOKill();
-            transform.position = prs.pos;
+            transform.localPosition = prs.pos;
             transform.rotation = prs.rot;
             transform.localScale = prs.scale;
         }

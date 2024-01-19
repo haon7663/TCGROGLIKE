@@ -92,8 +92,8 @@ public static class HexDirectionExtension
         List<HexNode> hexNodes = new List<HexNode>();
         foreach(KeyValuePair<Vector2, HexNode> tile in GridManager.Inst.Tiles)
         {
-            if (!onSelf && tile.Value.Coords == unitCoords) continue;
-            if (Cube_distance(unitCoords, tile.Value.Coords) <= range)
+            if (!onSelf && tile.Value.coords == unitCoords) continue;
+            if (Cube_distance(unitCoords, tile.Value.coords) <= range)
                 hexNodes.Add(tile.Value);
         }
         return hexNodes;
@@ -113,7 +113,7 @@ public static class HexDirectionExtension
                 List<HexNode> neighbors = fringes[j].Neighbors;
                 foreach (HexNode neighbor in neighbors)
                 {
-                    if(!visited.Contains(neighbor) && neighbor.walkAble)
+                    if(!visited.Contains(neighbor) && neighbor.CanWalk())
                     {
                         visited.Add(neighbor);
                         fringes.Add(neighbor);
@@ -124,6 +124,17 @@ public static class HexDirectionExtension
         if (!onSelf)
             visited.Remove(startNode);
         return visited;
+    }
+    public static List<HexNode> TransitArea(HexCoords unitCoords, int range)
+    {
+        List<HexNode> hexNodes = new List<HexNode>();
+        foreach (KeyValuePair<Vector2, HexNode> tile in GridManager.Inst.Tiles)
+        {
+            if (tile.Value.coords == unitCoords) continue;
+            if (Cube_distance(unitCoords, tile.Value.coords) == range)
+                hexNodes.Add(tile.Value);
+        }
+        return hexNodes;
     }
 
     public static List<HexNode> Liner(HexCoords unitCoords, HexDirection hexDirection, int range, int width = 1, bool isPenetrate = false)
@@ -136,7 +147,7 @@ public static class HexDirectionExtension
             for (int j = -floorWide; j <= floorWide; j++)
             {
                 var coords = unitCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i;
-                if (GridManager.Inst.Tiles.ContainsKey(coords.Pos) && (isPenetrate || GridManager.Inst.GetUnit(coords) == null))
+                if (GridManager.Inst.Tiles.ContainsKey(coords.Pos) && (isPenetrate || GridManager.Inst.GetTile(coords).CanWalk()))
                     linerNode.Add(GridManager.Inst.GetTile(coords.Pos));
                 else if(GridManager.Inst.Tiles.ContainsKey(coords.Pos))
                 {
@@ -149,21 +160,6 @@ public static class HexDirectionExtension
         }
         return linerNode;
     }
-    public static List<HexNode> ReachLiner(HexCoords unitCoords, HexDirection hexDirection, int range, int width = 1)
-    {
-        List<HexNode> linerNode = new List<HexNode>();
-        for (int i = 0; i < range; i++)
-        {
-            var floorWide = Mathf.FloorToInt((float)width / 2);
-            for (int j = -floorWide; j <= floorWide; j++)
-            {
-                var pos = (unitCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i).Pos;
-                if (GridManager.Inst.Tiles.ContainsKey(pos))
-                    linerNode.Add(GridManager.Inst.GetTile(pos));
-            }
-        }
-        return linerNode;
-    }
 
     public static List<HexNode> Diagonal(HexCoords unitCoords, HexDirection hexDirection, int range, bool onSelf = false, bool isSubtract = false)
     {
@@ -172,7 +168,7 @@ public static class HexDirectionExtension
 
         foreach (HexNode hexNode in Area(unitCoords, range))
             if (!isSubtract || !Liner(unitCoords, hexDirection, range).Contains(hexNode))
-                if (DiagonalRange(directionCoords._q, hexNode.Coords._q, unitCoords._q, range) && DiagonalRange(directionCoords._r, hexNode.Coords._r, unitCoords._r, range) && DiagonalRange(directionCoords._s, hexNode.Coords._s, unitCoords._s, range))
+                if (DiagonalRange(directionCoords._q, hexNode.coords._q, unitCoords._q, range) && DiagonalRange(directionCoords._r, hexNode.coords._r, unitCoords._r, range) && DiagonalRange(directionCoords._s, hexNode.coords._s, unitCoords._s, range))
                     resultNode.Add(hexNode);
 
         if(onSelf)

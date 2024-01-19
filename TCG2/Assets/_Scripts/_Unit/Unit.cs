@@ -6,7 +6,18 @@ using Random = UnityEngine.Random;
 
 public class Unit : MonoBehaviour
 {
+    #region UnitComponent
+    [HideInInspector] public Unit_Move move;
+    [HideInInspector] public Unit_Card card;
+    void Awake()
+    {
+        move = GetComponent<Unit_Move>();
+        card = GetComponent<Unit_Card>();
+    }
+    #endregion
+
     SpriteRenderer spriteRenderer;
+    Animator animator;
 
     public HexCoords coords;
 
@@ -16,10 +27,15 @@ public class Unit : MonoBehaviour
     public int hp;
     public int defence;
 
+    [Header("Systems")]
+    public Unit target;
+
     void Start()
     {
         if (transform.GetChild(0).TryGetComponent(out SpriteRenderer spriteRenderer))
             this.spriteRenderer = spriteRenderer;
+        if (transform.GetChild(0).TryGetComponent(out Animator animator))
+            this.animator = animator;
 
         Init(spriteRenderer.sprite);
     }
@@ -31,7 +47,7 @@ public class Unit : MonoBehaviour
         hp = unitData.hp;
         HealthManager.Inst.GenerateHealthBar(this);
 
-        coords = new HexCoords(Random.Range(-3, 4), Random.Range(-3, 4));
+        coords = GridManager.Inst.GetRandomNode().coords;
         transform.position = (Vector3)coords.Pos - Vector3.forward;
         GridManager.Inst.OnTile(coords, this);
 
@@ -40,17 +56,33 @@ public class Unit : MonoBehaviour
 
     public void Repeat(HexNode hexNode)
     {
-        spriteRenderer.flipX = hexNode.Coords.Pos.x > transform.position.x;
+        spriteRenderer.flipX = hexNode.coords.Pos.x > transform.position.x;
     }
 
+    #region OnReceive
     public bool OnDamage(int value)
     {
         if(true)
         {
             print("Damage");
-            var overDamage = defence -= value;
-            hp -= overDamage;
-            HealthManager.Inst.SetFilled(this);
+            if (defence >= value)
+                defence -= value;
+            else if(defence < value)
+            {
+                var overValue = defence - value;
+                hp += overValue;
+                defence = 0;
+            }
+            else
+            {
+                hp -= value;
+            }
+            HealthManager.Inst.SetHealthBar(this);
+
+            if(hp <= 0)
+            {
+                UnitManager.Inst.Death(this);
+            }
             return true;
         }
     }
@@ -60,7 +92,7 @@ public class Unit : MonoBehaviour
         {
             print("Health");
             hp += value;
-            HealthManager.Inst.SetFilled(this);
+            HealthManager.Inst.SetHealthBar(this);
             return true;
         }
     }
@@ -70,13 +102,19 @@ public class Unit : MonoBehaviour
         {
             print("Defence");
             defence += value;
-            HealthManager.Inst.SetFilled(this);
+            HealthManager.Inst.SetHealthBar(this);
             return true;
         }
     }
+    #endregion
 
     void OnMouseDown()
     {
         UnitManager.Inst.SelectUnit(this);
     }
+
+    #region Animations
+    public void Anim_SetTrigger(string name) => animator.SetTrigger(name);
+    public void Anim_SetBool(string name, bool value) => animator.SetBool(name, value);
+    #endregion
 }

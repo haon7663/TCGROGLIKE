@@ -19,8 +19,8 @@ public class TurnManager : MonoBehaviour
     public bool myTurn;
 
     [Header("Resources")]
-    [SerializeField] int maxMoveCost;
-    [SerializeField] int maxEnergy;
+    public int maxMoveCost;
+    public int maxEnergy;
     public int MoveCost { get; private set; }
     public int Energy { get; private set; }
 
@@ -57,10 +57,26 @@ public class TurnManager : MonoBehaviour
             OnAddCard?.Invoke();
         }
         yield return delay7;
+
         paze = Paze.Move;
         yield return new WaitUntil(() => MoveCost <= 0);
+
         paze = Paze.Card;
-        OnTurnStarted?.Invoke(myTurn);
+        yield return new WaitUntil(() => Energy <= 0);
+
+        paze = Paze.End;
+        CardManager.Inst.RemoveCards();
+        yield return delay7;
+
+        paze = Paze.Enemy;
+        foreach(Unit unit in UnitManager.Inst.Enemies)
+        {
+            UnitManager.Inst.AutoAction(unit);
+            yield return delay7;
+        }
+
+        yield return delay7;
+        StartCoroutine(StartTurnCo());
     }
 
     public static void UseMoveCost(int value) => Inst.MoveCost = Inst.MoveCost >= value ? Inst.MoveCost - value : 0;
