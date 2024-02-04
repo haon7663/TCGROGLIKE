@@ -10,8 +10,9 @@ public class Unit_Move : MonoBehaviour
 
     public void DrawArea(bool canMove = true)
     {
-        if(canMove)
-            GridManager.Inst.RevertTiles();
+        GridManager.Inst.RevertTiles();
+
+        if(StatusManager.CanMove(unit)) return;
 
         GridManager.Inst.SelectNodes(GetArea(), canMove ? SelectOutline.MoveSelect : SelectOutline.MoveAble);
     }
@@ -64,7 +65,7 @@ public class Unit_Move : MonoBehaviour
         return selected;
     }
 
-    public IEnumerator OnMove(HexCoords targetCoords, bool useDotween = true, float dotweenTime = 0.075f, Ease ease = Ease.Linear)
+    public IEnumerator OnMove(HexCoords targetCoords, bool useDotween = true, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
     {
         GridManager.Inst.RevertTiles();
         TurnManager.UseMoveCost(unit.unitData.cost);

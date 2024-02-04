@@ -44,14 +44,14 @@ public class CardManager : MonoBehaviour
     public CardSO PopItem()
     {
         if (cardBuffer.Count == 0)
-            SetupItmeBuffer();
+            SetupItemBuffer();
 
         CardSO card = cardBuffer[0];
         cardBuffer.RemoveAt(0);
         return card;
     }
 
-    void SetupItmeBuffer()
+    void SetupItemBuffer()
     {
         cardBuffer = new List<CardSO>();
         trashCards = new List<CardSO>();
@@ -71,13 +71,12 @@ public class CardManager : MonoBehaviour
     {
         _CardSO.AddRange(UnitManager.Inst.Commander.unitData._CardSO);
 
-        SetupItmeBuffer();
+        SetupItemBuffer();
         TurnManager.OnAddCard += AddCard;
         TurnManager.OnTurnStarted += OnTurnStarted;
 
         //OpenDeck(cardBuffer);
     }
-
     void OnDestroy()
     {
         TurnManager.OnAddCard -= AddCard;
@@ -223,6 +222,7 @@ public class CardManager : MonoBehaviour
 
         isCardDrag = true;
         UnitManager.Inst.SetOrder(false);
+        LightManager.Inst.ChangeLight(true);
     }
     public void CardMouseUp(Card card)
     {
@@ -233,6 +233,7 @@ public class CardManager : MonoBehaviour
             return;
 
         GridManager.Inst.RevertTiles();
+        LightManager.Inst.ChangeLight(false);
         hoveredCard.ShowLiner(false);
         if (!onCardArea)
             TryPutCard();
@@ -252,7 +253,7 @@ public class CardManager : MonoBehaviour
         SelectCard(true, hoveredCard);
         if (onCardArea)
         {
-            hoveredCard.MoveTransform(new PRS(Utils.MousePos, Utils.QI, hoveredCard.originPRS.scale), false);
+            hoveredCard.MoveTransform(new PRS(Utils.MousePos, Utils.QI, hoveredCard.originPRS.scale), false, 0, false);
             hoveredCard.ShowLiner(false);
         }
         else
@@ -272,7 +273,7 @@ public class CardManager : MonoBehaviour
     {
         if (isEnlarge)
         {
-            Vector3 enlargePos = new Vector3(card.originPRS.pos.x, -4f, -9);
+            Vector3 enlargePos = new Vector3(card.originPRS.pos.x, -4f, -3);
             card.MoveTransform(new PRS(isOriginPos ? card.originPRS.pos : enlargePos, Utils.QI, Vector3.one * 1.5f), true, 0.1f);
         }
         else
@@ -323,7 +324,7 @@ public class CardManager : MonoBehaviour
     }
     Vector3 GetCardSetterPos(bool isLeft, int cardCount)
     {
-        return new Vector3((cardCount - 0.5f) * (isLeft ? -1 : 1), cardLeftSetter.localPosition.y, -8);
+        return new Vector3((cardCount - 0.5f) * (isLeft ? -1 : 1), cardLeftSetter.localPosition.y, -2);
     }
     Quaternion GetCardSetterRot(bool isLeft, int cardCount)
     {
@@ -332,21 +333,37 @@ public class CardManager : MonoBehaviour
 
     #endregion
 
-    public void OpenDeck(List<CardSO> cards)
+    #region CardDeck
+    List<Card> openedCards = new List<Card>();
+    void OpenDeck(List<CardSO> cards)
     {
-        onCardDeck = true;
-        cards = cards.OrderBy(x => x.name).ToList();
-        for(int i = 0; i < cards.Count; i++)
+        onCardDeck = !onCardDeck;
+        cardDeck.gameObject.SetActive(onCardDeck);
+        if (onCardDeck)
         {
-            var cardObject = Instantiate(cardPrefab);
-            cardObject.transform.SetParent(cardDeck);
+            cards = cards.OrderBy(x => x.name).ToList();
+            for (int i = 0; i < cards.Count; i++)
+            {
+                var cardObject = Instantiate(cardPrefab);
+                cardObject.transform.SetParent(cardDeck);
 
-            var card = cardObject.GetComponent<Card>();
-            card.originPRS = new PRS(new Vector3(((i % deckCount) - (deckCount - 1f) / 2) * 3.5f, i / deckCount * -4.5f + 7f), Utils.QI, Vector2.one);
-            print(card.originPRS.pos);
-            card.MoveTransform(card.originPRS, false);
-            card.SetUp(cards[i]);
-            card.GetComponent<Order>().SetOriginOrder(99);
+                var card = cardObject.GetComponent<Card>();
+                card.originPRS = new PRS(new Vector3(((i % deckCount) - (deckCount - 1f) / 2) * 3.5f, i / deckCount * -4.5f + 7f, -5), Utils.QI, Vector2.one);
+                card.MoveTransform(card.originPRS, false);
+                card.SetUp(cards[i]);
+                card.GetComponent<Order>().SetOriginOrder(99);
+                openedCards.Add(card);
+            }
+        }
+        else
+        {
+            foreach(Card card in openedCards)
+                Destroy(card.gameObject);
+            openedCards = new List<Card>();
         }
     }
+    public void CallCardBuffer() => OpenDeck(cardBuffer);
+    public void CallCardTrash() => OpenDeck(trashCards);
+    public void CallCardExhaust() => OpenDeck(exhaustCards);
+    #endregion
 }

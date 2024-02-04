@@ -29,6 +29,7 @@ public class Unit : MonoBehaviour
 
     [Header("Systems")]
     public Unit target;
+    public List<Status> statuses;
 
     void Start()
     {
@@ -67,19 +68,16 @@ public class Unit : MonoBehaviour
             print("Damage");
             if (defence >= value)
                 defence -= value;
-            else if(defence < value)
+            else
             {
                 var overValue = defence - value;
                 hp += overValue;
                 defence = 0;
-            }
-            else
-            {
-                hp -= value;
+                StartCoroutine(HealthManager.Inst.WhiteMaterial(this));
             }
             HealthManager.Inst.SetHealthBar(this);
 
-            if(hp <= 0)
+            if (hp <= 0)
             {
                 UnitManager.Inst.Death(this);
             }
@@ -117,4 +115,6 @@ public class Unit : MonoBehaviour
     public void Anim_SetTrigger(string name) => animator.SetTrigger(name);
     public void Anim_SetBool(string name, bool value) => animator.SetBool(name, value);
     #endregion
+
+    public void SetMaterial(Material material) => spriteRenderer.material = material;
 }

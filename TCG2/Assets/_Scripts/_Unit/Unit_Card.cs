@@ -12,12 +12,17 @@ public class Unit_Card : MonoBehaviour
     }
 
     public CardSO cardData;
+    [HideInInspector] public int cardValue;
+
     public void DrawArea(CardSO cardData, bool canSelect = true)
     {
         if (canSelect)
             GridManager.Inst.RevertTiles();
 
-        this.cardData = cardData;
+        if (StatusManager.CanAction(unit)) return;
+
+        this.cardData = Instantiate(cardData);
+        this.cardData.value = StatusManager.CalculateValue(unit, cardData.value);
 
         List<HexCoords> selectCoords = GetArea(cardData);
 
@@ -144,6 +149,8 @@ public class Unit_Card : MonoBehaviour
                 prefab.Init(unit, node, cardData);
                 break;
             case SelectType.Wide:
+                prefab = Instantiate(cardData.prefab).GetComponent<Attack>();
+                prefab.Init(unit, node, SelectArea(node), cardData);
                 break;
             case SelectType.Liner:
                 for (int i = -cardData.multiShot / 2; i <= cardData.multiShot / 2; i++)
@@ -153,8 +160,12 @@ public class Unit_Card : MonoBehaviour
                 }
                 break;
             case SelectType.Splash:
+                prefab = Instantiate(cardData.prefab).GetComponent<Attack>();
+                prefab.Init(unit, node, SelectArea(node), cardData);
                 break;
             case SelectType.Emission:
+                prefab = Instantiate(cardData.prefab).GetComponent<Attack>();
+                prefab.Init(unit, node, SelectArea(node), cardData);
                 break;
         }
 

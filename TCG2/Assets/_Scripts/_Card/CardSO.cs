@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 public enum CardType { Attack, Buff, }
-public enum ActiveType { Damage, Defence, Health }
+public enum ActiveType { Damage, Defence, Health, Status }
 public enum RangeType { Liner, Area, TransitLiner, TransitDiagonal, TransitAround, OurArea, Self }
 public enum SelectType { Single, Wide, Splash, Liner, Emission, Entire, }
 
@@ -33,9 +33,15 @@ public class CardSO : ScriptableObject
     [DrawIf("selectType", SelectType.Liner)] public int multiShot = 1;
     [DrawIf("selectType", SelectType.Liner)] public bool isPenetrate = false;
 
+    [Header("상태이상")]
+    public List<Status> statuses; 
+
     [Header("카드 개수")]
     public int cardCount;
 
     [Header("추천 선택 경로")]
     public bool shouldClose = true;
 }
+
+[System.Serializable]
+public class DictStatusSOInt : SerializableDictionary<StatusSO, int> { }

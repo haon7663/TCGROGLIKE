@@ -97,9 +97,9 @@ public class GridManager : MonoBehaviour
     }
     #endregion    
     #region GetNode
-    public HexNode GetTile(Unit unit) => Tiles.TryGetValue(unit.coords.Pos, out var tile) ? tile : null;
-    public HexNode GetTile(HexCoords coords) => Tiles.TryGetValue(coords.Pos, out var tile) ? tile : null;
-    public HexNode GetTile(Vector2 pos) => Tiles.TryGetValue(pos, out var tile) ? tile : null;
+    public HexNode GetTile(Unit unit) => Tiles.ContainsKey(unit.coords.Pos) ? Tiles.TryGetValue(unit.coords.Pos, out var tile) ? tile : null : null;
+    public HexNode GetTile(HexCoords coords) => Tiles.ContainsKey(coords.Pos) ? Tiles.TryGetValue(coords.Pos, out var tile) ? tile : null : null;
+    public HexNode GetTile(Vector2 pos) => Tiles.ContainsKey(pos) ? Tiles.TryGetValue(pos, out var tile) ? tile : null : null;
     #endregion
     #region GetUnit
     public Unit GetUnit(HexNode hexNode)

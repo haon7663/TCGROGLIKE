@@ -17,7 +17,7 @@ public class Card : MonoBehaviour
 
     public void SetUp(CardSO cardData)
     {
-        this.cardData = cardData;
+        this.cardData = Instantiate(cardData);
 
         character.sprite = this.cardData.sprite;
         nameTMP.text = this.cardData.name;
@@ -45,19 +45,25 @@ public class Card : MonoBehaviour
         CardManager.Inst.CardMouseUp(this);
     }
 
-    public void MoveTransform(PRS prs, bool useDotween, float dotweenTime = 0)
+    public void MoveTransform(PRS prs, bool useDotween, float dotweenTime = 0, bool isLocal = true)
     {
         if(useDotween)
         {
             transform.DOKill();
-            transform.DOLocalMove(prs.pos, dotweenTime);
+            if(isLocal)
+                transform.DOLocalMove(prs.pos, dotweenTime);
+            else
+                transform.DOMove(prs.pos, dotweenTime);
             transform.DORotateQuaternion(prs.rot, dotweenTime);
             transform.DOScale(prs.scale, dotweenTime);
         }
         else
         {
             transform.DOKill();
-            transform.localPosition = prs.pos;
+            if (isLocal)
+                transform.localPosition = prs.pos;
+            else
+                transform.position = prs.pos;
             transform.rotation = prs.rot;
             transform.localScale = prs.scale;
         }

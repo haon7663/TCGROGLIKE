@@ -149,7 +149,13 @@ public static class HexDirectionExtension
                 var coords = unitCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i;
                 if (GridManager.Inst.Tiles.ContainsKey(coords.Pos) && (isPenetrate || GridManager.Inst.GetTile(coords).CanWalk()))
                     linerNode.Add(GridManager.Inst.GetTile(coords.Pos));
-                else if(GridManager.Inst.Tiles.ContainsKey(coords.Pos))
+                else if (GridManager.Inst.Tiles.ContainsKey(coords.Pos) && GridManager.Inst.GetTile(coords).onUnit)
+                {
+                    linerNode.Add(GridManager.Inst.GetTile(coords.Pos));
+                    isBlocked = true;
+                    break;
+                }
+                else
                 {
                     isBlocked = true;
                     break;

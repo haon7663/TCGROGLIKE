@@ -119,3 +119,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bd3789f3dcac9c4ab3d1403b1a05fba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nodes: []
+  card: {fileID: 0}

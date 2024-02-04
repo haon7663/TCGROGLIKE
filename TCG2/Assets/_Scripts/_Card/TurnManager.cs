@@ -68,6 +68,12 @@ public class TurnManager : MonoBehaviour
         CardManager.Inst.RemoveCards();
         yield return delay7;
 
+        foreach (Unit unit in UnitManager.Inst.Units)
+        {
+            StatusManager.Inst.StatusActive(unit);
+            yield return delay05;
+        }
+
         paze = Paze.Enemy;
         foreach(Unit unit in UnitManager.Inst.Enemies)
         {

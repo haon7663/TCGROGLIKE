@@ -15,8 +15,9 @@ MonoBehaviour:
   sprite: {fileID: 21300000, guid: 71c9ca15d43751e419ccec15a10db708, type: 3}
   prefab: {fileID: 253454770491110429, guid: 47b824ccd26e83841b6d5339a0288450, type: 3}
   energy: 1
-  value: 6
+  value: 1
   cardType: 0
+  activeType: 0
   rangeType: 0
   onSelf: 0
   range: 4
@@ -24,7 +25,8 @@ MonoBehaviour:
   lineWidth: 1
   selectType: 3
   splashRange: 1
-  multiShot: 1
-  isPenetrate: 0
-  cardCount: 8
+  multiShot: 3
+  isPenetrate: 1
+  statuses: []
+  cardCount: 6
   shouldClose: 1

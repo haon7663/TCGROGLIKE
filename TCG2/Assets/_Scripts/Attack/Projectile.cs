@@ -8,13 +8,8 @@ public class Projectile : Attack
 {
     public override void Init(Unit unit, HexDirection direction, CardSO card)
     {
-        coords = unit.coords;
-        transform.position = unit.coords.Pos;
+        base.Init(unit, direction, card);
         StartCoroutine(Fire(direction, card));
-    }
-    public override void Init(Unit unit, HexNode node, CardSO card)
-    {
-        Destroy(gameObject);
     }
 
     IEnumerator Fire(HexDirection direction, CardSO card)

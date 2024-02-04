@@ -54,6 +54,7 @@ MonoBehaviour:
   unitData: {fileID: 11400000, guid: 961c0dee51bfc8440814b14c6c0cbea9, type: 2}
   hp: 0
   defence: 0
+  target: {fileID: 0}
 --- !u!114 &1700028537984334969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78,7 +79,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc647b41a715c8045b46f52fed61f0de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  card: {fileID: 0}
+  cardData: {fileID: 0}
 --- !u!61 &118337361320573389
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -240,6 +241,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4815949777534227663}
   - component: {fileID: 6840065157358731637}
+  - component: {fileID: 7496161152527742757}
   m_Layer: 0
   m_Name: Shadow
   m_TagString: Untagged
@@ -314,3 +316,37 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &7496161152527742757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7288851113578884946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShadowGroup: 0
+  m_ComponentVersion: 1
+  m_HasRenderer: 1
+  m_UseRendererSilhouette: 1
+  m_CastsShadows: 1
+  m_SelfShadows: 0
+  m_ApplyToSortingLayers: 8d3ac0df95b7c1ce00000000214be3be7d771a1fef8f31e63f242e1f
+  m_ShapePath:
+  - {x: -0.22575411, y: 0.06869537, z: 0}
+  - {x: -0.48564875, y: 0.2657451, z: 0}
+  - {x: -0.48714578, y: 0.36637902, z: 0}
+  - {x: -0.2512746, y: 0.5595053, z: 0}
+  - {x: 0.2556222, y: 0.5632325, z: 0}
+  - {x: 0.49416184, y: 0.3507831, z: 0}
+  - {x: 0.49416184, y: 0.2501492, z: 0}
+  - {x: 0.2306673, y: 0.072422534, z: 0}
+  m_ShapePathHash: -2737179
+  m_Mesh: {fileID: 0}
+  m_InstanceId: -125124
+  m_LocalBounds:
+    m_Center: {x: 0.0035080314, y: 0.31596392, z: 0}
+    m_Extent: {x: 0.4906538, y: 0.24726856, z: 0}

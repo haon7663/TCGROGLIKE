@@ -31,9 +31,6 @@ public class GameManager : MonoBehaviour
 
     void InputCheatKey()
     {
-        if (Input.GetKeyDown(KeyCode.Keypad1))
-            TurnManager.OnAddCard?.Invoke();
-
         if (Input.GetKeyDown(KeyCode.Keypad2))
             TurnManager.UseEnergy(TurnManager.Inst.Energy);
 

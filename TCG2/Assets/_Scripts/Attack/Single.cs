@@ -6,19 +6,19 @@ public class Single : Attack
 {
     public override void Init(Unit unit, HexDirection direction, CardSO card)
     {
-        coords = unit.coords + direction;
-        this.card = card;
-        transform.position = coords.Pos;
-
+        base.Init(unit, direction, card);
         if (!TryGetComponent(out Animator animator))
             ActiveEvent();
     }
     public override void Init(Unit unit, HexNode node, CardSO card)
     {
-        coords = node.coords;
-        this.card = card;
-        transform.position = coords.Pos;
-
+        base.Init(unit, node, card);
+        if (!TryGetComponent(out Animator animator))
+            ActiveEvent();
+    }
+    public override void Init(Unit unit, HexNode node, List<HexNode> nodes, CardSO card)
+    {
+        base.Init(unit, node, nodes, card);
         if (!TryGetComponent(out Animator animator))
             ActiveEvent();
     }

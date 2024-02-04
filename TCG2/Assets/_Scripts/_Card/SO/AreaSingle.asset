@@ -17,6 +17,7 @@ MonoBehaviour:
   energy: 1
   value: 7
   cardType: 0
+  activeType: 0
   rangeType: 1
   onSelf: 0
   range: 3
@@ -26,5 +27,6 @@ MonoBehaviour:
   splashRange: 1
   multiShot: 1
   isPenetrate: 0
+  statuses: []
   cardCount: 5
   shouldClose: 1

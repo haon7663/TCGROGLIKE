@@ -13,16 +13,19 @@ MonoBehaviour:
   m_Name: Wide
   m_EditorClassIdentifier: 
   sprite: {fileID: 1922876712, guid: 6994caf3e966cd54288fe2bdce78d6c0, type: 3}
-  prefab: {fileID: 0}
+  prefab: {fileID: 6037482832087054386, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
   energy: 1
   value: 5
   cardType: 0
+  activeType: 0
   rangeType: 1
+  onSelf: 0
   range: 1
   canSelectAll: 0
-  attackType: 1
-  splashRange: 1
   lineWidth: 1
+  selectType: 1
+  splashRange: 1
   multiShot: 1
   isPenetrate: 0
-  cardCount: 3
+  cardCount: 6
+  shouldClose: 1

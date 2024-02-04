@@ -117,6 +117,8 @@ public class UnitManager : MonoBehaviour
         if (targetUnit)
         {
             var targetCoords = FollowRange(unit, targetUnit);
+
+            if (StatusManager.CanMove(unit)) return;
             if (targetCoords != null)
                 StartCoroutine(unit.move.OnMove((HexCoords)targetCoords));
         }

@@ -19,7 +19,9 @@ MonoBehaviour:
   cost: 5
   isJump: 0
   _CardSO:
-  - {fileID: 11400000, guid: 57d070e392d197b4fb84c3d22c87b44d, type: 2}
   - {fileID: 11400000, guid: 3e284cd5ded5a9c4b99975f910d298ba, type: 2}
-  - {fileID: 11400000, guid: 04513eede687a974892e16f86d6b9f45, type: 2}
-  - {fileID: 11400000, guid: d545828b652cb6e438aa98bb62f34708, type: 2}
+  - {fileID: 11400000, guid: 38f569cb11fcb454cb0d3a7c7a0a23a3, type: 2}
+  - {fileID: 11400000, guid: 150989b4d2424f648acf9d9458bf2d95, type: 2}
+  - {fileID: 11400000, guid: dae1f9859b6cfef4fbd2ad16c937db9a, type: 2}
+  - {fileID: 11400000, guid: 10cb6a27a9bf69a4799f23e619a580c8, type: 2}
+  - {fileID: 11400000, guid: 20156ef93e4e6d341900b3738cbff453, type: 2}
