@@ -39,12 +39,6 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Keypad4))
             CardManager.Inst.TryPutCard();
-
-        if (Input.GetKeyDown(KeyCode.Keypad5))
-            foreach(var tile in GridManager.Inst.Tiles)
-            {
-                tile.Value.DebugColor(Color.white);
-            }
     }
 
     void StartGame()

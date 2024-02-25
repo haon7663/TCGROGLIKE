@@ -9,23 +9,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a614de75715acdd4d85efd6dec0c5067, type: 3}
+  m_Script: {fileID: 11500000, guid: 571a3b3281273754496295c19ac7a978, type: 3}
   m_Name: Melee
   m_EditorClassIdentifier: 
-  sprite: {fileID: 21300000, guid: 71c9ca15d43751e419ccec15a10db708, type: 3}
+  sprite: {fileID: 0}
   prefab: {fileID: 6037482832087054386, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
   energy: 1
-  value: 12
+  value: 5
   cardType: 0
   activeType: 0
-  rangeType: 0
+  rangeType: 1
   onSelf: 0
   range: 1
   canSelectAll: 1
   lineWidth: 1
   selectType: 0
   splashRange: 1
+  realRange: 0
   multiShot: 1
   isPenetrate: 0
-  cardCount: 6
-  shouldClose: 1
+  statuses: []
+  isMove: 0
+  isJump: 0
+  isKnockback: 0
+  knockbackType: 0
+  knockbackPower: 0
+  shouldClose: 0
+  useType: 0
+  conditions: []

@@ -9,19 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a614de75715acdd4d85efd6dec0c5067, type: 3}
+  m_Script: {fileID: 11500000, guid: 571a3b3281273754496295c19ac7a978, type: 3}
   m_Name: SingleStun
   m_EditorClassIdentifier: 
   sprite: {fileID: 0}
   prefab: {fileID: 6037482832087054386, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
   energy: 1
-  value: 0
+  value: 2
   cardType: 0
-  activeType: 3
+  activeType: 0
   rangeType: 1
   onSelf: 0
   range: 2
-  canSelectAll: 0
+  canSelectAll: 1
   lineWidth: 1
   selectType: 0
   splashRange: 1
@@ -30,5 +30,4 @@ MonoBehaviour:
   statuses:
   - data: {fileID: 11400000, guid: 5873229adf4ac4844bcb08673c770a47, type: 2}
     stack: 2
-  cardCount: 1
   shouldClose: 1

@@ -10,7 +10,8 @@ public enum HexDirection
     ES,
     WS,
     W,
-    WN
+    WN,
+    Default,
 }
 
 public static class HexDirectionExtension
@@ -24,10 +25,11 @@ public static class HexDirectionExtension
             new HexCoords(0, -1),
             new HexCoords(-1, 0),
             new HexCoords(-1, 1),
+            new HexCoords(0, 0),
         };
 
     private static readonly float[] _angles = new[] {
-            330f, 270f, 210f, 150f, 90f, 30f
+            330f, 270f, 210f, 150f, 90f, 30f, 0
         };
 
     private static readonly Vector3[] _directions = new[] {
@@ -37,6 +39,7 @@ public static class HexDirectionExtension
             Quaternion.Euler(0f, 0f, _angles[3]) * Vector3.up,
             Quaternion.Euler(0f, 0f, _angles[4]) * Vector3.up,
             Quaternion.Euler(0f, 0f, _angles[5]) * Vector3.up,
+            Quaternion.Euler(0f, 0f, _angles[6]) * Vector3.up,
         };
 
     private static readonly Vector3[] _vertexDirections = new[] {
@@ -46,6 +49,7 @@ public static class HexDirectionExtension
             Quaternion.Euler(0f, 0f, _angles[3] - 30) * Vector3.up,
             Quaternion.Euler(0f, 0f, _angles[4] - 30) * Vector3.up,
             Quaternion.Euler(0f, 0f, _angles[5] - 30) * Vector3.up,
+            Quaternion.Euler(0f, 0f, _angles[6] - 30) * Vector3.up,
         };
     #endregion
 
@@ -147,7 +151,7 @@ public static class HexDirectionExtension
             for (int j = -floorWide; j <= floorWide; j++)
             {
                 var coords = unitCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i;
-                if (GridManager.Inst.Tiles.ContainsKey(coords.Pos) && (isPenetrate || GridManager.Inst.GetTile(coords).CanWalk()))
+                if (GridManager.Inst.Tiles.ContainsKey(coords.Pos) && (isPenetrate || GridManager.Inst.GetTile(coords).CanWalk()) && GridManager.Inst.GetTile(coords)?.onObstacle == false)
                     linerNode.Add(GridManager.Inst.GetTile(coords.Pos));
                 else if (GridManager.Inst.Tiles.ContainsKey(coords.Pos) && GridManager.Inst.GetTile(coords).onUnit)
                 {
@@ -233,14 +237,34 @@ public static class HexDirectionExtension
     /// If given HexCoords are coords of any HexDirection, it returns given HexDirection.
     /// Otherwise it throws an error.
     /// </summary>
+    public static bool ContainsDirection(this HexCoords coords)
+    {
+        return _coords.Contains(coords);
+    }
     public static HexDirection ToDirection(this HexCoords coords)
     {
         return (HexDirection)Array.IndexOf(_coords, coords);
     }
-
     public static HexDirection GetSignDirection(this HexCoords coords)
     {
-        return new HexCoords(SignZero(coords._q), SignZero(coords._r)).ToDirection();
+        if (coords._q == 0 || coords._r == 0 || coords._s == 0)
+            return new HexCoords(SignZero(coords._q), SignZero(coords._r)).ToDirection();
+        return (HexDirection)(-1);
+    }
+    public static HexDirection GetNearlyMouseDirection(this HexCoords startCoords)
+    {
+        float distance = 9999999f;
+        HexCoords minCoords = new HexCoords(0, 1);
+        foreach(HexCoords coords in _coords)
+        {
+            var magnitude = (Utils.MousePos - (startCoords + coords).Pos).sqrMagnitude;
+            if (magnitude < distance)
+            {
+                distance = magnitude;
+                minCoords = coords;
+            }
+        }
+        return minCoords.ToDirection();
     }
     static int SignZero(int value)
     {

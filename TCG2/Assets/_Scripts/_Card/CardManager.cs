@@ -12,16 +12,16 @@ public class CardManager : MonoBehaviour
 
     void Awake() => Inst = this;
 
-    [HideInInspector] public List<CardSO> _CardSO;
+    [HideInInspector] public List<CardInfo> _CardSO;
 
     [SerializeField] ECardState eCardState;
     [Space]
     [SerializeField] GameObject cardPrefab;
     [Space]
-    [SerializeField] List<CardSO> cardBuffer;
+    [SerializeField] List<CardInfo> cardBuffer;
     [SerializeField] List<Card> cards;
-    [SerializeField] List<CardSO> trashCards;
-    [SerializeField] List<CardSO> exhaustCards;
+    [SerializeField] List<CardInfo> trashCards;
+    [SerializeField] List<CardInfo> exhaustCards;
     [Space(20)]
     [SerializeField] Transform cardSpawnPoint;
     [SerializeField] Transform cardTrashPoint;
@@ -41,24 +41,31 @@ public class CardManager : MonoBehaviour
 
     enum ECardState { Noting, CanMouseOver, CanMouseDrag }
 
-    public CardSO PopItem()
+    public CardInfo PopItem()
     {
         if (cardBuffer.Count == 0)
-            SetupItemBuffer();
+            SetupItemBuffer(UnitManager.Inst.Allies);
 
-        CardSO card = cardBuffer[0];
+        CardInfo card = cardBuffer[0];
         cardBuffer.RemoveAt(0);
         return card;
     }
 
-    void SetupItemBuffer()
+    void SetupItemBuffer(List<Unit> units)
     {
-        cardBuffer = new List<CardSO>();
-        trashCards = new List<CardSO>();
-        foreach (CardSO card in _CardSO)
+        cardBuffer = new List<CardInfo>();
+        trashCards = new List<CardInfo>();
+
+        for(int i = units.Count - 1; i >= 0; i--)
         {
-            for (int j = 0; j < card.cardCount; j++)
-                cardBuffer.Add(card);
+            foreach (CardInfo cardInfo in units[i].data._CardInfo)
+            {
+                for (int j = 0; j < cardInfo.count; j++)
+                {
+                    cardInfo.unit = units[i];
+                    cardBuffer.Add(new CardInfo(cardInfo));
+                }
+            }
         }
         for(int i = 0; i < cardBuffer.Count; i++)
         {
@@ -69,9 +76,7 @@ public class CardManager : MonoBehaviour
 
     public void StartSet()
     {
-        _CardSO.AddRange(UnitManager.Inst.Commander.unitData._CardSO);
-
-        SetupItemBuffer();
+        SetupItemBuffer(UnitManager.Inst.Allies);
         TurnManager.OnAddCard += AddCard;
         TurnManager.OnTurnStarted += OnTurnStarted;
 
@@ -115,7 +120,7 @@ public class CardManager : MonoBehaviour
         foreach (Card card in cards)
         {
             card.MoveTransform(trashCardPRS, true, 0.7f);
-            trashCards.Add(card.cardData);
+            trashCards.Add(card.cardInfo);
             Destroy(card.gameObject, 0.7f);
         }
         cards = new();
@@ -130,7 +135,6 @@ public class CardManager : MonoBehaviour
             targetCard?.GetComponent<Order>().SetOriginOrder(i);
         }
     }
-
     void CardAlignment()
     {
         List<PRS> originCardPRSs = new List<PRS>();
@@ -178,7 +182,7 @@ public class CardManager : MonoBehaviour
         if (UnitManager.sUnit_Card.UseCard(GridManager.Inst.selectedNode))
         {
             cards.Remove(selectedCard);
-            trashCards.Add(selectedCard.cardData);
+            trashCards.Add(selectedCard.cardInfo);
             selectedCard.transform.DOKill();
             DestroyImmediate(selectedCard.gameObject);
         }
@@ -203,14 +207,17 @@ public class CardManager : MonoBehaviour
         if (hoveredCard != card)
         {
             hoveredCard = card;
-            UnitManager.sUnit_Card.DrawArea(card.cardData);
             EnlargeCard(true, card);
+            var unit = card.GetUnit();
+            UnitManager.Inst.SelectUnit(unit, true);
+            unit.card.DrawArea(card.cardInfo.data);
         }
     }
     public void CardMouseExit(Card card)
     {
         if (selectedCard == card) return;
         EnlargeCard(false, card);
+        UnitManager.Inst.DeSelectUnit(card.unit);
 
         if (!selectedCard) GridManager.Inst.RevertTiles();
         if (hoveredCard == card) hoveredCard = null;
@@ -259,6 +266,11 @@ public class CardManager : MonoBehaviour
         else
         {
             selectedCard.ShowLiner();
+            if(selectedCard.cardInfo.data.rangeType == RangeType.Self)
+            {
+                var tile = GridManager.Inst.GetTile(selectedCard.unit);
+                tile.OnDisplay(SelectOutline.Selected);
+            }
         }
     }
 
@@ -306,7 +318,7 @@ public class CardManager : MonoBehaviour
             case Paze.Draw or Paze.End or Paze.Enemy:
                 eCardState = ECardState.Noting;
                 break;
-            case Paze.Move:
+            case Paze.Commander:
                 eCardState = ECardState.CanMouseOver;
                 break;
             case Paze.Card:
@@ -322,27 +334,21 @@ public class CardManager : MonoBehaviour
         cardLeftSetter.rotation = Quaternion.Lerp(cardLeftSetter.rotation, GetCardSetterRot(true, cardCount), Time.deltaTime * 5);
         cardRightSetter.rotation = Quaternion.Lerp(cardRightSetter.rotation, GetCardSetterRot(false, cardCount), Time.deltaTime * 5);
     }
-    Vector3 GetCardSetterPos(bool isLeft, int cardCount)
-    {
-        return new Vector3((cardCount - 0.5f) * (isLeft ? -1 : 1), cardLeftSetter.localPosition.y, -2);
-    }
-    Quaternion GetCardSetterRot(bool isLeft, int cardCount)
-    {
-        return Quaternion.Euler(0, 0, (3 + cardCount * 2.5f) * (isLeft ? 1 : -1));
-    }
+    Vector3 GetCardSetterPos(bool isLeft, int cardCount) => new Vector3((cardCount - 0.5f) * (isLeft ? -1 : 1), cardLeftSetter.localPosition.y, -2);
+    Quaternion GetCardSetterRot(bool isLeft, int cardCount) => Quaternion.Euler(0, 0, (3 + cardCount * 2.5f) * (isLeft ? 1 : -1));
 
     #endregion
 
     #region CardDeck
     List<Card> openedCards = new List<Card>();
-    void OpenDeck(List<CardSO> cards)
+    void OpenDeck(List<CardInfo> cardsInfo)
     {
         onCardDeck = !onCardDeck;
         cardDeck.gameObject.SetActive(onCardDeck);
         if (onCardDeck)
         {
-            cards = cards.OrderBy(x => x.name).ToList();
-            for (int i = 0; i < cards.Count; i++)
+            cardsInfo = cardsInfo.OrderBy(x => x.data.name).ToList();
+            for (int i = 0; i < cardsInfo.Count; i++)
             {
                 var cardObject = Instantiate(cardPrefab);
                 cardObject.transform.SetParent(cardDeck);
@@ -350,7 +356,7 @@ public class CardManager : MonoBehaviour
                 var card = cardObject.GetComponent<Card>();
                 card.originPRS = new PRS(new Vector3(((i % deckCount) - (deckCount - 1f) / 2) * 3.5f, i / deckCount * -4.5f + 7f, -5), Utils.QI, Vector2.one);
                 card.MoveTransform(card.originPRS, false);
-                card.SetUp(cards[i]);
+                card.SetUp(cardsInfo[i]);
                 card.GetComponent<Order>().SetOriginOrder(99);
                 openedCards.Add(card);
             }

@@ -13,11 +13,18 @@ MonoBehaviour:
   m_Name: Enemy
   m_EditorClassIdentifier: 
   type: 1
-  hp: 25
+  animatorController: {fileID: 22100000, guid: 1e2a6e33734c06249be35822e2020d9f, type: 2}
+  hp: 14
   rangeType: 1
   range: 2
   cost: 4
   isJump: 0
-  _CardSO:
-  - {fileID: 11400000, guid: efa01da98005e0545a877216ecfd19bb, type: 2}
-  - {fileID: 11400000, guid: e9bcfcaa262df2441b26637accc57c2a, type: 2}
+  _CardInfo:
+  - unit: {fileID: 0}
+    data: {fileID: 11400000, guid: e01576ed190798340834ff9a79198e1a, type: 2}
+    count: 7
+    priority: 0
+  - unit: {fileID: 0}
+    data: {fileID: 11400000, guid: 4eacc02dc57ec594e9a2f65a4689a13f, type: 2}
+    count: 3
+    priority: 1

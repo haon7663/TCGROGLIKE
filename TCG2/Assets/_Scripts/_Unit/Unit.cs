@@ -11,8 +11,10 @@ public class Unit : MonoBehaviour
     [HideInInspector] public Unit_Card card;
     void Awake()
     {
-        move = GetComponent<Unit_Move>();
-        card = GetComponent<Unit_Card>();
+        if (transform.TryGetComponent(out Unit_Move unit_Move))
+            move = unit_Move;
+        if (transform.TryGetComponent(out Unit_Card unit_Card))
+            card = unit_Card;
     }
     #endregion
 
@@ -20,8 +22,7 @@ public class Unit : MonoBehaviour
     Animator animator;
 
     public HexCoords coords;
-
-    public UnitSO unitData;
+    public UnitSO data;
 
     [Header("Stats")]
     public int hp;
@@ -29,7 +30,8 @@ public class Unit : MonoBehaviour
 
     [Header("Systems")]
     public Unit target;
-    public List<Status> statuses;
+    public HexCoords targetCoords;
+    public List<StatusInfo> statuses;
 
     void Start()
     {
@@ -38,21 +40,18 @@ public class Unit : MonoBehaviour
         if (transform.GetChild(0).TryGetComponent(out Animator animator))
             this.animator = animator;
 
-        Init(spriteRenderer.sprite);
+        Init();
     }
-    public void Init(Sprite sprite)
+    public void Init()
     {
-        if (sprite)
-            spriteRenderer.sprite = sprite;
+        animator.runtimeAnimatorController = data.animatorController;
 
-        hp = unitData.hp;
+        hp = data.hp;
         HealthManager.Inst.GenerateHealthBar(this);
 
         coords = GridManager.Inst.GetRandomNode().coords;
-        transform.position = (Vector3)coords.Pos - Vector3.forward;
-        GridManager.Inst.OnTile(coords, this);
-
-        spriteRenderer.sortingOrder = -coords._r;
+        transform.position = coords.Pos - Vector3.forward;
+        GridManager.Inst.SetTileUnit(coords, this);
     }
 
     public void Repeat(HexNode hexNode)
@@ -65,7 +64,6 @@ public class Unit : MonoBehaviour
     {
         if(true)
         {
-            print("Damage");
             if (defence >= value)
                 defence -= value;
             else
@@ -90,6 +88,8 @@ public class Unit : MonoBehaviour
         {
             print("Health");
             hp += value;
+            if (hp >= data.hp)
+                hp = data.hp;
             HealthManager.Inst.SetHealthBar(this);
             return true;
         }
@@ -106,9 +106,17 @@ public class Unit : MonoBehaviour
     }
     #endregion
 
+    void OnMouseOver()
+    {
+        UnitManager.Inst.UnitMouseOver(this);
+    }
+    void OnMouseExit()
+    {
+        UnitManager.Inst.UnitMouseExit(this);
+    }
     void OnMouseDown()
     {
-        UnitManager.Inst.SelectUnit(this);
+        UnitManager.Inst.UnitMouseDown(this);
     }
 
     #region Animations
@@ -117,4 +125,5 @@ public class Unit : MonoBehaviour
     #endregion
 
     public void SetMaterial(Material material) => spriteRenderer.material = material;
+    public void SetFlipX(bool value) => spriteRenderer.flipX = value;
 }

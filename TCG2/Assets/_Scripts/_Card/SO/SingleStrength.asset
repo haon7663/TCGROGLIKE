@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a614de75715acdd4d85efd6dec0c5067, type: 3}
+  m_Script: {fileID: 11500000, guid: 571a3b3281273754496295c19ac7a978, type: 3}
   m_Name: SingleStrength
   m_EditorClassIdentifier: 
   sprite: {fileID: 0}
@@ -17,11 +17,11 @@ MonoBehaviour:
   energy: 1
   value: 0
   cardType: 1
-  activeType: 3
+  activeType: 2
   rangeType: 5
   onSelf: 1
   range: 2
-  canSelectAll: 0
+  canSelectAll: 1
   lineWidth: 1
   selectType: 0
   splashRange: 1
@@ -29,6 +29,10 @@ MonoBehaviour:
   isPenetrate: 0
   statuses:
   - data: {fileID: 11400000, guid: 47178b13faa18cc419e454ea861df304, type: 2}
-    stack: 5
-  cardCount: 6
+    stack: 1
+  isMove: 0
+  isJump: 0
+  isKnockback: 0
+  knockbackType: 0
+  knockbackPower: 0
   shouldClose: 1

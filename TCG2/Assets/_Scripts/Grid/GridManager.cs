@@ -12,17 +12,15 @@ public class GridManager : MonoBehaviour
 
         Tiles = _scriptableGrid.GenerateGrid();
         foreach (var tile in Tiles.Values) tile.CacheNeighbors();
-        OnTileUnits = new Dictionary<HexNode, Unit>();
+        OnTileUnits = new Dictionary<Vector2, Unit>();
     }
 
     [SerializeField] ScriptableGrid _scriptableGrid;
     //[SerializeField] bool _drawConnections;
 
     public Dictionary<Vector2, HexNode> Tiles { get; private set; }
-    public Dictionary<HexNode, Unit> OnTileUnits { get; private set; }
+    public Dictionary<Vector2, Unit> OnTileUnits { get; private set; }
     public HexNode selectedNode;
-
-    HexNode _playerNodeBase, _goalNodeBase;
 
     public void RevertTiles()
     {
@@ -33,7 +31,8 @@ public class GridManager : MonoBehaviour
     {
         foreach (var t in Tiles.Values) t.RevertAble();
     }
-    public void SelectNodes(List<HexCoords> coordses, SelectOutline outline)
+
+    public List<HexNode> CoordsToNodes(List<HexCoords> coordses)
     {
         List<HexNode> tiles = new();
         foreach (HexCoords c in coordses)
@@ -41,6 +40,18 @@ public class GridManager : MonoBehaviour
             if (Tiles.ContainsKey(c.Pos))
                 tiles.Add(Tiles[c.Pos]);
         }
+        return tiles;
+    }
+    public void SelectNodes(List<HexCoords> coordses, SelectOutline outline)
+    {
+        List<HexNode> tiles = CoordsToNodes(coordses);
+        foreach (HexNode t in tiles)
+        {
+            t.OnDisplay(outline, tiles);
+        }
+    }
+    public void SelectNodes(List<HexNode> tiles, SelectOutline outline)
+    {
         foreach (HexNode t in tiles)
         {
             t.OnDisplay(outline, tiles);
@@ -54,85 +65,60 @@ public class GridManager : MonoBehaviour
             selectedNode = node;
     }
 
-    #region OnTileUnit
-    public void OnTile(HexNode hexNode, Unit unit, bool onTile = true)
+    #region SetTileUnit
+    public void SetTileUnit(HexCoords hexCoords, Unit unit)
     {
-        if (onTile)
-            OnTileUnits.Add(hexNode, unit);
-        else
-            OnTileUnits.Remove(hexNode);
+        GetTile(hexCoords).OnUnit(unit);
+        OnTileUnits.Add(hexCoords.Pos, unit);
         SetWalkable();
     }
-    public void OnTile(HexCoords hexCoords, Unit unit, bool onTile = true)
+    public bool SetTileUnit(HexCoords prevCoords, HexCoords nextCoords, Unit unit)
     {
-        if (onTile)
-            OnTileUnits.Add(Tiles[hexCoords.Pos], unit);
-        else
-            OnTileUnits.Remove(Tiles[hexCoords.Pos]);
+        if (prevCoords == nextCoords)
+            return false;
+        if (GetTile(nextCoords)?.CanWalk() != true)
+            return false;
+
+        GetTile(nextCoords).OnUnit(unit);
+        OnTileUnits.Add(nextCoords.Pos, unit);
+        GetTile(prevCoords).OnUnit(unit, true);
+        OnTileUnits.Remove(prevCoords.Pos);
         SetWalkable();
+        return true;
     }
-    public void OnTileMove(HexNode prevNode, HexNode nextNode, Unit unit)
+    public void SetTileUnitRemove(Unit unit)
     {
-        if (prevNode == nextNode) return;
-        OnTileUnits.Add(nextNode, unit);
-        OnTileUnits.Remove(prevNode);
-        SetWalkable();
-    }
-    public void OnTileMove(HexCoords prevCoords, HexCoords nextCoords, Unit unit)
-    {
-        if (prevCoords == nextCoords) return;
-        OnTileUnits.Add(Tiles[nextCoords.Pos], unit);
-        OnTileUnits.Remove(Tiles[prevCoords.Pos]);
-        SetWalkable();
-    }
-    public void OnTileRemove(HexNode hexNode)
-    {
-        OnTileUnits.Remove(hexNode);
-        SetWalkable();
-    }
-    public void OnTileRemove(HexCoords hexCoords)
-    {
-        OnTileUnits.Remove(Tiles[hexCoords.Pos]);
+        GetTile(unit).OnUnit(unit, true);
+        OnTileUnits.Remove(unit.coords.Pos);
         SetWalkable();
     }
     #endregion    
-    #region GetNode
+    #region GetTile
     public HexNode GetTile(Unit unit) => Tiles.ContainsKey(unit.coords.Pos) ? Tiles.TryGetValue(unit.coords.Pos, out var tile) ? tile : null : null;
     public HexNode GetTile(HexCoords coords) => Tiles.ContainsKey(coords.Pos) ? Tiles.TryGetValue(coords.Pos, out var tile) ? tile : null : null;
     public HexNode GetTile(Vector2 pos) => Tiles.ContainsKey(pos) ? Tiles.TryGetValue(pos, out var tile) ? tile : null : null;
     #endregion
     #region GetUnit
-    public Unit GetUnit(HexNode hexNode)
-    {
-        if(OnTileUnits.ContainsKey(hexNode))
-            return OnTileUnits[hexNode];
-        return null;
-    }
-    public Unit GetUnit(HexCoords hexCoords)
-    {
-        if (Tiles.ContainsKey(hexCoords.Pos) && OnTileUnits.ContainsKey(Tiles[hexCoords.Pos]))
-            return OnTileUnits[Tiles[hexCoords.Pos]];
-        return null;
-    }
-    public Unit GetUnit(Vector2 pos)
-    {
-        if (Tiles.ContainsKey(pos) && OnTileUnits.ContainsKey(Tiles[pos]))
-            return OnTileUnits[Tiles[pos]];
-        return null;
-    }
+    public Unit GetUnit(HexNode hexNode) => OnTileUnits.ContainsKey(hexNode.coords.Pos) ? OnTileUnits[hexNode.coords.Pos] : null;
+    public Unit GetUnit(HexCoords hexCoords) => OnTileUnits.ContainsKey(hexCoords.Pos) ? OnTileUnits[hexCoords.Pos] : null;
+    public Unit GetUnit(Vector2 pos) => OnTileUnits.ContainsKey(pos) ? OnTileUnits[pos] : null;
     #endregion
-
 
     public void SetWalkable()
     {
         foreach (KeyValuePair<Vector2, HexNode> tile in Tiles)
-            tile.Value.onUnit = OnTileUnits.ContainsKey(tile.Value);
+            tile.Value.onUnit = OnTileUnits.ContainsKey(tile.Value.coords.Pos);
+    }
+    public HexNode GetRandomNode() => Tiles.Where(t => t.Value.CanWalk()).OrderBy(t => Random.value).First().Value;
+    public void StatusNode()
+    {
+        foreach (var tile in Tiles.Where(t => t.Value.onUnit && t.Value.statuses.Count != 0))
+        {
+            print(tile.Value.statuses[0].data.name);
+            StatusManager.Inst.AddUnitStatus(tile.Value.statuses, GetUnit(tile.Value));
+        }
     }
 
-    public HexNode GetRandomNode()
-    {
-        return Tiles.Where(t => t.Value.CanWalk()).OrderBy(t => Random.value).First().Value;
-    }
 
     /*void OnDrawGizmos()
     {

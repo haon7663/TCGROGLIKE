@@ -10,9 +10,7 @@ public class Unit_Move : MonoBehaviour
 
     public void DrawArea(bool canMove = true)
     {
-        GridManager.Inst.RevertTiles();
-
-        if(StatusManager.CanMove(unit)) return;
+        if(!StatusManager.CanMove(unit)) return;
 
         GridManager.Inst.SelectNodes(GetArea(), canMove ? SelectOutline.MoveSelect : SelectOutline.MoveAble);
     }
@@ -20,12 +18,12 @@ public class Unit_Move : MonoBehaviour
     public List<HexCoords> GetArea()
     {
         List<HexCoords> selectCoords = new();
-        switch (unit.unitData.rangeType)
+        switch (unit.data.rangeType)
         {
             case RangeType.Liner:
                 foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                 {
-                    for (int i = 1; i <= unit.unitData.range; i++)
+                    for (int i = 1; i <= unit.data.range; i++)
                     {
                         var coords = unit.coords + hexDirection.Coords() * i;
                         if (GridManager.Inst.GetUnit(coords) == null)
@@ -36,7 +34,7 @@ public class Unit_Move : MonoBehaviour
                 }
                 break;
             case RangeType.Area:
-                foreach (HexNode hexNode in HexDirectionExtension.ReachArea(unit.coords, unit.unitData.range))
+                foreach (HexNode hexNode in HexDirectionExtension.ReachArea(unit.coords, unit.data.range))
                 {
                     selectCoords.Add(hexNode.coords);
                 }
@@ -44,13 +42,13 @@ public class Unit_Move : MonoBehaviour
             case RangeType.TransitLiner:
                 foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                 {
-                    var coords = unit.coords + hexDirection.Coords() * unit.unitData.range;
+                    var coords = unit.coords + hexDirection.Coords() * unit.data.range;
                     if (GridManager.Inst.GetTile(coords)?.CanWalk() == true)
                         selectCoords.Add(coords);
                 }
                 break;
             case RangeType.TransitAround:
-                foreach (HexNode hexNode in HexDirectionExtension.TransitArea(unit.coords, unit.unitData.range))
+                foreach (HexNode hexNode in HexDirectionExtension.TransitArea(unit.coords, unit.data.range))
                 {
                     if (GridManager.Inst.GetTile(hexNode.coords)?.CanWalk() == true)
                         selectCoords.Add(hexNode.coords);
@@ -65,33 +63,61 @@ public class Unit_Move : MonoBehaviour
         return selected;
     }
 
-    public IEnumerator OnMove(HexCoords targetCoords, bool useDotween = true, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
+    public void OnMove(HexCoords targetCoords, bool? isJump = null, bool useDotween = true, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
     {
         GridManager.Inst.RevertTiles();
-        TurnManager.UseMoveCost(unit.unitData.cost);
+        TurnManager.UseMoveCost(unit.data.cost);
 
-        if (useDotween)
+        if (!GridManager.Inst.SetTileUnit(unit.coords, targetCoords, unit))
         {
-            if (unit.unitData.isJump)
+            print("KnockBack");
+        }
+        else if (GridManager.Inst.Tiles.ContainsKey(targetCoords.Pos))
+        {
+            if (useDotween)
             {
-                transform.DOMove(targetCoords.Pos, dotweenTime).SetEase(ease);
-                yield return YieldInstructionCache.WaitForSeconds(dotweenTime);
+                if (isJump == null ? unit.data.isJump : (bool)isJump)
+                {
+                    Sequence sequence = DOTween.Sequence();
+                    sequence.Append(transform.DOMove(targetCoords.Pos - Vector3.forward, dotweenTime).SetEase(ease));
+                    sequence.AppendCallback(() => unit.coords = targetCoords);
+                }
+                else
+                {
+                    var path = Pathfinding.FindPath(GridManager.Inst.GetTile(unit), GridManager.Inst.GetTile(targetCoords));
+                    Sequence sequence = DOTween.Sequence();
+                    foreach (HexNode tile in path)
+                    {
+                        sequence.Append(transform.DOMove(tile.coords.Pos - Vector3.forward, dotweenTime).SetEase(ease));
+                        sequence.AppendCallback(() => unit.coords = tile.coords);
+                    }
+                }
+            }
+            else
+                transform.position = targetCoords.Pos - Vector3.forward;
+        }
+        UnitManager.Inst.SetOrder(true);
+    }
+
+    public void OnMove(HexDirection direction, int range, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
+    {
+        GridManager.Inst.RevertTiles();
+        TurnManager.UseMoveCost(unit.data.cost);
+
+        Sequence sequence = DOTween.Sequence();
+        for (int i = 1; i <= range; i++)
+        {
+            var targetCoords = unit.coords + direction.Coords() * i;
+            if (!GridManager.Inst.SetTileUnit(targetCoords - direction, targetCoords, unit))
+            {
+                break;
             }
             else
             {
-                var path = Pathfinding.FindPath(GridManager.Inst.GetTile(unit), GridManager.Inst.GetTile(targetCoords));
-                foreach (HexNode tile in path)
-                {
-                    transform.DOMove(tile.coords.Pos, dotweenTime).SetEase(ease);
-                    yield return YieldInstructionCache.WaitForSeconds(dotweenTime);
-                }
+                sequence.Append(transform.DOMove(targetCoords.Pos - Vector3.forward, dotweenTime).SetEase(ease));
+                sequence.AppendCallback(() => unit.coords = targetCoords);
             }
         }
-        else
-            transform.position = targetCoords.Pos;
-
-        GridManager.Inst.OnTileMove(unit.coords, targetCoords, unit);
-        unit.coords = targetCoords;
         UnitManager.Inst.SetOrder(true);
     }
 }

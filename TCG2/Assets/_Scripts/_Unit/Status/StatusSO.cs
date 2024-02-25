@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,4 +13,17 @@ public class StatusSO : ScriptableObject
     [Header("Ç¥±â")]
     public Sprite sprite;
     public string explain;
+}
+
+[Serializable]
+public class StatusInfo
+{
+    public StatusSO data;
+    public int stack;
+
+    public StatusInfo(StatusSO data, int stack)
+    {
+        this.data = data;
+        this.stack = stack;
+    }
 }

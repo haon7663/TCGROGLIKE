@@ -12,17 +12,19 @@ public class Card : MonoBehaviour
     [SerializeField] TMP_Text attackTMP;
     [SerializeField] TMP_Text energyTMP;
 
-    [HideInInspector] public CardSO cardData;
     public PRS originPRS;
+    public CardInfo cardInfo;
+    public Unit unit;
 
-    public void SetUp(CardSO cardData)
+    public void SetUp(CardInfo cardInfo)
     {
-        this.cardData = Instantiate(cardData);
+        this.cardInfo = cardInfo;
+        unit = this.cardInfo.unit;
 
-        character.sprite = this.cardData.sprite;
-        nameTMP.text = this.cardData.name;
-        attackTMP.text = this.cardData.value.ToString();
-        energyTMP.text = this.cardData.energy.ToString();
+        character.sprite = this.cardInfo.data.sprite;
+        nameTMP.text = this.cardInfo.data.name;
+        attackTMP.text = StatusManager.Calculate(unit, this.cardInfo.data).ToString();
+        energyTMP.text = this.cardInfo.data.energy.ToString();
     }
 
     void OnMouseOver()
@@ -50,10 +52,16 @@ public class Card : MonoBehaviour
         if(useDotween)
         {
             transform.DOKill();
-            if(isLocal)
+            if (isLocal)
+            {
+                transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, prs.pos.z);
                 transform.DOLocalMove(prs.pos, dotweenTime);
+            }
             else
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, prs.pos.z);
                 transform.DOMove(prs.pos, dotweenTime);
+            }
             transform.DORotateQuaternion(prs.rot, dotweenTime);
             transform.DOScale(prs.scale, dotweenTime);
         }
@@ -77,5 +85,10 @@ public class Card : MonoBehaviour
             lineRenderer.SetPosition(0, new Vector2(transform.position.x, transform.position.y + 1.75f));
             lineRenderer.SetPosition(1, Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0)));
         }
+    }
+
+    public Unit GetUnit()
+    {
+        return unit;
     }
 }

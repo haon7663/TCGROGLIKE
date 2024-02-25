@@ -35,7 +35,7 @@ public class HealthManager : MonoBehaviour
     [SerializeField] Material defaultMaterial;
     [SerializeField] Material whiteMaterial;
 
-    Vector2 addPos = new Vector2(0, -0.1875f);
+    Vector3 addPos = new Vector2(0.1875f, 0);
 
     void Update()
     {
@@ -61,19 +61,15 @@ public class HealthManager : MonoBehaviour
 
     public void SetHealthBar(Unit unit)
     {
-        healthBars[unit].healthFilled.fillAmount = (float)unit.hp / unit.unitData.hp;
-        healthBars[unit].healthText.text = unit.hp + "/" + unit.unitData.hp;
+        healthBars[unit].healthFilled.fillAmount = (float)unit.hp / unit.data.hp;
+        healthBars[unit].healthText.text = unit.hp.ToString();
         healthBars[unit].defenceText.text = unit.defence.ToString();
     }
 
     public IEnumerator WhiteMaterial(Unit unit)
     {
-        Debug.Log("SetMaterial");
-        for(float i = 0; i < 0.1f; i += Time.deltaTime)
-        {
-            unit.SetMaterial(whiteMaterial);
-            yield return null;
-        }
+        unit.SetMaterial(whiteMaterial);
+        yield return YieldInstructionCache.WaitForSeconds(0.1f);
         unit.SetMaterial(defaultMaterial);
     }
 }

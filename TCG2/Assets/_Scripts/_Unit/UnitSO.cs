@@ -7,6 +7,8 @@ public class UnitSO : ScriptableObject
 {
     public UnitType type;
 
+    [Header("스프라이트")]
+    public AnimatorOverrideController animatorController;
     [Header("체력")]
     public int hp;
     [Header("이동")]
@@ -16,5 +18,5 @@ public class UnitSO : ScriptableObject
     public bool isJump = false;
 
     [Space]
-    public List<CardSO> _CardSO;
+    public List<CardInfo> _CardInfo;
 }

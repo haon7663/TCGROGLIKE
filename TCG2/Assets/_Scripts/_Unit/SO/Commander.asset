@@ -13,15 +13,22 @@ MonoBehaviour:
   m_Name: Commander
   m_EditorClassIdentifier: 
   type: 2
-  hp: 25
+  animatorController: {fileID: 22100000, guid: 9effe3dec0b017a4b988dd71586de52c, type: 2}
+  hp: 99
   rangeType: 1
-  range: 3
+  range: 2
   cost: 5
   isJump: 0
-  _CardSO:
-  - {fileID: 11400000, guid: 3e284cd5ded5a9c4b99975f910d298ba, type: 2}
-  - {fileID: 11400000, guid: 38f569cb11fcb454cb0d3a7c7a0a23a3, type: 2}
-  - {fileID: 11400000, guid: 150989b4d2424f648acf9d9458bf2d95, type: 2}
-  - {fileID: 11400000, guid: dae1f9859b6cfef4fbd2ad16c937db9a, type: 2}
-  - {fileID: 11400000, guid: 10cb6a27a9bf69a4799f23e619a580c8, type: 2}
-  - {fileID: 11400000, guid: 20156ef93e4e6d341900b3738cbff453, type: 2}
+  _CardInfo:
+  - unit: {fileID: 0}
+    data: {fileID: 11400000, guid: fb31c414d60c4a544b182720ee9cc06f, type: 2}
+    count: 6
+    priority: 0
+  - unit: {fileID: 0}
+    data: {fileID: 11400000, guid: 4eacc02dc57ec594e9a2f65a4689a13f, type: 2}
+    count: 6
+    priority: 0
+  - unit: {fileID: 0}
+    data: {fileID: 11400000, guid: 783d9860ddd060140bfccdb6dc649d79, type: 2}
+    count: 6
+    priority: 0

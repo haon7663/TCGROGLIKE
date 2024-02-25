@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 090f8a7b5dc4ecd4d8509fbd1619f90f, type: 3}
+  m_Name: Ally
+  m_EditorClassIdentifier: 
+  type: 0
+  animatorController: {fileID: 22100000, guid: 9effe3dec0b017a4b988dd71586de52c, type: 2}
+  hp: 15
+  rangeType: 2
+  range: 2
+  cost: 3
+  isJump: 1
+  _CardInfo:
+  - unit: {fileID: 0}
+    data: {fileID: 11400000, guid: 10cb6a27a9bf69a4799f23e619a580c8, type: 2}
+    count: 8
+    useType: 0
+    priority: 0
+    conditions: []
+  - unit: {fileID: 0}
+    data: {fileID: 11400000, guid: 150989b4d2424f648acf9d9458bf2d95, type: 2}
+    count: 2
+    useType: 0
+    priority: 0
+    conditions: []
+  - unit: {fileID: 0}
+    data: {fileID: 11400000, guid: fb31c414d60c4a544b182720ee9cc06f, type: 2}
+    count: 2
+    useType: 1
+    priority: 0
+    conditions: []

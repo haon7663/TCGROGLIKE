@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 571a3b3281273754496295c19ac7a978, type: 3}
+  m_Name: Liner 1
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 0}
+  prefab: {fileID: 253454770491110429, guid: 47b824ccd26e83841b6d5339a0288450, type: 3}
+  energy: 1
+  value: 12
+  cardType: 0
+  activeType: 0
+  rangeType: 0
+  onSelf: 0
+  range: 3
+  canSelectAll: 1
+  lineWidth: 1
+  selectType: 3
+  splashRange: 1
+  realRange: 100
+  multiShot: 1
+  isPenetrate: 1
+  statuses: []
+  isMove: 0
+  isJump: 0
+  isKnockback: 0
+  knockbackType: 0
+  knockbackPower: 0
+  shouldClose: 0
+  useType: 1
+  conditions:
+  - activatedType: 2
+    conditionType: 0
+    value: 0

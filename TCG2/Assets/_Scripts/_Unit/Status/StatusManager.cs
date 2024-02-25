@@ -36,6 +36,33 @@ public class StatusManager : MonoBehaviour
         }
     }
 
+    public void AddUnitStatus(List<StatusInfo> statuses, Unit targetUnit)
+    {
+        foreach (StatusInfo status in statuses)
+        {
+            var newStatus = new StatusInfo(status.data, status.stack);
+
+            switch (newStatus.data.calculateType)
+            {
+                case StatusCalculateType.Accumulate:
+                    if (targetUnit.statuses.Exists(item => item.data.name.Equals(newStatus.data.name)))
+                        targetUnit.statuses.Find(item => item.data.name.Equals(newStatus.data.name)).stack += newStatus.stack;
+                    else
+                        targetUnit.statuses.Add(newStatus);
+                    break;
+                case StatusCalculateType.Initialization:
+                    if (targetUnit.statuses.Exists(item => item.data.name.Equals(newStatus.data.name)))
+                        targetUnit.statuses.Find(item => item.data.name.Equals(newStatus.data.name)).stack = newStatus.stack;
+                    else
+                        targetUnit.statuses.Add(newStatus);
+                    break;
+                case StatusCalculateType.Each:
+                    targetUnit.statuses.Add(newStatus);
+                    break;
+            }
+        }
+    }
+
     public void Poison(Unit unit, int stack)
     {
         unit.OnDamage(stack);
@@ -46,7 +73,7 @@ public class StatusManager : MonoBehaviour
         var root = unit.statuses.Exists(item => item.data.name.Equals("Root"));
         var stun = unit.statuses.Exists(item => item.data.name.Equals("Stun"));
 
-        return root || stun;
+        return !(root || stun);
     }
     public static bool CanAction(Unit unit)
     {
@@ -54,18 +81,94 @@ public class StatusManager : MonoBehaviour
 
         return stun;
     }
-    public static int CalculateValue(Unit unit, int value)
+
+    #region Calculate
+    public static int Calculate(Unit unit, CardSO data)
+    {
+        switch (data.activeType)
+        {
+            case ActiveType.Attack:
+                return CalculateDamage(unit, data.value);
+            case ActiveType.Defence:
+                return CalculateDefence(unit, data.value);
+            case ActiveType.Recovery:
+                return CalculateHealth(unit, data.value);
+            default:
+                break;
+        }
+        return 0;
+    }
+    public static int Calculate(Unit unit, Unit targetUnit, CardSO data)
+    {
+        switch (data.activeType)
+        {
+            case ActiveType.Attack:
+                return CalculateDamage(unit, targetUnit, data.value);
+            case ActiveType.Defence:
+                return CalculateDefence(unit, targetUnit, data.value);
+            case ActiveType.Recovery:
+                return CalculateHealth(unit, targetUnit, data.value);
+            default:
+                break;
+        }
+        return 0;
+    }
+    public static int CalculateDamage(Unit unit, int value)
     {
         var strength = unit.statuses.Find(item => item.data.name.Equals("Strength"))?.stack;
-        print(strength);
+        var weak = unit.statuses.Exists(item => item.data.name.Equals("Weak"));
 
-        return value + (strength ?? 0);
+        var persentage = 1f;
+        persentage *= weak ? 0.75f : 1f;
+
+        return Mathf.RoundToInt((value * persentage) + (strength ?? 0));
     }
-}
+    public static int CalculateDamage(Unit unit, Unit targetUnit, int value)
+    {
+        value = CalculateDamage(unit, value);
 
-[Serializable]
-public class Status
-{
-    public StatusSO data;
-    public int stack;
+        var vulnerable = targetUnit.statuses.Exists(item => item.data.name.Equals("Vulnerable"));
+        var solid = targetUnit.statuses.Exists(item => item.data.name.Equals("Solid"));
+
+        var persentage = 1f;
+        persentage *= vulnerable ? 1.5f : 1f;
+        persentage *= solid ? 0.75f : 1f;
+
+        return Mathf.RoundToInt(value * persentage);
+    }
+    public static int CalculateDefence(Unit unit, int value)
+    {
+        var persentage = 1f;
+
+        return Mathf.RoundToInt(value * persentage);
+    }
+    public static int CalculateDefence(Unit unit, Unit targetUnit, int value)
+    {
+        value = CalculateDefence(unit, value);
+
+        var grievousWounds = targetUnit.statuses.Exists(item => item.data.name.Equals("GrievousWounds"));
+
+        var persentage = 1f;
+        persentage *= grievousWounds ? 0.5f : 1f;
+
+        return Mathf.RoundToInt(value * persentage);
+    }
+    public static int CalculateHealth(Unit unit, int value)
+    {
+        var persentage = 1f;
+
+        return Mathf.RoundToInt(value * persentage);
+    }
+    public static int CalculateHealth(Unit unit, Unit targetUnit, int value)
+    {
+        value = CalculateHealth(unit, value);
+
+        var grievousWounds = targetUnit.statuses.Exists(item => item.data.name.Equals("GrievousWounds"));
+
+        var persentage = 1f;
+        persentage *= grievousWounds ? 0.5f : 1f;
+
+        return Mathf.RoundToInt(value * persentage);
+    }
+    #endregion
 }

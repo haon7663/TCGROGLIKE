@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 571a3b3281273754496295c19ac7a978, type: 3}
+  m_Name: SelfHealth
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 0}
+  prefab: {fileID: 6037482832087054386, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
+  energy: 0
+  value: 4
+  cardType: 1
+  activeType: 2
+  rangeType: 6
+  onSelf: 1
+  range: 11
+  canSelectAll: 1
+  lineWidth: 1
+  selectType: 5
+  splashRange: 1
+  realRange: 0
+  multiShot: 1
+  isPenetrate: 0
+  statuses: []
+  isMove: 0
+  isJump: 0
+  isKnockback: 0
+  knockbackType: 0
+  knockbackPower: 0
+  shouldClose: 1
+  useType: 1
+  conditions:
+  - activatedType: 1
+    conditionType: 0
+    value: 30

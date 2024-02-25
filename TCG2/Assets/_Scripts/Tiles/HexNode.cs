@@ -12,10 +12,6 @@ public enum SelectOutline
 
 public class HexNode : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] Color obstacleColor;
-
-    [SerializeField] Gradient walkableColor;
     [SerializeField] SpriteRenderer spriteRenderer;
     [SerializeField] GameObject selectedObject;
     [SerializeField] GameObject moveSelectObject;
@@ -36,6 +32,8 @@ public class HexNode : MonoBehaviour
     public bool onObstacle, onUnit;
     public bool canMove, canAttack, canDamaged;
 
+    public List<StatusInfo> statuses;
+
     public virtual void Init(bool walkable, HexCoords coords)
     {
         onObstacle = !walkable;
@@ -54,7 +52,7 @@ public class HexNode : MonoBehaviour
 
         if (canMove)
         {
-            StartCoroutine(UnitManager.sUnit_Move.OnMove(coords));
+            UnitManager.sUnit_Move.OnMove(coords);
         }
         else if (canAttack)
         {
@@ -72,11 +70,11 @@ public class HexNode : MonoBehaviour
 
         if (canMove)
         {
-            UnitManager.sUnit_Move.TouchArea(this).OnDisplay(SelectOutline.Selected, new List<HexNode>());
+            UnitManager.sUnit_Move.TouchArea(this).OnDisplay(SelectOutline.Selected);
         }
         else if (canAttack)
         {
-            var selected = UnitManager.sUnit_Card.SelectArea(this);
+            var selected = UnitManager.sUnit_Card.GetSelectedArea(this);
             foreach (HexNode hexNode in selected)
                 hexNode.OnDisplay(SelectOutline.Selected, selected);
         }
@@ -89,12 +87,18 @@ public class HexNode : MonoBehaviour
         GridManager.Inst.RevertAbles();
     }
 
+    public void OnUnit(Unit unit, bool isRemove = false)
+    {
+        this.unit = isRemove ? null : unit;
+        spriteRenderer.color = isRemove ? Color.white : new Color(1, 0.75f, 0.75f);
+    }
+
     public void OnDisplay(SelectOutline selectLine, List<HexNode> nodes)
     {
         switch (selectLine)
         {
             case SelectOutline.Selected:
-                DisplayDamaged(UnitManager.sUnit_Card.cardData);
+                DisplayDamaged(UnitManager.sUnit);
                 SetOutline(selectedObject, nodes);
                 break;
             case SelectOutline.MoveSelect:
@@ -109,7 +113,6 @@ public class HexNode : MonoBehaviour
                 SetOutline(attackSelectObject, nodes);
                 break;
             case SelectOutline.DamageAble:
-                canDamaged = true;
                 SetOutline(damageAbleObject, nodes);
                 break;
             case SelectOutline.BuffSelect:
@@ -121,7 +124,6 @@ public class HexNode : MonoBehaviour
                 break;
         }
     }
-
     void SetOutline(GameObject outlineObject, List<HexNode> nodes)
     {
         outlineObject.SetActive(true);
@@ -131,17 +133,50 @@ public class HexNode : MonoBehaviour
         }
     }
 
-    public void DebugColor(Color color)
+    public void OnDisplay(SelectOutline selectLine)
     {
-        spriteRenderer.color = color;
+        switch (selectLine)
+        {
+            case SelectOutline.Selected:
+                DisplayDamaged(UnitManager.sUnit);
+                SetOutline(selectedObject);
+                break;
+            case SelectOutline.MoveSelect:
+                canMove = true;
+                SetOutline(moveSelectObject);
+                break;
+            case SelectOutline.MoveAble:
+                SetOutline(moveAbleObject);
+                break;
+            case SelectOutline.AttackSelect:
+                canAttack = true;
+                SetOutline(attackSelectObject);
+                break;
+            case SelectOutline.DamageAble:
+                SetOutline(damageAbleObject);
+                break;
+            case SelectOutline.BuffSelect:
+                canAttack = true;
+                SetOutline(buffSelectObject);
+                break;
+            case SelectOutline.BuffAble:
+                SetOutline(buffAbleObject);
+                break;
+        }
+    }
+    void SetOutline(GameObject outlineObject)
+    {
+        outlineObject.SetActive(true);
+        for(int i = 0; i < 6; i++)
+            outlineObject.transform.GetChild(i).gameObject.SetActive(true);
     }
 
-    public void DisplayDamaged(CardSO cardData)
+    public void DisplayDamaged(Unit unit)
     {
         if(onUnit)
         {
             damageText.gameObject.SetActive(true);
-            damageText.text = cardData.value.ToString();
+            damageText.text = StatusManager.Calculate(unit, GridManager.Inst.OnTileUnits[coords.Pos], unit.card.data).ToString();
             damageText.GetComponent<Renderer>().sortingLayerName = "UI";
         }
     }
@@ -167,10 +202,9 @@ public class HexNode : MonoBehaviour
         damageText.gameObject.SetActive(false);
     }
 
-    public bool CanWalk()
-    {
-        return !onObstacle && !onUnit;
-    }
+    public bool CanWalk() => !onObstacle && !onUnit;
+    public bool CanPass() => !onObstacle && !onUnit;
+
 
     #region Pathfinding
     public List<HexNode> Neighbors { get; protected set; }
@@ -263,7 +297,7 @@ public struct HexCoords
 
     private static readonly float HexSize = 15f / 16;
 
-    public Vector2 Pos { get; set; }
+    public Vector3 Pos { get; set; }
 
     private int AxialLength()
     {

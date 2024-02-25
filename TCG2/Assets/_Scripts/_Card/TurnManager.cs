@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using Random = UnityEngine.Random;
 
-public enum Paze { Draw, Move, Card, End, Enemy }
+public enum Paze { Draw, Commander, Card, End, Enemy }
 public class TurnManager : MonoBehaviour
 {
     public static TurnManager Inst { get; private set; }
@@ -47,8 +47,15 @@ public class TurnManager : MonoBehaviour
 
     IEnumerator StartTurnCo()
     {
+        yield return delay05;
+
         MoveCost = maxMoveCost;
         Energy = maxEnergy;
+
+        foreach (Unit unit in UnitManager.Inst.Enemies)
+        {
+            UnitManager.Inst.AutoSelectCard(unit);
+        }
 
         paze = Paze.Draw;
         for (int i = 0; i < startCardCount; i++)
@@ -58,7 +65,7 @@ public class TurnManager : MonoBehaviour
         }
         yield return delay7;
 
-        paze = Paze.Move;
+        paze = Paze.Commander;
         yield return new WaitUntil(() => MoveCost <= 0);
 
         paze = Paze.Card;
@@ -67,6 +74,8 @@ public class TurnManager : MonoBehaviour
         paze = Paze.End;
         CardManager.Inst.RemoveCards();
         yield return delay7;
+
+        GridManager.Inst.StatusNode();
 
         foreach (Unit unit in UnitManager.Inst.Units)
         {
@@ -77,7 +86,7 @@ public class TurnManager : MonoBehaviour
         paze = Paze.Enemy;
         foreach(Unit unit in UnitManager.Inst.Enemies)
         {
-            UnitManager.Inst.AutoAction(unit);
+            StartCoroutine(UnitManager.Inst.AutoAction(unit));
             yield return delay7;
         }
 

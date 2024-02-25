@@ -6,15 +6,15 @@ using DG.Tweening;
 
 public class Projectile : Attack
 {
-    public override void Init(Unit unit, HexDirection direction, CardSO card)
+    public override void Init(Unit unit, HexDirection direction, CardSO data)
     {
-        base.Init(unit, direction, card);
-        StartCoroutine(Fire(direction, card));
+        base.Init(unit, direction, data);
+        StartCoroutine(Fire(direction, data));
     }
 
-    IEnumerator Fire(HexDirection direction, CardSO card)
+    IEnumerator Fire(HexDirection direction, CardSO data)
     {
-        for (int i = 1; i <= card.range; i++)
+        for (int i = 1; i <= data.realRange; i++)
         {
             coords += direction.Coords();
             if (GridManager.Inst.GetTile(coords)?.onObstacle != false)
@@ -24,7 +24,7 @@ public class Projectile : Attack
 
             yield return YieldInstructionCache.WaitForSeconds(0.05f);
 
-            if(ActiveEventValue(coords, card) && !card.isPenetrate)
+            if(ActiveEventValue(coords, data) && !data.isPenetrate)
                 break;
         }
         Destroy(gameObject);
