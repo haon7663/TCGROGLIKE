@@ -87,6 +87,7 @@ public static class Pathfinding
                 while (currentPathTile != startNode)
                 {
                     path.Add(currentPathTile);
+                    currentPathTile.OnDisplay(SelectOutline.BuffAble, new List<HexNode>());
                     currentPathTile = currentPathTile.Connection;
                     count--;
                     if (count < 0) throw new Exception();

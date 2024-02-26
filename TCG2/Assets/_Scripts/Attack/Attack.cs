@@ -12,29 +12,33 @@ public abstract class Attack : MonoBehaviour
     protected List<HexNode> nodes = new List<HexNode>();
 
     HexDirection saveDirection = HexDirection.Default;
+    int value;
 
-    public virtual void Init(Unit unit, HexDirection direction, CardSO data)
+    public virtual void Init(Unit unit, HexDirection direction, CardSO data, int value = -999)
     {
         this.unit = unit;
         this.data = data;
         coords = unit.coords;
         transform.position = unit.coords.Pos;
         saveDirection = direction;
+        this.value = value;
     }
-    public virtual void Init(Unit unit, HexNode node, CardSO data)
+    public virtual void Init(Unit unit, HexNode node, CardSO data, int value = -999)
     {
         this.unit = unit;
         this.data = data;
         coords = node.coords;
         transform.position = coords.Pos;
+        this.value = value;
     }
-    public virtual void Init(Unit unit, HexNode node, List<HexNode> nodes, CardSO data)
+    public virtual void Init(Unit unit, HexNode node, List<HexNode> nodes, CardSO data, int value = -999)
     {
         this.unit = unit;
         this.data = data;
         this.nodes = nodes;
         coords = node.coords;
         transform.position = coords.Pos;
+        this.value = value;
     }
 
     public bool ActiveEventValue(HexCoords coords, CardSO data)
@@ -59,7 +63,6 @@ public abstract class Attack : MonoBehaviour
         }
         else
         {
-            List<Unit> units = new();
             foreach(HexNode node in nodes)
             {
                 var onUnit = GridManager.Inst.GetUnit(node);
@@ -77,16 +80,17 @@ public abstract class Attack : MonoBehaviour
 
     bool TypeToEffect(Unit targetUnit)
     {
+        var lastValue = value == -999 ? data.value : value;
         switch (data.activeType)
         {
             case ActiveType.Attack:
-                targetUnit.OnDamage(StatusManager.CalculateDamage(unit, targetUnit, data.value));
+                targetUnit.OnDamage(StatusManager.CalculateDamage(unit, targetUnit, lastValue));
                 break;
             case ActiveType.Defence:
-                targetUnit.OnDefence(StatusManager.CalculateDefence(unit, targetUnit, data.value));
+                targetUnit.OnDefence(StatusManager.CalculateDefence(unit, targetUnit, lastValue));
                 break;
             case ActiveType.Recovery:
-                targetUnit.OnHealth(StatusManager.CalculateHealth(unit, targetUnit, data.value));
+                targetUnit.OnHealth(StatusManager.CalculateHealth(unit, targetUnit, lastValue));
                 break;
         }
 

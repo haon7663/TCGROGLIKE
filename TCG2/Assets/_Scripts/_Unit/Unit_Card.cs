@@ -2,6 +2,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class Unit_Card : MonoBehaviour
 {
@@ -10,11 +11,13 @@ public class Unit_Card : MonoBehaviour
 
     [HideInInspector] public CardInfo Info;
     [HideInInspector] public CardSO data;
+    int value = -999;
 
-    public void SetUp(CardInfo cardInfo)
+    public void SetUp(CardInfo cardInfo, int value)
     {
         Info = cardInfo;
         data = cardInfo.data;
+        this.value = value;
     }
 
     public void DrawArea(CardSO data, bool canSelect = true)
@@ -124,7 +127,7 @@ public class Unit_Card : MonoBehaviour
                 hexNodes.AddRange(HexDirectionExtension.Diagonal(unit.coords, direction, data.range));
                 break;
             case SelectType.Liner:
-                for(int i = -data.multiShot/2; i <= data.multiShot/2; i++)
+                for(int i = -data.bulletNumber/2; i <= data.bulletNumber/2; i++)
                     hexNodes.AddRange(HexDirectionExtension.Liner(unit.coords, direction.Rotate(i), data.realRange, data.lineWidth, data.isPenetrate));
                 break;
             case SelectType.Splash:
@@ -154,24 +157,28 @@ public class Unit_Card : MonoBehaviour
 
         TurnManager.UseEnergy(this.data.energy);
 
-        Attack prefab;
+        Sequence sequence = DOTween.Sequence();
+
         switch (this.data.selectType)
         {
             case SelectType.Single:
-                prefab = Instantiate(this.data.prefab).GetComponent<Attack>();
-                prefab.Init(unit, node, this.data);
+                for (int i = 0; i < this.data.multiShot; i++)
+                    sequence.InsertCallback(0.15f * i, () => Instantiate(this.data.prefab).GetComponent<Attack>().Init(unit, node, this.data, value));
                 break;
             case SelectType.Liner:
-                for (int i = -this.data.multiShot / 2; i <= this.data.multiShot / 2; i++)
+                var direction = (node.coords - unit.coords).GetSignDirection();
+                for (int i = 0; i < this.data.multiShot; i++)
                 {
-                    var direction = (node.coords - unit.coords).GetSignDirection();
-                    prefab = Instantiate(this.data.prefab).GetComponent<Attack>();
-                    prefab.Init(unit, direction.Rotate(i), this.data);
+                    sequence.InsertCallback(0.05f * i, () =>
+                    {
+                        for (int j = -this.data.bulletNumber / 2; j <= this.data.bulletNumber / 2; j++)
+                            Instantiate(this.data.prefab).GetComponent<Attack>().Init(unit, direction.Rotate(j), this.data, value);
+                    });
                 }
                 break;
             default:
-                prefab = Instantiate(this.data.prefab).GetComponent<Attack>();
-                prefab.Init(unit, node, GetSelectedArea(node), this.data);
+                for (int i = 0; i < this.data.multiShot; i++)
+                    sequence.InsertCallback(0.15f * i, () => Instantiate(this.data.prefab).GetComponent<Attack>().Init(unit, node, GetSelectedArea(node), this.data, value));
                 break;
         }
         if (this.data.isMove)

@@ -26,6 +26,8 @@ public class UnitManager : MonoBehaviour
     [Header("Graphic")]
     [SerializeField] Material outlineMaterial;
     [SerializeField] Material defaultMaterial;
+    [Space]
+    [SerializeField] Sprite attackSprite;
 
     void Start()
     {
@@ -217,12 +219,21 @@ public class UnitManager : MonoBehaviour
 
         cardInfos = highCardInfos.FindAll(x => x.priority == maxPriority);
         int rand = Random.Range(0, cardInfos.Count);
-        unit.card.SetUp(cardInfos[rand]);
-        if (cardInfos[rand].data.useType == UseType.Should)
+
+        CardInfo info = cardInfos[rand];
+        int value = info.data.value + Mathf.CeilToInt(info.data.value * 0.1f) * Random.Range(-1, 2);
+        unit.card.SetUp(info, value);
+        if (info.data.useType == UseType.Should)
         {
             unit.targetCoords = GetNearestUnit2(unit, true).coords;
             unit.SetFlipX(unit.transform.position.x < unit.targetCoords.Pos.x);
         }
+
+        Sprite sprite = attackSprite;
+        if (info.data.activeType == ActiveType.Attack)
+            sprite = attackSprite;
+
+        unit.ShowAction(sprite, value);
     }
     public IEnumerator AutoAction(Unit unit, bool isEnemy = true)
     {

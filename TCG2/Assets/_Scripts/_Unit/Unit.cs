@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using Random = UnityEngine.Random;
 
 public class Unit : MonoBehaviour
@@ -20,6 +21,9 @@ public class Unit : MonoBehaviour
 
     SpriteRenderer spriteRenderer;
     Animator animator;
+    GameObject actionObject;
+    SpriteRenderer actionSpriteRenderer;
+    TMP_Text actionText;
 
     public HexCoords coords;
     public UnitSO data;
@@ -39,6 +43,12 @@ public class Unit : MonoBehaviour
             this.spriteRenderer = spriteRenderer;
         if (transform.GetChild(0).TryGetComponent(out Animator animator))
             this.animator = animator;
+
+        actionObject = transform.GetChild(3).gameObject;
+        if (actionObject.transform.GetChild(0).TryGetComponent(out SpriteRenderer renderer))
+            actionSpriteRenderer = renderer;
+        if (actionObject.transform.GetChild(1).TryGetComponent(out TMP_Text text))
+            actionText = text;
 
         Init();
     }
@@ -126,4 +136,15 @@ public class Unit : MonoBehaviour
 
     public void SetMaterial(Material material) => spriteRenderer.material = material;
     public void SetFlipX(bool value) => spriteRenderer.flipX = value;
+
+    public void ShowAction(Sprite sprite, int value)
+    {
+        actionObject.SetActive(true);
+        actionSpriteRenderer.sprite = sprite;
+        actionText.text = value.ToString();
+    }
+    public void HideAction()
+    {
+        actionObject.SetActive(false);
+    }
 }

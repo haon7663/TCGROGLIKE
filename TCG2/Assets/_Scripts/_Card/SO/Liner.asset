@@ -24,9 +24,10 @@ MonoBehaviour:
   canSelectAll: 1
   lineWidth: 1
   selectType: 3
+  multiShot: 1
   splashRange: 1
   realRange: 5
-  multiShot: 3
+  bulletNumber: 3
   isPenetrate: 0
   statuses: []
   isMove: 0

@@ -122,12 +122,12 @@ public class GridManager : MonoBehaviour
 
     /*void OnDrawGizmos()
     {
-        if (!Application.isPlaying || !_drawConnections) return;
+        if (!Application.isPlaying) return;
         Gizmos.color = Color.red;
         foreach (var t in Tiles)
         {
             if (t.Value.Connection == null) continue;
-            Gizmos.DrawLine((Vector3)t.Key + new Vector3(0, 0, -1), (Vector3)t.Value.Connection.Coords.Pos + new Vector3(0, 0, -1));
+            Gizmos.DrawLine((Vector3)t.Key + new Vector3(0, 0, -1), (Vector3)t.Value.Connection.coords.Pos + new Vector3(0, 0, -1));
         }
     }*/
 }

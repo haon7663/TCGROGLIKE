@@ -4,21 +4,21 @@ using UnityEngine;
 
 public class Single : Attack
 {
-    public override void Init(Unit unit, HexDirection direction, CardSO data)
+    public override void Init(Unit unit, HexDirection direction, CardSO data, int value = -999)
     {
-        base.Init(unit, direction, data);
+        base.Init(unit, direction, data, value);
         if (!TryGetComponent(out Animator animator))
             ActiveEvent();
     }
-    public override void Init(Unit unit, HexNode node, CardSO data)
+    public override void Init(Unit unit, HexNode node, CardSO data, int value = -999)
     {
-        base.Init(unit, node, data);
+        base.Init(unit, node, data, value);
         if (!TryGetComponent(out Animator animator))
             ActiveEvent();
     }
-    public override void Init(Unit unit, HexNode node, List<HexNode> nodes, CardSO data)
+    public override void Init(Unit unit, HexNode node, List<HexNode> nodes, CardSO data, int value = -999)
     {
-        base.Init(unit, node, nodes, data);
+        base.Init(unit, node, nodes, data, value);
         if (!TryGetComponent(out Animator animator))
             ActiveEvent();
     }

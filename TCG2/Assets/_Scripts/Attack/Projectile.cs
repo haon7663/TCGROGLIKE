@@ -6,9 +6,9 @@ using DG.Tweening;
 
 public class Projectile : Attack
 {
-    public override void Init(Unit unit, HexDirection direction, CardSO data)
+    public override void Init(Unit unit, HexDirection direction, CardSO data, int value = -999)
     {
-        base.Init(unit, direction, data);
+        base.Init(unit, direction, data, value);
         StartCoroutine(Fire(direction, data));
     }
 
