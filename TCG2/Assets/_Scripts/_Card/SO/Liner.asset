@@ -15,7 +15,7 @@ MonoBehaviour:
   sprite: {fileID: 0}
   prefab: {fileID: 253454770491110429, guid: 47b824ccd26e83841b6d5339a0288450, type: 3}
   energy: 1
-  value: 6
+  value: 5
   cardType: 0
   activeType: 0
   rangeType: 0
@@ -27,17 +27,23 @@ MonoBehaviour:
   multiShot: 1
   splashRange: 1
   realRange: 5
-  bulletNumber: 3
-  isPenetrate: 0
+  bulletNumber: 1
+  isPenetrate: 1
   statuses: []
   isMove: 0
   isJump: 0
   isKnockback: 0
   knockbackType: 0
   knockbackPower: 0
-  shouldClose: 0
   useType: 1
+  recommendedDistanceType: 1
+  recommendedDistance: 1
+  isBeforeMove: 0
+  isAfterMove: 0
   conditions:
   - activatedType: 2
+    count: 0
     conditionType: 0
     value: 0
+  actionTriggerType: 0
+  actionTriggerTime: 1

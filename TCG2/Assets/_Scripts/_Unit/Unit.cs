@@ -31,6 +31,7 @@ public class Unit : MonoBehaviour
     [Header("Stats")]
     public int hp;
     public int defence;
+    int value;
 
     [Header("Systems")]
     public Unit target;
@@ -50,13 +51,15 @@ public class Unit : MonoBehaviour
         if (actionObject.transform.GetChild(1).TryGetComponent(out TMP_Text text))
             actionText = text;
 
-        Init();
+        Init(data);
     }
-    public void Init()
+    public void Init(UnitSO data)
     {
-        animator.runtimeAnimatorController = data.animatorController;
+        this.data = Instantiate(data);
 
-        hp = data.hp;
+        animator.runtimeAnimatorController = this.data.animatorController;
+
+        hp = this.data.hp;
         HealthManager.Inst.GenerateHealthBar(this);
 
         coords = GridManager.Inst.GetRandomNode().coords;
@@ -139,9 +142,15 @@ public class Unit : MonoBehaviour
 
     public void ShowAction(Sprite sprite, int value)
     {
+        this.value = value;
         actionObject.SetActive(true);
         actionSpriteRenderer.sprite = sprite;
-        actionText.text = value.ToString();
+        SetActionText();
+    }
+    public void SetActionText()
+    {
+        if(actionObject.activeSelf)
+            actionText.text = StatusManager.Calculate(this, card.data, value).ToString();
     }
     public void HideAction()
     {

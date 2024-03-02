@@ -40,7 +40,7 @@ public class Unit_Card : MonoBehaviour
         }
         GridManager.Inst.SelectNodes(selectCoords, outline);
     }
-    public List<HexCoords> GetArea(CardSO data)
+    public List<HexCoords> GetArea(CardSO data, Unit otherUnit = null)
     {
         List<HexCoords> selectCoords = new();
         switch (data.rangeType)
@@ -57,7 +57,7 @@ public class Unit_Card : MonoBehaviour
                             var node = GridManager.Inst.GetTile(coords);
                             if (node)
                             {
-                                if (node.CanWalk() || data.isPenetrate && !node.onObstacle)
+                                if (node.CanWalk() || node.coords == otherUnit?.coords || data.isPenetrate && !node.onObstacle)
                                     selectCoords.Add(coords);
                                 else if (node.onUnit)
                                 {
@@ -109,7 +109,7 @@ public class Unit_Card : MonoBehaviour
     {
         unit.Anim_SetTrigger("attackReady");
 
-        var targetCoords = (node.coords - unit.coords);
+        var targetCoords = node.coords - unit.coords;
         var direction = targetCoords.GetSignDirection();
         if (!targetCoords.ContainsDirection())
             direction = unit.coords.GetNearlyMouseDirection();
@@ -156,29 +156,38 @@ public class Unit_Card : MonoBehaviour
         unit.Anim_SetTrigger("attack");
 
         TurnManager.UseEnergy(this.data.energy);
+        unit.SetFlipX(unit.transform.position.x < node.coords.Pos.x);
 
         Sequence sequence = DOTween.Sequence();
-
+        if(this.data.actionTriggerType == ActionTriggerType.Custom)
+            sequence.AppendInterval(this.data.actionTriggerTime);
         switch (this.data.selectType)
         {
             case SelectType.Single:
                 for (int i = 0; i < this.data.multiShot; i++)
-                    sequence.InsertCallback(0.15f * i, () => Instantiate(this.data.prefab).GetComponent<Attack>().Init(unit, node, this.data, value));
+                {
+                    sequence.AppendInterval(0.05f);
+                    sequence.AppendCallback(() => Instantiate(this.data.prefab).GetComponent<Action>().Init(unit, node, this.data, value));
+                }
                 break;
             case SelectType.Liner:
                 var direction = (node.coords - unit.coords).GetSignDirection();
                 for (int i = 0; i < this.data.multiShot; i++)
                 {
-                    sequence.InsertCallback(0.05f * i, () =>
+                    sequence.AppendInterval(0.05f);
+                    sequence.AppendCallback(() =>
                     {
                         for (int j = -this.data.bulletNumber / 2; j <= this.data.bulletNumber / 2; j++)
-                            Instantiate(this.data.prefab).GetComponent<Attack>().Init(unit, direction.Rotate(j), this.data, value);
+                            Instantiate(this.data.prefab).GetComponent<Action>().Init(unit, direction.Rotate(j), this.data, value);
                     });
                 }
                 break;
             default:
                 for (int i = 0; i < this.data.multiShot; i++)
-                    sequence.InsertCallback(0.15f * i, () => Instantiate(this.data.prefab).GetComponent<Attack>().Init(unit, node, GetSelectedArea(node), this.data, value));
+                {
+                    sequence.AppendInterval(0.05f);
+                    sequence.AppendCallback(() => Instantiate(this.data.prefab).GetComponent<Action>().Init(unit, node, GetSelectedArea(node), this.data, value));
+                }
                 break;
         }
         if (this.data.isMove)

@@ -9,7 +9,7 @@ public static class Pathfinding
     private static readonly Color OpenColor = new Color(.4f, .6f, .4f);
     private static readonly Color ClosedColor = new Color(0.35f, 0.4f, 0.5f);
 
-    public static List<HexNode> FindPath(HexNode startNode, HexNode targetNode)
+    public static List<HexNode> FindPath(HexNode startNode, HexNode targetNode, bool onTarget = true)
     {
         var toSearch = new List<HexNode>() { startNode };
         var processed = new List<HexNode>();
@@ -38,6 +38,8 @@ public static class Pathfinding
                     count--;
                     if (count < 0) throw new Exception();
                 }
+                if(!onTarget) 
+                    path.Remove(targetNode);
                 path.Reverse();
                 return path;
             }
@@ -65,7 +67,7 @@ public static class Pathfinding
         return null;
     }
 
-    public static float FindPathDistance(HexNode startNode, HexNode targetNode)
+    public static int FindPathDistance(HexNode startNode, HexNode targetNode)
     {
         var toSearch = new List<HexNode>() { startNode };
         var processed = new List<HexNode>();
@@ -87,12 +89,10 @@ public static class Pathfinding
                 while (currentPathTile != startNode)
                 {
                     path.Add(currentPathTile);
-                    currentPathTile.OnDisplay(SelectOutline.BuffAble, new List<HexNode>());
                     currentPathTile = currentPathTile.Connection;
                     count--;
                     if (count < 0) throw new Exception();
                 }
-                path.Reverse();
                 return path.Count;
             }
 

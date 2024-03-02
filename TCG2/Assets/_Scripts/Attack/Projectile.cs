@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Pool;
 using DG.Tweening;
 
-public class Projectile : Attack
+public class Projectile : Action
 {
     public override void Init(Unit unit, HexDirection direction, CardSO data, int value = -999)
     {

@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.Pool;
 
-public abstract class Attack : MonoBehaviour
+public abstract class Action : MonoBehaviour
 {
     protected Unit unit;
     protected CardSO data;

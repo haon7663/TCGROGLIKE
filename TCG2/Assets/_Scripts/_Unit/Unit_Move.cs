@@ -15,7 +15,7 @@ public class Unit_Move : MonoBehaviour
         GridManager.Inst.SelectNodes(GetArea(), canMove ? SelectOutline.MoveSelect : SelectOutline.MoveAble);
     }
 
-    public List<HexCoords> GetArea()
+    public List<HexCoords> GetArea(bool onSelf = false)
     {
         List<HexCoords> selectCoords = new();
         switch (unit.data.rangeType)
@@ -55,11 +55,15 @@ public class Unit_Move : MonoBehaviour
                 }
                 break;
         }
+        if (onSelf)
+            selectCoords.Add(unit.coords);
         return selectCoords;
     }
 
     public HexNode TouchArea(HexNode selected)
     {
+        //Debug.Log("TouchArea");
+        //transform.position = selected.coords.Pos + Vector3.forward;
         return selected;
     }
 
@@ -116,6 +120,34 @@ public class Unit_Move : MonoBehaviour
             {
                 sequence.Append(transform.DOMove(targetCoords.Pos - Vector3.forward, dotweenTime).SetEase(ease));
                 sequence.AppendCallback(() => unit.coords = targetCoords);
+            }
+        }
+        UnitManager.Inst.SetOrder(true);
+    }
+
+    public void OnMoveInRange(HexCoords targetCoords, int range, bool useDotween = true, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
+    {
+        GridManager.Inst.RevertTiles();
+        TurnManager.UseMoveCost(unit.data.cost);
+
+        var targetTile = GridManager.Inst.GetTile(targetCoords);
+        var path = Pathfinding.FindPath(GridManager.Inst.GetTile(unit), targetTile, unit.coords == targetCoords || !targetTile.onUnit);
+
+        if(path.Count > 0)
+        {
+            int i = 0;
+            Sequence sequence = DOTween.Sequence();
+            foreach (HexNode tile in path)
+            {
+                if (i++ >= range)
+                    break;
+
+                sequence.Append(transform.DOMove(tile.coords.Pos - Vector3.forward, dotweenTime).SetEase(ease));
+                sequence.AppendCallback(() =>
+                {
+                    GridManager.Inst.SetTileUnit(unit.coords, tile.coords, unit);
+                    unit.coords = tile.coords;
+                });
             }
         }
         UnitManager.Inst.SetOrder(true);

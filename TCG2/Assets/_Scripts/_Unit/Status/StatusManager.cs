@@ -61,6 +61,7 @@ public class StatusManager : MonoBehaviour
                     break;
             }
         }
+        targetUnit.SetActionText();
     }
 
     public void Poison(Unit unit, int stack)
@@ -83,16 +84,17 @@ public class StatusManager : MonoBehaviour
     }
 
     #region Calculate
-    public static int Calculate(Unit unit, CardSO data)
+    public static int Calculate(Unit unit, CardSO data, int value = -999)
     {
+        value = value == -999 ? data.value : value;
         switch (data.activeType)
         {
             case ActiveType.Attack:
-                return CalculateDamage(unit, data.value);
+                return CalculateDamage(unit, value);
             case ActiveType.Defence:
-                return CalculateDefence(unit, data.value);
+                return CalculateDefence(unit, value);
             case ActiveType.Recovery:
-                return CalculateHealth(unit, data.value);
+                return CalculateHealth(unit, value);
             default:
                 break;
         }

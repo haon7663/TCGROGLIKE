@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 571a3b3281273754496295c19ac7a978, type: 3}
-  m_Name: Melee
+  m_Name: AreaArrow
   m_EditorClassIdentifier: 
   sprite: {fileID: 0}
-  prefab: {fileID: 6037482832087054386, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
-  energy: 1
-  value: 5
+  prefab: {fileID: 6286644868738343175, guid: dc8e9c6497610fb4480b3ecb4f1d7b68, type: 3}
+  energy: 0
+  value: 7
   cardType: 0
   activeType: 0
   rangeType: 1
   onSelf: 0
-  range: 1
+  range: 2
   canSelectAll: 1
   lineWidth: 1
   selectType: 0
@@ -29,19 +29,21 @@ MonoBehaviour:
   realRange: 0
   bulletNumber: 1
   isPenetrate: 0
-  statuses:
-  - data: {fileID: 11400000, guid: 4b045bbb4f0b3ba4cb52a0dc92bf16a4, type: 2}
-    stack: 2
+  statuses: []
   isMove: 0
   isJump: 0
   isKnockback: 0
   knockbackType: 0
   knockbackPower: 0
   useType: 0
-  recommendedDistanceType: 1
+  recommendedDistanceType: 0
   recommendedDistance: 1
-  isBeforeMove: 0
+  isBeforeMove: 1
   isAfterMove: 0
-  conditions: []
-  actionTriggerType: 1
-  actionTriggerTime: 0.41666666
+  conditions:
+  - activatedType: 0
+    count: 0
+    conditionType: 0
+    value: 0
+  actionTriggerType: 0
+  actionTriggerTime: 0.1

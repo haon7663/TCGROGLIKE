@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Single : Attack
+public class Single : Action
 {
     public override void Init(Unit unit, HexDirection direction, CardSO data, int value = -999)
     {

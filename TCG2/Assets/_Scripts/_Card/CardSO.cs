@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+
 public enum CardType { Attack, Buff, }
 public enum ActiveType { Attack, Defence, Recovery, }
 public enum RangeType { Liner, Area, TransitLiner, TransitDiagonal, TransitAround, OurArea, Self }
 public enum SelectType { Single, Wide, Splash, Liner, Emission, Entire, }
-
 public enum KnockbackType { FromUnit, FromPoint }
+public enum RecommendedDistanceType { Far, Close, Custom }
+public enum ActionTriggerType { Instant, Custom }
 
 [CreateAssetMenu(fileName = "CardSO", menuName = "Scriptable Object/CardSO")]
 public class CardSO : ScriptableObject
@@ -46,9 +48,16 @@ public class CardSO : ScriptableObject
     [DrawIf("isKnockback", true)] public int knockbackPower;
 
     [Header("추천 선택 경로")]
-    public bool shouldClose = true;
     public UseType useType;
+    public RecommendedDistanceType recommendedDistanceType = RecommendedDistanceType.Close;
+    [DrawIf("recommendedDistanceType", RecommendedDistanceType.Custom)] public int recommendedDistance = 1;
+    [DrawIf("useType", UseType.Should)] public bool isBeforeMove;
+    [DrawIf("useType", UseType.Should)] public bool isAfterMove;
     public List<Condition> conditions;
+
+    [Header("비주얼")]
+    public ActionTriggerType actionTriggerType;
+    [DrawIf("actionTriggerType", ActionTriggerType.Custom)] public float actionTriggerTime = 0.1f;
 }
 
 [Serializable]
@@ -57,8 +66,8 @@ public class CardInfo
     [HideInInspector] public Unit unit;
     public CardSO data;
     public int count;
-
     public int priority;
+    public int turnCount;
 
     public CardInfo(CardInfo cardInfo)
     {
@@ -74,8 +83,9 @@ public enum UseType { Able, Should }
 public struct Condition
 {
     public ActivatedType activatedType;
+    [DrawIf("activatedType", ActivatedType.Count)] public int turnCount;
     [DrawIf("activatedType", ActivatedType.Health)] public ConditionType conditionType;
-    [DrawIf("activatedType", ActivatedType.Health | ActivatedType.Count)] public int value;
+    [DrawIf("activatedType", ActivatedType.Health)] public int value;
 }
 public enum ActivatedType { Count, Health, Range }
 public enum ConditionType { Less, Greater, Equal }

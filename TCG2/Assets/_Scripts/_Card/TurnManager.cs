@@ -28,7 +28,7 @@ public class TurnManager : MonoBehaviour
     readonly WaitForSeconds delay05 = YieldInstructionCache.WaitForSeconds(0.05f);
     readonly WaitForSeconds delay7 = YieldInstructionCache.WaitForSeconds(0.7f);
 
-    public static Action OnAddCard;
+    public static System.Action OnAddCard;
     public static event Action<bool> OnTurnStarted;
 
     public void GameSetUp()
@@ -52,9 +52,9 @@ public class TurnManager : MonoBehaviour
         MoveCost = maxMoveCost;
         Energy = maxEnergy;
 
-        foreach (Unit unit in UnitManager.Inst.Enemies)
+        for (int i = UnitManager.Inst.Enemies.Count - 1; i >= 0; i--)
         {
-            UnitManager.Inst.AutoSelectCard(unit);
+            UnitManager.Inst.AutoSelectCard(UnitManager.Inst.Enemies[i]);
         }
 
         paze = Paze.Draw;
@@ -77,16 +77,16 @@ public class TurnManager : MonoBehaviour
 
         GridManager.Inst.StatusNode();
 
-        foreach (Unit unit in UnitManager.Inst.Units)
+        for (int i = UnitManager.Inst.Units.Count - 1; i >= 0; i--)
         {
-            StatusManager.Inst.StatusActive(unit);
+            StatusManager.Inst.StatusActive(UnitManager.Inst.Units[i]);
             yield return delay05;
         }
 
         paze = Paze.Enemy;
-        foreach(Unit unit in UnitManager.Inst.Enemies)
+        for (int i = UnitManager.Inst.Enemies.Count - 1; i >= 0; i--)
         {
-            StartCoroutine(UnitManager.Inst.AutoAction(unit));
+            StartCoroutine(UnitManager.Inst.AutoAction(UnitManager.Inst.Enemies[i]));
             yield return delay7;
         }
 

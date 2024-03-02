@@ -291,7 +291,7 @@ public struct HexCoords
 
     public float GetDistance(HexCoords other) => (this - other).AxialLength();
 
-    public float GetPathDistance(HexCoords other) => Pathfinding.FindPathDistance(GridManager.Inst.GetTile(this), GridManager.Inst.GetTile(other));
+    public int GetPathDistance(HexCoords other) => Pathfinding.FindPathDistance(GridManager.Inst.GetTile(this), GridManager.Inst.GetTile(other));
 
     private static readonly float Sqrt3 = Mathf.Sqrt(3);
 

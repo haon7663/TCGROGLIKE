@@ -1,7 +1,9 @@
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using Random = UnityEngine.Random;
 
 public enum UnitType { Ally, Enemy, Commander }
 
@@ -33,8 +35,6 @@ public class UnitManager : MonoBehaviour
     {
         FindUnits();
         TurnManager.OnTurnStarted += OnTurnStarted;
-        SelectUnit(Commander);
-
         CardManager.Inst.StartSet();
     }
 
@@ -156,10 +156,11 @@ public class UnitManager : MonoBehaviour
             if (cardInfo.data.conditions.Count == 0)
             {
                 for (int i = 0; i < cardInfo.count; i++)
-                    cardInfos.Add(new CardInfo(cardInfo));
+                    cardInfos.Add(cardInfo);
             }
             else
             {
+                bool saticfiedCondition = true;
                 foreach (Condition condition in cardInfo.data.conditions)
                 {
                     switch (condition.activatedType)
@@ -170,35 +171,37 @@ public class UnitManager : MonoBehaviour
                             switch (condition.conditionType)
                             {
                                 case ConditionType.Less:
-                                    if (leftValue <= rightValue)
-                                        for (int i = 0; i < cardInfo.count; i++)
-                                            cardInfos.Add(new CardInfo(cardInfo));
+                                    if (leftValue > rightValue)
+                                        saticfiedCondition = false;
                                     break;
                                 case ConditionType.Greater:
-                                    if (leftValue >= rightValue)
-                                        for (int i = 0; i < cardInfo.count; i++)
-                                            cardInfos.Add(new CardInfo(cardInfo));
+                                    if (leftValue <= rightValue)
+                                        saticfiedCondition = false;
                                     break;
                                 case ConditionType.Equal:
                                     if (leftValue == rightValue)
-                                        for (int i = 0; i < cardInfo.count; i++)
-                                            cardInfos.Add(new CardInfo(cardInfo));
+                                        saticfiedCondition = false;
                                     break;
                             }
                             break;
                         case ActivatedType.Range:
-                            var contains = false;
+                            List<HexCoords> targetArea = new();
                             foreach (Unit ally in Allies)
+                                targetArea.AddRange(ally.card.GetArea(cardInfo.data));
+                            if (!(cardInfo.data.isBeforeMove ? targetArea.Exists(x => unit.move.GetArea(true).Contains(x)) : targetArea.Contains(unit.coords)))
+                                saticfiedCondition = false;
+                            break;
+                        case ActivatedType.Count:
+                            if (cardInfo.turnCount-- > 0)
                             {
-                                if (unit.card.GetArea(cardInfo.data).Contains(ally.coords))
-                                    contains = true;
+                                saticfiedCondition = false;
                             }
-                            if(contains)
-                                for (int i = 0; i < cardInfo.count; i++)
-                                    cardInfos.Add(new CardInfo(cardInfo));
                             break;
                     }
                 }
+                if(saticfiedCondition)
+                    for (int i = 0; i < cardInfo.count; i++)
+                        cardInfos.Add(cardInfo);
             }
             /*for (int i = 0; i < cardInfo.count; i++)
             {
@@ -221,12 +224,17 @@ public class UnitManager : MonoBehaviour
         int rand = Random.Range(0, cardInfos.Count);
 
         CardInfo info = cardInfos[rand];
+        if (info.data.conditions.Exists(x => x.activatedType == ActivatedType.Count))
+            info.turnCount = info.data.conditions.Find(x => x.activatedType == ActivatedType.Count).turnCount;
         int value = info.data.value + Mathf.CeilToInt(info.data.value * 0.1f) * Random.Range(-1, 2);
         unit.card.SetUp(info, value);
         if (info.data.useType == UseType.Should)
         {
-            unit.targetCoords = GetNearestUnit2(unit, true).coords;
+            var targetUnit = GetNearestUnit2(unit);
+            unit.targetCoords = targetUnit.coords;
             unit.SetFlipX(unit.transform.position.x < unit.targetCoords.Pos.x);
+            if(info.data.isBeforeMove)
+                MoveUnit(unit, targetUnit);
         }
 
         Sprite sprite = attackSprite;
@@ -235,34 +243,21 @@ public class UnitManager : MonoBehaviour
 
         unit.ShowAction(sprite, value);
     }
-    public IEnumerator AutoAction(Unit unit, bool isEnemy = true)
+    public IEnumerator AutoAction(Unit unit)
     {
         var useType = unit.card.data.useType;
         if (useType == UseType.Able)
         {
-            Unit targetUnit = GetNearestUnit2(unit, isEnemy);
+            Unit targetUnit = GetNearestUnit2(unit);
             if (targetUnit)
             {
-                unit.SetFlipX(unit.transform.position.x < targetUnit.transform.position.x);
-                var targetCoords = FollowRange(unit, targetUnit); //NullTarget == Attack
-                if (targetCoords == null)
+                MoveUnit(unit, targetUnit);
+
+                yield return YieldInstructionCache.WaitForSeconds(0.5f);
+
+                if (targetUnit.card.GetArea(unit.card.data).Contains(unit.coords))
                 {
                     unit.card.UseCard(GridManager.Inst.GetTile(targetUnit));
-                }
-                else
-                {
-                    if (StatusManager.CanMove(unit))
-                    {
-                        unit.move.OnMove((HexCoords)targetCoords);
-                    }
-
-                    yield return YieldInstructionCache.WaitForSeconds(0.5f);
-
-                    targetCoords = FollowRange(unit, targetUnit); //NullTarget == Attack
-                    if (targetCoords == null)
-                    {
-                        unit.card.UseCard(GridManager.Inst.GetTile(targetUnit));
-                    }
                 }
             }
         }
@@ -273,11 +268,80 @@ public class UnitManager : MonoBehaviour
     }
 
     #region UnitAlgorithm
+
+    void MoveUnit(Unit unit, Unit targetUnit)
+    {
+        unit.SetFlipX(unit.transform.position.x < targetUnit.transform.position.x);
+
+        var targetDistance = 1;
+        switch (unit.card.data.recommendedDistanceType)
+        {
+            case RecommendedDistanceType.Far:
+                targetDistance = unit.card.data.range;
+                break;
+            case RecommendedDistanceType.Close:
+                targetDistance = 1;
+                break;
+            case RecommendedDistanceType.Custom:
+                targetDistance = unit.card.data.recommendedDistance;
+                break;
+        }
+
+        List<HexCoords> targetArea = unit.card.data.rangeType == RangeType.Self ? unit.move.GetArea(true) : targetUnit.card.GetArea(unit.card.data, unit);
+        targetArea = targetArea.FindAll(x => GridManager.Inst.GetTile(x).CanWalk() || x == unit.coords);
+        List<HexCoords> targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance && unit.move.GetArea(true).Contains(x));
+        for (int i = targetDistance - 1; i > 0 && targetCoordses.Count == 0; i--)
+        {
+            targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == i && unit.move.GetArea(true).Contains(x));
+        }
+
+
+        HexCoords targetCoords;
+        if (targetCoordses.Count == 0)
+        {
+            targetArea = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance).OrderBy(x => x.GetPathDistance(unit.coords)).ToList(); //수정필요
+            if (targetArea.Count == 0)
+                targetCoords = targetUnit.coords;
+            else
+                targetCoords = targetArea[0]; //수정필요
+        }
+        else
+        {
+            targetCoords = targetCoordses[Random.Range(0, targetCoordses.Count)];
+        }
+
+        if (StatusManager.CanMove(unit))
+        {
+            unit.move.OnMoveInRange(targetCoords, unit.data.range);
+        }
+    }
+    public Unit GetNearestUnit2(Unit unit) //가까운 유닛 탐색, 거리가 같으면 원래 유닛 타겟 고정
+    {
+        if (unit.card.data.rangeType == RangeType.Self)
+            return unit.target;
+
+        Unit targetUnit = null;
+        var minDistance = 10000f;
+        foreach (Unit target in unit.card.data.cardType == CardType.Attack ? Allies : Enemies)
+        {
+            var distance = unit.coords.GetPathDistance(target.coords);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                targetUnit = target;
+            }
+        }
+        targetUnit = unit.target?.coords.GetPathDistance(unit.coords) == minDistance ? unit.target : targetUnit;
+        unit.target = targetUnit;
+        return targetUnit;
+    }
+
+    #region Trash
     public void FollowUnit(Unit startUnit, Unit targetUnit)
     {
         var coordses = GetMinCoordses(startUnit, targetUnit.coords);
 
-        startUnit.move.OnMove(coordses[Random.Range(0, coordses.Count)]);
+        //startUnit.move.OnMove(coordses[Random.Range(0, coordses.Count)]);
     }
     public HexCoords? FollowRange(Unit startUnit, Unit targetUnit)
     {
@@ -304,7 +368,7 @@ public class UnitManager : MonoBehaviour
         }
 
         HexCoords targetCoords = new();
-        if (startUnit.card.data.shouldClose)
+        /*if (startUnit.card.data.shouldClose)
         {
             var min = 10000f;
             foreach (var coords in minCoordses)
@@ -330,7 +394,7 @@ public class UnitManager : MonoBehaviour
                 }
             }
         }
-
+        */
         var result = GetMinCoordses(startUnit, targetCoords);
         return result[Random.Range(0, result.Count)];
     }
@@ -350,24 +414,6 @@ public class UnitManager : MonoBehaviour
         startUnit.target = targetUnit;
         return targetUnit;
     }
-    public Unit GetNearestUnit2(Unit startUnit, bool isEnemy = true) //가까운 유닛 탐색, 거리가 같으면 원래 유닛 타겟 고정
-    {
-        Unit targetUnit = null;
-        var minDistance = 10000f;
-        foreach (Unit unit in isEnemy ? Allies : Enemies)
-        {
-            var distance = startUnit.coords.GetPathDistance(unit.coords);
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-                targetUnit = unit;
-            }
-        }
-        targetUnit = startUnit.target?.coords.GetPathDistance(startUnit.coords) == minDistance ? startUnit.target : targetUnit;
-        startUnit.target = targetUnit;
-        return targetUnit;
-    }
-
     List<HexCoords> GetMinCoordses(Unit startUnit, HexCoords targetCoords)
     {
         if (startUnit.coords == targetCoords) return new List<HexCoords> { startUnit.coords };
@@ -393,6 +439,7 @@ public class UnitManager : MonoBehaviour
 
         return minCoordses;
     }
+    #endregion
     #endregion
 
     void OnDestroy()
