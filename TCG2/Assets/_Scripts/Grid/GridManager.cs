@@ -22,6 +22,8 @@ public class GridManager : MonoBehaviour
     public Dictionary<Vector2, Unit> OnTileUnits { get; private set; }
     public HexNode selectedNode;
 
+    [SerializeField] GameObject outline;
+
     public void RevertTiles()
     {
         foreach (var t in Tiles.Values) t.RevertTile();
@@ -55,6 +57,15 @@ public class GridManager : MonoBehaviour
         foreach (HexNode t in tiles)
         {
             t.OnDisplay(outline, tiles);
+        }
+    }
+    public void InstantiateSelectNodes(List<HexNode> tiles)
+    {
+        foreach (HexNode t in tiles)
+        {
+            var outline = Instantiate(this.outline, t.transform);
+            outline.transform.localPosition = Vector2.zero;
+            t.SetOutline(outline, tiles);
         }
     }
     public void SelectNode(HexNode node, bool isSelect = true)

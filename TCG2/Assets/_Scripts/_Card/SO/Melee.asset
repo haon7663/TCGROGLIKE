@@ -29,9 +29,7 @@ MonoBehaviour:
   realRange: 0
   bulletNumber: 1
   isPenetrate: 0
-  statuses:
-  - data: {fileID: 11400000, guid: 4b045bbb4f0b3ba4cb52a0dc92bf16a4, type: 2}
-    stack: 2
+  statuses: []
   isMove: 0
   isJump: 0
   isKnockback: 0

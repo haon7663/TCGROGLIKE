@@ -91,7 +91,7 @@ public class TurnManager : MonoBehaviour
         var shouldEnemies = enemies.FindAll(x => x.card.data.useType == UseType.Should);
         for (int i = shouldEnemies.Count - 1; i >= 0; i--)
         {
-            StartCoroutine(UnitManager.Inst.Action(shouldEnemies[i], true));
+            StartCoroutine(UnitManager.Inst.Action(shouldEnemies[i], false));
             yield return delay7;
         }
         for (int i = ableEnemies.Count - 1; i >= 0; i--)

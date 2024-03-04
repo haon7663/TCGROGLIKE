@@ -235,6 +235,8 @@ public class UnitManager : MonoBehaviour
             unit.SetFlipX(unit.transform.position.x < unit.targetCoords.Pos.x);
             if(info.data.isBeforeMove)
                 MoveUnit(unit, targetUnit);
+
+            GridManager.Inst.InstantiateSelectNodes(unit.card.GetSelectedArea(GridManager.Inst.GetTile(targetUnit)));
         }
 
         Sprite sprite = attackSprite;

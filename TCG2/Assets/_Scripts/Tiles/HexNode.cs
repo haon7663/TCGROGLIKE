@@ -124,7 +124,7 @@ public class HexNode : MonoBehaviour
                 break;
         }
     }
-    void SetOutline(GameObject outlineObject, List<HexNode> nodes)
+    public void SetOutline(GameObject outlineObject, List<HexNode> nodes)
     {
         outlineObject.SetActive(true);
         foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))

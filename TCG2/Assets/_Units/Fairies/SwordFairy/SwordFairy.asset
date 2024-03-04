@@ -21,7 +21,7 @@ MonoBehaviour:
   isJump: 0
   _CardInfo:
   - unit: {fileID: 0}
-    data: {fileID: 11400000, guid: e01576ed190798340834ff9a79198e1a, type: 2}
+    data: {fileID: 11400000, guid: 3c198f85918369f47ab4be460523ce25, type: 2}
     count: 7
     priority: 0
     turnCount: 0
