@@ -6,12 +6,14 @@ AnimatorOverrideController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Fairy
+  m_Name: SwordFairy
   m_Controller: {fileID: 9100000, guid: 114fe81abea4d4643a0db20b2a566f92, type: 2}
   m_Clips:
   - m_OriginalClip: {fileID: 7400000, guid: d13052fd58243f745aaedcf63da3976b, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: e17772bac4970134aa5d55afbb08ca7c, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 78824e8446a9f694fbe3ce45b59c2c5c, type: 2}
   - m_OriginalClip: {fileID: 7400000, guid: 96dbdd56395d4c849b318c2ce0cf602a, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: ef52cc56f3b36ed4693af443e7006c80, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: b760bd228c20fe44dba9004c1665266b, type: 2}
   - m_OriginalClip: {fileID: 7400000, guid: d0aa1533e948eb64eba659b449889e4b, type: 2}
-    m_OverrideClip: {fileID: 7400000, guid: 2ed4afa4a83eb1348bfbbff1bd457d0b, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 26c26f02a133e094ea83e49b55f26bf6, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 9c261e538b5cc2943948f3402f3a6a99, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 886ad5e178f69ef41834aae0f738e54e, type: 2}

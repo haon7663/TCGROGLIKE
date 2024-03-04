@@ -243,25 +243,23 @@ public class UnitManager : MonoBehaviour
 
         unit.ShowAction(sprite, value);
     }
-    public IEnumerator AutoAction(Unit unit)
+    public IEnumerator Action(Unit unit, bool isAble)
     {
-        var useType = unit.card.data.useType;
-        if (useType == UseType.Able)
+        if (isAble)
         {
-            Unit targetUnit = GetNearestUnit2(unit);
-            if (targetUnit)
+            if (unit.targetUnit)
             {
-                MoveUnit(unit, targetUnit);
+                MoveUnit(unit, unit.targetUnit);
 
                 yield return YieldInstructionCache.WaitForSeconds(0.5f);
 
-                if (targetUnit.card.GetArea(unit.card.data).Contains(unit.coords))
+                if (unit.targetUnit.card.GetArea(unit.card.data).Contains(unit.coords))
                 {
-                    unit.card.UseCard(GridManager.Inst.GetTile(targetUnit));
+                    unit.card.UseCard(GridManager.Inst.GetTile(unit.targetUnit));
                 }
             }
         }
-        else if (useType == UseType.Should)
+        else
         {
             unit.card.UseCard(GridManager.Inst.GetTile(unit.targetCoords));
         }
@@ -318,7 +316,7 @@ public class UnitManager : MonoBehaviour
     public Unit GetNearestUnit2(Unit unit) //°¡±î¿î À¯´Ö Å½»ö, °Å¸®°¡ °°À¸¸é ¿ø·¡ À¯´Ö Å¸°Ù °íÁ¤
     {
         if (unit.card.data.rangeType == RangeType.Self)
-            return unit.target;
+            return unit.targetUnit;
 
         Unit targetUnit = null;
         var minDistance = 10000f;
@@ -331,8 +329,8 @@ public class UnitManager : MonoBehaviour
                 targetUnit = target;
             }
         }
-        targetUnit = unit.target?.coords.GetPathDistance(unit.coords) == minDistance ? unit.target : targetUnit;
-        unit.target = targetUnit;
+        targetUnit = unit.targetUnit?.coords.GetPathDistance(unit.coords) == minDistance ? unit.targetUnit : targetUnit;
+        unit.targetUnit = targetUnit;
         return targetUnit;
     }
 
@@ -411,7 +409,7 @@ public class UnitManager : MonoBehaviour
                 targetUnit = unit;
             }
         }
-        startUnit.target = targetUnit;
+        startUnit.targetUnit = targetUnit;
         return targetUnit;
     }
     List<HexCoords> GetMinCoordses(Unit startUnit, HexCoords targetCoords)

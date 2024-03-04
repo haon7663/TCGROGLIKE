@@ -34,7 +34,7 @@ public class Unit : MonoBehaviour
     int value;
 
     [Header("Systems")]
-    public Unit target;
+    public Unit targetUnit;
     public HexCoords targetCoords;
     public List<StatusInfo> statuses;
 
@@ -85,6 +85,7 @@ public class Unit : MonoBehaviour
                 hp += overValue;
                 defence = 0;
                 StartCoroutine(HealthManager.Inst.WhiteMaterial(this));
+                Anim_SetTrigger("hit");
             }
             HealthManager.Inst.SetHealthBar(this);
 

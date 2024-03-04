@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 090f8a7b5dc4ecd4d8509fbd1619f90f, type: 3}
-  m_Name: Enemy
+  m_Name: Fairy
   m_EditorClassIdentifier: 
   type: 1
   animatorController: {fileID: 22100000, guid: 1e2a6e33734c06249be35822e2020d9f, type: 2}

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 using System;
 using Random = UnityEngine.Random;
 
@@ -84,9 +85,18 @@ public class TurnManager : MonoBehaviour
         }
 
         paze = Paze.Enemy;
-        for (int i = UnitManager.Inst.Enemies.Count - 1; i >= 0; i--)
+
+        var enemies = UnitManager.Inst.Enemies.OrderByDescending(x => x.coords.GetPathDistance(UnitManager.Inst.GetNearestUnit2(x).coords)).ToList();
+        var ableEnemies = enemies.FindAll(x => x.card.data.useType == UseType.Able);
+        var shouldEnemies = enemies.FindAll(x => x.card.data.useType == UseType.Should);
+        for (int i = shouldEnemies.Count - 1; i >= 0; i--)
         {
-            StartCoroutine(UnitManager.Inst.AutoAction(UnitManager.Inst.Enemies[i]));
+            StartCoroutine(UnitManager.Inst.Action(shouldEnemies[i], true));
+            yield return delay7;
+        }
+        for (int i = ableEnemies.Count - 1; i >= 0; i--)
+        {
+            StartCoroutine(UnitManager.Inst.Action(ableEnemies[i], true));
             yield return delay7;
         }
 
