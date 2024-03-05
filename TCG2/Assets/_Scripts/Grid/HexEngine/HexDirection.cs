@@ -251,6 +251,21 @@ public static class HexDirectionExtension
             return new HexCoords(SignZero(coords._q), SignZero(coords._r)).ToDirection();
         return (HexDirection)(-1);
     }
+    public static HexDirection GetNearlyDirection(this HexCoords startCoords, HexCoords targetCoords)
+    {
+        float distance = 9999999f;
+        HexCoords minCoords = new HexCoords(0, 1);
+        foreach (HexCoords coords in _coords)
+        {
+            var magnitude = (targetCoords.Pos - (startCoords + coords).Pos).sqrMagnitude;
+            if (magnitude < distance)
+            {
+                distance = magnitude;
+                minCoords = coords;
+            }
+        }
+        return minCoords.ToDirection();
+    }
     public static HexDirection GetNearlyMouseDirection(this HexCoords startCoords)
     {
         float distance = 9999999f;

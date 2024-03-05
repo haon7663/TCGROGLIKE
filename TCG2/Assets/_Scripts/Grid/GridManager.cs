@@ -59,14 +59,17 @@ public class GridManager : MonoBehaviour
             t.OnDisplay(outline, tiles);
         }
     }
-    public void InstantiateSelectNodes(List<HexNode> tiles)
+    public List<GameObject> InstantiateSelectNodes(List<HexNode> tiles)
     {
+        var outlines = new List<GameObject>();
         foreach (HexNode t in tiles)
         {
             var outline = Instantiate(this.outline, t.transform);
             outline.transform.localPosition = Vector2.zero;
             t.SetOutline(outline, tiles);
+            outlines.Add(outline);
         }
+        return outlines;
     }
     public void SelectNode(HexNode node, bool isSelect = true)
     {

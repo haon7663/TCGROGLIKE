@@ -11,6 +11,7 @@ public class Unit_Card : MonoBehaviour
 
     [HideInInspector] public CardInfo Info;
     [HideInInspector] public CardSO data;
+    [HideInInspector] public List<GameObject> displayObjects;
     int value = -999;
 
     public void SetUp(CardInfo cardInfo, int value)
@@ -112,7 +113,12 @@ public class Unit_Card : MonoBehaviour
         var targetCoords = node.coords - unit.coords;
         var direction = targetCoords.GetSignDirection();
         if (!targetCoords.ContainsDirection())
-            direction = unit.coords.GetNearlyMouseDirection();
+        {
+            if (unit.data.type != UnitType.Enemy)
+                direction = unit.coords.GetNearlyMouseDirection();
+            else
+                direction = unit.coords.GetNearlyDirection(node.coords);
+        }
 
         GridManager.Inst.RevertAbles();
         List<HexNode> hexNodes = new();

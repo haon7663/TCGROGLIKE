@@ -148,7 +148,7 @@ public class UnitManager : MonoBehaviour
         unit.card.Cancel();
     }
 
-    public void AutoSelectCard(Unit unit)
+    public IEnumerator AutoSelectCard(Unit unit)
     {
         List<CardInfo> cardInfos = new();
         foreach (CardInfo cardInfo in unit.data._CardInfo)
@@ -234,9 +234,9 @@ public class UnitManager : MonoBehaviour
             unit.targetCoords = targetUnit.coords;
             unit.SetFlipX(unit.transform.position.x < unit.targetCoords.Pos.x);
             if(info.data.isBeforeMove)
-                MoveUnit(unit, targetUnit);
+                yield return StartCoroutine(MoveUnit(unit, targetUnit));
 
-            GridManager.Inst.InstantiateSelectNodes(unit.card.GetSelectedArea(GridManager.Inst.GetTile(targetUnit)));
+            unit.card.displayObjects = GridManager.Inst.InstantiateSelectNodes(unit.card.GetSelectedArea(GridManager.Inst.GetTile(targetUnit)));
         }
 
         Sprite sprite = attackSprite;
@@ -251,9 +251,7 @@ public class UnitManager : MonoBehaviour
         {
             if (unit.targetUnit)
             {
-                MoveUnit(unit, unit.targetUnit);
-
-                yield return YieldInstructionCache.WaitForSeconds(0.5f);
+                yield return StartCoroutine(MoveUnit(unit, unit.targetUnit));
 
                 if (unit.targetUnit.card.GetArea(unit.card.data).Contains(unit.coords))
                 {
@@ -264,55 +262,59 @@ public class UnitManager : MonoBehaviour
         else
         {
             unit.card.UseCard(GridManager.Inst.GetTile(unit.targetCoords));
+            foreach(var displayObject in unit.card.displayObjects)
+            {
+                Destroy(displayObject);
+            }
         }
     }
 
     #region UnitAlgorithm
 
-    void MoveUnit(Unit unit, Unit targetUnit)
+    IEnumerator MoveUnit(Unit unit, Unit targetUnit)
     {
-        unit.SetFlipX(unit.transform.position.x < targetUnit.transform.position.x);
-
-        var targetDistance = 1;
-        switch (unit.card.data.recommendedDistanceType)
-        {
-            case RecommendedDistanceType.Far:
-                targetDistance = unit.card.data.range;
-                break;
-            case RecommendedDistanceType.Close:
-                targetDistance = 1;
-                break;
-            case RecommendedDistanceType.Custom:
-                targetDistance = unit.card.data.recommendedDistance;
-                break;
-        }
-
-        List<HexCoords> targetArea = unit.card.data.rangeType == RangeType.Self ? unit.move.GetArea(true) : targetUnit.card.GetArea(unit.card.data, unit);
-        targetArea = targetArea.FindAll(x => GridManager.Inst.GetTile(x).CanWalk() || x == unit.coords);
-        List<HexCoords> targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance && unit.move.GetArea(true).Contains(x));
-        for (int i = targetDistance - 1; i > 0 && targetCoordses.Count == 0; i--)
-        {
-            targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == i && unit.move.GetArea(true).Contains(x));
-        }
-
-
-        HexCoords targetCoords;
-        if (targetCoordses.Count == 0)
-        {
-            targetArea = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance).OrderBy(x => x.GetPathDistance(unit.coords)).ToList(); //수정필요
-            if (targetArea.Count == 0)
-                targetCoords = targetUnit.coords;
-            else
-                targetCoords = targetArea[0]; //수정필요
-        }
-        else
-        {
-            targetCoords = targetCoordses[Random.Range(0, targetCoordses.Count)];
-        }
-
         if (StatusManager.CanMove(unit))
         {
-            unit.move.OnMoveInRange(targetCoords, unit.data.range);
+            unit.SetFlipX(unit.transform.position.x < targetUnit.transform.position.x);
+
+            var targetDistance = 1;
+            switch (unit.card.data.recommendedDistanceType)
+            {
+                case RecommendedDistanceType.Far:
+                    targetDistance = unit.card.data.range;
+                    break;
+                case RecommendedDistanceType.Close:
+                    targetDistance = 1;
+                    break;
+                case RecommendedDistanceType.Custom:
+                    targetDistance = unit.card.data.recommendedDistance;
+                    break;
+            }
+
+            List<HexCoords> targetArea = unit.card.data.rangeType == RangeType.Self ? unit.move.GetArea(true) : targetUnit.card.GetArea(unit.card.data, unit);
+            targetArea = targetArea.FindAll(x => GridManager.Inst.GetTile(x).CanWalk() || x == unit.coords);
+            List<HexCoords> targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance && unit.move.GetArea(true).Contains(x));
+            for (int i = targetDistance - 1; i > 0 && targetCoordses.Count == 0; i--)
+            {
+                targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == i && unit.move.GetArea(true).Contains(x));
+            }
+
+
+            HexCoords targetCoords;
+            if (targetCoordses.Count == 0)
+            {
+                targetArea = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance).OrderBy(x => x.GetPathDistance(unit.coords)).ToList(); //수정필요
+                if (targetArea.Count == 0)
+                    targetCoords = targetUnit.coords;
+                else
+                    targetCoords = targetArea[0]; //수정필요
+            }
+            else
+            {
+                targetCoords = targetCoordses[Random.Range(0, targetCoordses.Count)];
+            }
+
+            yield return StartCoroutine(unit.move.OnMoveInRange(targetCoords, unit.data.range));
         }
     }
     public Unit GetNearestUnit2(Unit unit) //가까운 유닛 탐색, 거리가 같으면 원래 유닛 타겟 고정

@@ -125,7 +125,7 @@ public class Unit_Move : MonoBehaviour
         UnitManager.Inst.SetOrder(true);
     }
 
-    public void OnMoveInRange(HexCoords targetCoords, int range, bool useDotween = true, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
+    public IEnumerator OnMoveInRange(HexCoords targetCoords, int range, bool useDotween = true, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
     {
         GridManager.Inst.RevertTiles();
         TurnManager.UseMoveCost(unit.data.cost);
@@ -136,18 +136,16 @@ public class Unit_Move : MonoBehaviour
         if(path.Count > 0)
         {
             int i = 0;
-            Sequence sequence = DOTween.Sequence();
             foreach (HexNode tile in path)
             {
                 if (i++ >= range)
                     break;
 
-                sequence.Append(transform.DOMove(tile.coords.Pos - Vector3.forward, dotweenTime).SetEase(ease));
-                sequence.AppendCallback(() =>
-                {
-                    GridManager.Inst.SetTileUnit(unit.coords, tile.coords, unit);
-                    unit.coords = tile.coords;
-                });
+                transform.DOMove(tile.coords.Pos - Vector3.forward, dotweenTime).SetEase(ease);
+                GridManager.Inst.SetTileUnit(unit.coords, tile.coords, unit);
+                unit.coords = tile.coords;
+
+                yield return YieldInstructionCache.WaitForSeconds(dotweenTime);
             }
         }
         UnitManager.Inst.SetOrder(true);

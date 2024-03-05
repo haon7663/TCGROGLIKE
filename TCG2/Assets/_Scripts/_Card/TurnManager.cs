@@ -55,7 +55,7 @@ public class TurnManager : MonoBehaviour
 
         for (int i = UnitManager.Inst.Enemies.Count - 1; i >= 0; i--)
         {
-            UnitManager.Inst.AutoSelectCard(UnitManager.Inst.Enemies[i]);
+            yield return StartCoroutine(UnitManager.Inst.AutoSelectCard(UnitManager.Inst.Enemies[i]));
         }
 
         paze = Paze.Draw;
@@ -91,12 +91,11 @@ public class TurnManager : MonoBehaviour
         var shouldEnemies = enemies.FindAll(x => x.card.data.useType == UseType.Should);
         for (int i = shouldEnemies.Count - 1; i >= 0; i--)
         {
-            StartCoroutine(UnitManager.Inst.Action(shouldEnemies[i], false));
-            yield return delay7;
+            yield return StartCoroutine(UnitManager.Inst.Action(shouldEnemies[i], false));
         }
         for (int i = ableEnemies.Count - 1; i >= 0; i--)
         {
-            StartCoroutine(UnitManager.Inst.Action(ableEnemies[i], true));
+            yield return StartCoroutine(UnitManager.Inst.Action(ableEnemies[i], true));
             yield return delay7;
         }
 
