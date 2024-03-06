@@ -272,6 +272,8 @@ public class CardManager : MonoBehaviour
                 tile.OnDisplay(SelectOutline.Selected);
             }
         }
+        foreach (var tile in GridManager.Inst.Tiles.Values)
+            tile.OnDisplay(SelectOutline.Outline);
     }
 
     void DetectCardArea()

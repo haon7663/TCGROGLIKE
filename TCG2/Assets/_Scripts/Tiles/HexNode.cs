@@ -7,12 +7,13 @@ using System.Linq;
 
 public enum SelectOutline
 {
-    Selected, MoveSelect, MoveAble, AttackSelect, DamageAble, BuffSelect, BuffAble, Default
+    Selected, MoveSelect, MoveAble, AttackSelect, DamageAble, BuffSelect, BuffAble, Outline
 }
 
 public class HexNode : MonoBehaviour
 {
     [SerializeField] SpriteRenderer spriteRenderer;
+    [SerializeField] GameObject outlineObject;
     [SerializeField] GameObject selectedObject;
     [SerializeField] GameObject moveSelectObject;
     [SerializeField] GameObject moveAbleObject;
@@ -90,13 +91,16 @@ public class HexNode : MonoBehaviour
     public void OnUnit(Unit unit, bool isRemove = false)
     {
         this.unit = isRemove ? null : unit;
-        spriteRenderer.color = isRemove ? Color.white : new Color(1, 0.75f, 0.75f);
+        //spriteRenderer.color = isRemove ? Color.white : new Color(1, 0.75f, 0.75f);
     }
 
     public void OnDisplay(SelectOutline selectLine, List<HexNode> nodes)
     {
         switch (selectLine)
         {
+            case SelectOutline.Outline:
+                SetOutline(outlineObject, nodes);
+                break;
             case SelectOutline.Selected:
                 DisplayDamaged(UnitManager.sUnit);
                 SetOutline(selectedObject, nodes);
@@ -137,6 +141,9 @@ public class HexNode : MonoBehaviour
     {
         switch (selectLine)
         {
+            case SelectOutline.Outline:
+                SetOutline(outlineObject);
+                break;
             case SelectOutline.Selected:
                 DisplayDamaged(UnitManager.sUnit);
                 SetOutline(selectedObject);
@@ -183,6 +190,7 @@ public class HexNode : MonoBehaviour
 
     public void RevertTile()
     {
+        outlineObject.SetActive(false);
         moveSelectObject.SetActive(false);
         moveAbleObject.SetActive(false);
         attackSelectObject.SetActive(false);

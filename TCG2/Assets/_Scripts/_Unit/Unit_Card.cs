@@ -29,7 +29,7 @@ public class Unit_Card : MonoBehaviour
 
         List<HexCoords> selectCoords = GetArea(data);
 
-        SelectOutline outline = SelectOutline.Default;
+        SelectOutline outline = SelectOutline.Outline;
         switch(data.cardType)
         {
             case CardType.Attack:

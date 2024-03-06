@@ -141,6 +141,8 @@ public class UnitManager : MonoBehaviour
                     break;
             }
         }
+        foreach (var tile in GridManager.Inst.Tiles.Values)
+            tile.OnDisplay(SelectOutline.Outline);
     }
     public void DeSelectUnit(Unit unit)
     {
