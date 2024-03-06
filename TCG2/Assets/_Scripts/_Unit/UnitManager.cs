@@ -256,6 +256,7 @@ public class UnitManager : MonoBehaviour
                 if (unit.targetUnit.card.GetArea(unit.card.data).Contains(unit.coords))
                 {
                     unit.card.UseCard(GridManager.Inst.GetTile(unit.targetUnit));
+                    yield return YieldInstructionCache.WaitForSeconds(0.5f);
                 }
             }
         }
@@ -266,6 +267,7 @@ public class UnitManager : MonoBehaviour
             {
                 Destroy(displayObject);
             }
+            yield return YieldInstructionCache.WaitForSeconds(0.5f);
         }
     }
 
