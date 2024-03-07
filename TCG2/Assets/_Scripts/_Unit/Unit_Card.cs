@@ -207,4 +207,12 @@ public class Unit_Card : MonoBehaviour
     {
         unit.Anim_SetTrigger("cancel");
     }
+
+    public void DisplayObjects(bool isActive)
+    {
+        foreach(var outline in displayObjects)
+        {
+            outline.SetActive(isActive);
+        }
+    }
 }

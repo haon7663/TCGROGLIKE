@@ -94,11 +94,15 @@ public class UnitManager : MonoBehaviour
     public void UnitMouseOver(Unit unit)
     {
         unit.SetMaterial(outlineMaterial);
+        unit.card.DisplayObjects(true);
     }
     public void UnitMouseExit(Unit unit)
     {
         if (unit != sUnit)
+        {
             unit.SetMaterial(defaultMaterial);
+            unit.card.DisplayObjects(false);
+        }
     }
     public void UnitMouseDown(Unit unit)
     {
@@ -114,8 +118,10 @@ public class UnitManager : MonoBehaviour
         foreach (Unit other in Units)
         {
             other.SetMaterial(defaultMaterial);
+            other.card.DisplayObjects(false);
         }
         unit.SetMaterial(outlineMaterial);
+        unit.card.DisplayObjects(true);
 
         if (Enemies.Contains(unit))
         {
@@ -147,6 +153,7 @@ public class UnitManager : MonoBehaviour
     public void DeSelectUnit(Unit unit)
     {
         unit.SetMaterial(defaultMaterial);
+        unit.card.DisplayObjects(false);
         unit.card.Cancel();
     }
 

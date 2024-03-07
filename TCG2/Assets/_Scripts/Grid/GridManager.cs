@@ -68,6 +68,7 @@ public class GridManager : MonoBehaviour
             outline.transform.localPosition = Vector2.zero;
             t.SetOutline(outline, tiles);
             outlines.Add(outline);
+            outline.SetActive(false);
         }
         return outlines;
     }
