@@ -137,45 +137,52 @@ public class HexNode : MonoBehaviour
         }
     }
 
-    public void OnDisplay(SelectOutline selectLine)
+    public void OnDisplay(SelectOutline selectLine, float intencity = -999)
     {
         switch (selectLine)
         {
             case SelectOutline.Outline:
-                SetOutline(outlineObject);
+                SetOutline(outlineObject, intencity);
                 break;
             case SelectOutline.Selected:
                 DisplayDamaged(UnitManager.sUnit);
-                SetOutline(selectedObject);
+                SetOutline(selectedObject, intencity);
                 break;
             case SelectOutline.MoveSelect:
                 canMove = true;
-                SetOutline(moveSelectObject);
+                SetOutline(moveSelectObject, intencity);
                 break;
             case SelectOutline.MoveAble:
-                SetOutline(moveAbleObject);
+                SetOutline(moveAbleObject, intencity);
                 break;
             case SelectOutline.AttackSelect:
                 canAttack = true;
-                SetOutline(attackSelectObject);
+                SetOutline(attackSelectObject, intencity);
                 break;
             case SelectOutline.DamageAble:
-                SetOutline(damageAbleObject);
+                SetOutline(damageAbleObject, intencity);
                 break;
             case SelectOutline.BuffSelect:
                 canAttack = true;
-                SetOutline(buffSelectObject);
+                SetOutline(buffSelectObject, intencity);
                 break;
             case SelectOutline.BuffAble:
-                SetOutline(buffAbleObject);
+                SetOutline(buffAbleObject, intencity);
                 break;
         }
     }
-    void SetOutline(GameObject outlineObject)
+    public void SetOutline(GameObject outlineObject, float intencity = -999)
     {
         outlineObject.SetActive(true);
-        for(int i = 0; i < 6; i++)
+        for (int i = 0; i < 6; i++)
+        {
             outlineObject.transform.GetChild(i).gameObject.SetActive(true);
+            if (intencity != -999)
+            {
+                var spriteRenderer = outlineObject.transform.GetChild(i).GetComponent<SpriteRenderer>();
+                spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, intencity);
+            }    
+        }
     }
 
     public void DisplayDamaged(Unit unit)

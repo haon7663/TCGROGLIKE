@@ -211,6 +211,7 @@ public class CardManager : MonoBehaviour
             var unit = card.GetUnit();
             UnitManager.Inst.SelectUnit(unit, true);
             unit.card.DrawArea(card.cardInfo.data);
+            GridManager.Inst.ShowEntire();
         }
     }
     public void CardMouseExit(Card card)
@@ -272,8 +273,7 @@ public class CardManager : MonoBehaviour
                 tile.OnDisplay(SelectOutline.Selected);
             }
         }
-        foreach (var tile in GridManager.Inst.Tiles.Values)
-            tile.OnDisplay(SelectOutline.Outline);
+        GridManager.Inst.ShowEntire();
     }
 
     void DetectCardArea()

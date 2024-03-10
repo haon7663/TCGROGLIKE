@@ -91,21 +91,21 @@ public static class HexDirectionExtension
         return Mathf.Max(Mathf.Abs(vec._q), Mathf.Abs(vec._r), Mathf.Abs(vec._s));
     }
 
-    public static List<HexNode> Area(HexCoords unitCoords, int range, bool onSelf = false)
+    public static List<HexNode> Area(HexCoords coords, int range, bool onSelf = false)
     {
         List<HexNode> hexNodes = new List<HexNode>();
         foreach(KeyValuePair<Vector2, HexNode> tile in GridManager.Inst.Tiles)
         {
-            if (!onSelf && tile.Value.coords == unitCoords) continue;
-            if (Cube_distance(unitCoords, tile.Value.coords) <= range)
+            if (!onSelf && tile.Value.coords == coords) continue;
+            if (Cube_distance(coords, tile.Value.coords) <= range)
                 hexNodes.Add(tile.Value);
         }
         return hexNodes;
     }
 
-    public static List<HexNode> ReachArea(HexCoords unitCoords, int range, bool onSelf = false)
+    public static List<HexNode> ReachArea(HexCoords coords, int range, bool onSelf = false)
     {
-        var startNode = GridManager.Inst.GetTile(unitCoords.Pos);
+        var startNode = GridManager.Inst.GetTile(coords.Pos);
         List<HexNode> visited = new List<HexNode>() { startNode };
         List<HexNode> fringes = new List<HexNode>() { startNode };
 
@@ -129,19 +129,19 @@ public static class HexDirectionExtension
             visited.Remove(startNode);
         return visited;
     }
-    public static List<HexNode> TransitArea(HexCoords unitCoords, int range)
+    public static List<HexNode> TransitArea(HexCoords coords, int range)
     {
         List<HexNode> hexNodes = new List<HexNode>();
         foreach (KeyValuePair<Vector2, HexNode> tile in GridManager.Inst.Tiles)
         {
-            if (tile.Value.coords == unitCoords) continue;
-            if (Cube_distance(unitCoords, tile.Value.coords) == range)
+            if (tile.Value.coords == coords) continue;
+            if (Cube_distance(coords, tile.Value.coords) == range)
                 hexNodes.Add(tile.Value);
         }
         return hexNodes;
     }
 
-    public static List<HexNode> Liner(HexCoords unitCoords, HexDirection hexDirection, int range, int width = 1, bool isPenetrate = false)
+    public static List<HexNode> Liner(HexCoords coords, HexDirection hexDirection, int range, int width = 1, bool isPenetrate = false)
     {
         List<HexNode> linerNode = new List<HexNode>();
         var isBlocked = false;
@@ -150,12 +150,12 @@ public static class HexDirectionExtension
             var floorWide = Mathf.FloorToInt((float)width / 2);
             for (int j = -floorWide; j <= floorWide; j++)
             {
-                var coords = unitCoords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i;
-                if (GridManager.Inst.Tiles.ContainsKey(coords.Pos) && (isPenetrate || GridManager.Inst.GetTile(coords).CanWalk()) && GridManager.Inst.GetTile(coords)?.onObstacle == false)
-                    linerNode.Add(GridManager.Inst.GetTile(coords.Pos));
-                else if (GridManager.Inst.Tiles.ContainsKey(coords.Pos) && GridManager.Inst.GetTile(coords).onUnit)
+                var SelectedCoords = coords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i;
+                if (GridManager.Inst.Tiles.ContainsKey(SelectedCoords.Pos) && (isPenetrate || GridManager.Inst.GetTile(SelectedCoords).CanWalk()) && GridManager.Inst.GetTile(SelectedCoords)?.onObstacle == false)
+                    linerNode.Add(GridManager.Inst.GetTile(SelectedCoords.Pos));
+                else if (GridManager.Inst.Tiles.ContainsKey(SelectedCoords.Pos) && GridManager.Inst.GetTile(SelectedCoords).onUnit)
                 {
-                    linerNode.Add(GridManager.Inst.GetTile(coords.Pos));
+                    linerNode.Add(GridManager.Inst.GetTile(SelectedCoords.Pos));
                     isBlocked = true;
                     break;
                 }

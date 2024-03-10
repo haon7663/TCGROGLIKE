@@ -134,6 +134,11 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    public void ShowEntire()
+    {
+        foreach (var tile in Tiles)
+            tile.Value.OnDisplay(SelectOutline.Outline);
+    }
 
     /*void OnDrawGizmos()
     {

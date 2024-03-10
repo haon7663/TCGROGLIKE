@@ -93,8 +93,12 @@ public class UnitManager : MonoBehaviour
 
     public void UnitMouseOver(Unit unit)
     {
-        unit.SetMaterial(outlineMaterial);
-        unit.card.DisplayObjects(true);
+         unit.SetMaterial(outlineMaterial);
+        if(unit.card.displayObjects.Count > 0)
+        {
+            GridManager.Inst.ShowEntire();
+            unit.card.DisplayObjects(true);
+        }
     }
     public void UnitMouseExit(Unit unit)
     {
@@ -147,8 +151,7 @@ public class UnitManager : MonoBehaviour
                     break;
             }
         }
-        foreach (var tile in GridManager.Inst.Tiles.Values)
-            tile.OnDisplay(SelectOutline.Outline);
+        GridManager.Inst.ShowEntire();
     }
     public void DeSelectUnit(Unit unit)
     {
