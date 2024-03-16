@@ -105,7 +105,7 @@ public class Unit_Move : MonoBehaviour
         UnitManager.Inst.SetOrder(true);
     }
 
-    public void OnMove(HexDirection direction, int range, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
+    public void OnMoved(HexDirection direction, int range, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
     {
         GridManager.Inst.RevertTiles();
         TurnManager.UseMoveCost(unit.data.cost);

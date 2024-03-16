@@ -110,7 +110,7 @@ public abstract class Action : MonoBehaviour
                 var direction = (unit.coords - (data.knockbackType == KnockbackType.FromUnit ? this.unit.coords : coords)).GetSignDirection();
                 if ((int)direction != -1)
                     saveDirection = direction;
-                unit.move.OnMove(saveDirection, data.knockbackPower);
+                unit.move.OnMoved(saveDirection, data.knockbackPower);
             }
         }
     }
