@@ -12,8 +12,6 @@ public class UnitManager : MonoBehaviour
     public static UnitManager Inst;
     void Awake() => Inst = this;
 
-    [SerializeField] CinemachineVirtualCamera cinevirtual;
-
     [HideInInspector]
     public List<Unit> Units;
 
@@ -30,6 +28,8 @@ public class UnitManager : MonoBehaviour
     [SerializeField] Material defaultMaterial;
     [Space]
     [SerializeField] Sprite attackSprite;
+    [Space]
+    [SerializeField] GameObject infoPanel;
 
     void Start()
     {
@@ -96,7 +96,6 @@ public class UnitManager : MonoBehaviour
          unit.SetMaterial(outlineMaterial);
         if(unit.card.displayObjects.Count > 0)
         {
-            GridManager.Inst.ShowEntire();
             unit.card.DisplayObjects(true);
         }
     }
@@ -125,17 +124,29 @@ public class UnitManager : MonoBehaviour
             other.card.DisplayObjects(false);
         }
         unit.SetMaterial(outlineMaterial);
-        unit.card.DisplayObjects(true);
 
         if (Enemies.Contains(unit))
         {
-            GridManager.Inst.RevertTiles();
-            unit.move.DrawArea(false);
-            unit.card.DrawArea(unit.card.data, false);
+            if (unit.card.displayObjects.Count > 0)
+            {
+                unit.card.DisplayObjects(true);
+            }
+
+            //DrawMoveArea();
+            //GridManager.Inst.ShowEntire(tiles);
+
+            LightManager.Inst.ChangeLight(true);
+            CinemachineManager.Inst.SetOrthoSize(4);
+            CinemachineManager.Inst.SetViewPoint(sUnit.transform.position + new Vector3(0, 1.5f));
+
+            infoPanel.SetActive(true);
         }
         else
         {
-            cinevirtual.Follow = sUnit.transform;
+            LightManager.Inst.ChangeLight(false);
+            CinemachineManager.Inst.SetOrthoSize(9);
+            CinemachineManager.Inst.SetViewPoint(sUnit.transform.position);
+
             GridManager.Inst.RevertTiles();
             if (isCard) return;
             switch (TurnManager.Inst.paze)
@@ -150,11 +161,23 @@ public class UnitManager : MonoBehaviour
                     sUnit_Move.DrawArea(false);
                     break;
             }
+
+            infoPanel.SetActive(false);
         }
-        GridManager.Inst.ShowEntire();
+    }
+    public void DrawCardArea()
+    {
+        GridManager.Inst.RevertTiles();
+        sUnit_Card.DrawArea(null, false);
+    }
+    public void DrawMoveArea()
+    {
+        GridManager.Inst.RevertTiles();
+        sUnit_Move.DrawArea(false);
     }
     public void DeSelectUnit(Unit unit)
     {
+        infoPanel.SetActive(false);
         unit.SetMaterial(defaultMaterial);
         unit.card.DisplayObjects(false);
         unit.card.Cancel();

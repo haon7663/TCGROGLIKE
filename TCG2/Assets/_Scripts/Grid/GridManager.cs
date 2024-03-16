@@ -134,10 +134,11 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public void ShowEntire()
+    public void ShowEntire(List<HexNode> tiles = null)
     {
         foreach (var tile in Tiles)
-            tile.Value.OnDisplay(SelectOutline.Outline);
+            if(tiles.Contains(tile.Value) == false)
+                tile.Value.OnDisplay(SelectOutline.Outline);
     }
 
     /*void OnDrawGizmos()

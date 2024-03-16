@@ -32,7 +32,7 @@ public class CardManager : MonoBehaviour
 
     [SerializeField] int deckCount;
 
-    Card hoveredCard;
+    [SerializeField] Card hoveredCard;
     Card selectedCard;
 
     bool isCardDrag;
@@ -211,7 +211,6 @@ public class CardManager : MonoBehaviour
             var unit = card.GetUnit();
             UnitManager.Inst.SelectUnit(unit, true);
             unit.card.DrawArea(card.cardInfo.data);
-            GridManager.Inst.ShowEntire();
         }
     }
     public void CardMouseExit(Card card)
@@ -273,7 +272,7 @@ public class CardManager : MonoBehaviour
                 tile.OnDisplay(SelectOutline.Selected);
             }
         }
-        GridManager.Inst.ShowEntire();
+        //GridManager.Inst.ShowEntire();
     }
 
     void DetectCardArea()

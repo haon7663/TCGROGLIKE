@@ -8,11 +8,13 @@ public class Unit_Move : MonoBehaviour
     Unit unit;
     void Awake() => unit = GetComponent<Unit>();
 
-    public void DrawArea(bool canMove = true)
+    public List<HexCoords> DrawArea(bool canSelect = true)
     {
-        if(!StatusManager.CanMove(unit)) return;
+        if(!StatusManager.CanMove(unit)) return null;
 
-        GridManager.Inst.SelectNodes(GetArea(), canMove ? SelectOutline.MoveSelect : SelectOutline.MoveAble);
+        var selectCoords = GetArea();
+        GridManager.Inst.SelectNodes(selectCoords, canSelect ? SelectOutline.MoveSelect : SelectOutline.MoveAble);
+        return selectCoords;
     }
 
     public List<HexCoords> GetArea(bool onSelf = false)

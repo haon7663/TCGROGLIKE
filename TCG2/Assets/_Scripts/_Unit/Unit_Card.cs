@@ -21,16 +21,17 @@ public class Unit_Card : MonoBehaviour
         this.value = value;
     }
 
-    public void DrawArea(CardSO data, bool canSelect = true)
+    public List<HexCoords> DrawArea(CardSO data = null, bool canSelect = true)
     {
-        if (StatusManager.CanAction(unit)) return;
+        if (StatusManager.CanAction(unit)) return null;
 
-        this.data = data;
+        if(data)
+            this.data = data;
 
-        List<HexCoords> selectCoords = GetArea(data);
+        List<HexCoords> selectCoords = GetArea(this.data);
 
         SelectOutline outline = SelectOutline.Outline;
-        switch(data.cardType)
+        switch(this.data.cardType)
         {
             case CardType.Attack:
                 outline = canSelect ? SelectOutline.AttackSelect : SelectOutline.DamageAble;
@@ -40,6 +41,7 @@ public class Unit_Card : MonoBehaviour
                 break;
         }
         GridManager.Inst.SelectNodes(selectCoords, outline);
+        return selectCoords;
     }
     public List<HexCoords> GetArea(CardSO data, Unit otherUnit = null)
     {
