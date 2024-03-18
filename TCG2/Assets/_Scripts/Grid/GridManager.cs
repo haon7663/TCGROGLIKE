@@ -3,6 +3,9 @@ using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+public enum DisplayType { Area, Arrow }
+public enum AreaType { Select, Move, Attack, Buff }
+
 public class GridManager : MonoBehaviour
 {
     public static GridManager Inst;
@@ -22,11 +25,74 @@ public class GridManager : MonoBehaviour
     public Dictionary<Vector2, Unit> OnTileUnits { get; private set; }
     public HexNode selectedNode;
 
-    [SerializeField] GameObject outline;
+    [SerializeField] GameObject areaPrefab;
+    [SerializeField] Sprite areaSprite;
+    [SerializeField] Color selectAreaColor;
+    [SerializeField] Color moveAreaColor;
+    [SerializeField] Color attackAreaColor;
+    [SerializeField] Color buffAreaColor;
+    [SerializeField] RuntimeAnimatorController hatch;
 
-    public void RevertTiles()
+    public void AreaDisplay(AreaType areaType, bool canSelect, List<HexNode> tiles, Unit unit)
     {
-        foreach (var t in Tiles.Values) t.RevertTile();
+        foreach (HexNode t in tiles)
+        {
+            GetArea(areaType, canSelect, t, tiles, unit);
+        }
+    }
+    public void GetArea(AreaType areaType, bool canSelect, HexNode tile, List<HexNode> tiles, Unit unit)
+    {
+        var color = Color.white;
+        switch (areaType)
+        {
+            case AreaType.Select:
+                color = selectAreaColor;
+                break;
+            case AreaType.Move:
+                color = moveAreaColor;
+                break;
+            case AreaType.Attack:
+                color = attackAreaColor;
+                break;
+            case AreaType.Buff:
+                color = buffAreaColor;
+                break;
+        }
+
+        GameObject displayArea = null;
+        var tileSprite = tile.transform.GetChild(0);
+        for (int i = 0; i < tileSprite.childCount; i++)
+        {
+            if(!tileSprite.GetChild(i).gameObject.activeSelf)
+            {
+                displayArea = tileSprite.GetChild(i).gameObject;
+                break;
+            }
+        }
+        if(!displayArea)
+        {
+            displayArea = Instantiate(areaPrefab, tile.transform.GetChild(0).transform);
+            displayArea.transform.localPosition = Vector2.zero;
+        }
+        displayArea.SetActive(true);
+        displayArea.GetComponent<Animator>().enabled = !canSelect;
+        var displaySpriteRenderer = displayArea.GetComponent<SpriteRenderer>();
+        displaySpriteRenderer.color = canSelect ? new Color(color.r, color.g, color.b, 0.2f) : new Color(color.r, color.g, color.b, 0.5f);
+        displaySpriteRenderer.sprite = areaSprite;
+
+        foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
+        {
+            var isContain = !tiles.Contains(GetTile(tile.coords + direction.Coords()));
+            displayArea.transform.GetChild((int)direction).gameObject.SetActive(isContain);
+            if (isContain)
+                displayArea.transform.GetChild((int)direction).GetComponent<SpriteRenderer>().color = color;
+        }
+        displayArea.GetComponent<DisplayNode>().Get(areaType, canSelect, unit);
+    }
+
+    public void RevertTiles(Unit unit = null)
+    {
+        foreach (var t in Tiles.Values) t.RevertTile(unit);
         RevertAbles();
     }
     public void RevertAbles()
@@ -44,22 +110,16 @@ public class GridManager : MonoBehaviour
         }
         return tiles;
     }
-    public void SelectNodes(List<HexCoords> coordses, SelectOutline outline)
+    public void SelectNodes(AreaType areaType, bool canSelect, List<HexCoords> coordses, Unit unit)
     {
         List<HexNode> tiles = CoordsToNodes(coordses);
-        foreach (HexNode t in tiles)
-        {
-            t.OnDisplay(outline, tiles);
-        }
+        AreaDisplay(areaType, canSelect, tiles, unit);
     }
-    public void SelectNodes(List<HexNode> tiles, SelectOutline outline)
+    public void SelectNodes(AreaType areaType, bool canSelect, List<HexNode> tiles, Unit unit)
     {
-        foreach (HexNode t in tiles)
-        {
-            t.OnDisplay(outline, tiles);
-        }
+        AreaDisplay(areaType, canSelect, tiles, unit);
     }
-    public List<GameObject> InstantiateSelectNodes(List<HexNode> tiles)
+    /*public List<GameObject> InstantiateSelectNodes(List<HexNode> tiles)
     {
         var outlines = new List<GameObject>();
         foreach (HexNode t in tiles)
@@ -71,7 +131,7 @@ public class GridManager : MonoBehaviour
             outline.SetActive(false);
         }
         return outlines;
-    }
+    }*/
     public void SelectNode(HexNode node, bool isSelect = true)
     {
         if (!isSelect)
@@ -133,13 +193,12 @@ public class GridManager : MonoBehaviour
             StatusManager.Inst.AddUnitStatus(tile.Value.statuses, GetUnit(tile.Value));
         }
     }
-
-    public void ShowEntire(List<HexNode> tiles = null)
+    /*public void ShowEntire(List<HexNode> tiles = null)
     {
         foreach (var tile in Tiles)
             if(tiles.Contains(tile.Value) == false)
-                tile.Value.OnDisplay(SelectOutline.Outline);
-    }
+                tile.Value.OnDisplay(DisplayType.Outline);
+    }*/
 
     /*void OnDrawGizmos()
     {

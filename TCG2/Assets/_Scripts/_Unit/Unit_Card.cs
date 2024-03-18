@@ -11,7 +11,8 @@ public class Unit_Card : MonoBehaviour
 
     [HideInInspector] public CardInfo Info;
     [HideInInspector] public CardSO data;
-    [HideInInspector] public List<GameObject> displayObjects;
+    [HideInInspector] public List<HexNode> selectedTiles;
+    bool isDisplay = false;
     int value = -999;
 
     public void SetUp(CardInfo cardInfo, int value)
@@ -30,17 +31,17 @@ public class Unit_Card : MonoBehaviour
 
         List<HexCoords> selectCoords = GetArea(this.data);
 
-        SelectOutline outline = SelectOutline.Outline;
+        AreaType areaType = AreaType.Attack;
         switch(this.data.cardType)
         {
             case CardType.Attack:
-                outline = canSelect ? SelectOutline.AttackSelect : SelectOutline.DamageAble;
+                areaType = AreaType.Attack;
                 break;
             case CardType.Buff:
-                outline = canSelect ? SelectOutline.BuffSelect : SelectOutline.BuffAble;
+                areaType = AreaType.Buff;
                 break;
         }
-        GridManager.Inst.SelectNodes(selectCoords, outline);
+        GridManager.Inst.SelectNodes(areaType, canSelect, selectCoords, unit);
         return selectCoords;
     }
     public List<HexCoords> GetArea(CardSO data, Unit otherUnit = null)
@@ -100,7 +101,7 @@ public class Unit_Card : MonoBehaviour
                     selectCoords.Add(tile.coords);
                     AreaNodes.Remove(tile);
                 }
-                GridManager.Inst.SelectNodes(AreaNodes, SelectOutline.BuffAble);
+                GridManager.Inst.SelectNodes(AreaType.Buff, false, AreaNodes, unit);
                 break;
             case RangeType.Self:
                 selectCoords.Add(unit.coords);
@@ -201,7 +202,7 @@ public class Unit_Card : MonoBehaviour
         if (this.data.isMove)
             unit.move.OnMove(node.coords, this.data.isJump);
 
-        GridManager.Inst.RevertTiles();
+        GridManager.Inst.RevertTiles(unit);
         return true;
     }
 
@@ -212,9 +213,15 @@ public class Unit_Card : MonoBehaviour
 
     public void DisplayObjects(bool isActive)
     {
-        foreach(var outline in displayObjects)
+        if (isActive && !isDisplay)
         {
-            outline.SetActive(isActive);
+            GridManager.Inst.SelectNodes(AreaType.Attack, false, selectedTiles, unit);
+            isDisplay = true;
+        }
+        else if (!isActive)
+        {
+            GridManager.Inst.RevertTiles(unit);
+            isDisplay = false;
         }
     }
 }

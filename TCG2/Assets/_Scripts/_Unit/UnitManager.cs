@@ -94,7 +94,7 @@ public class UnitManager : MonoBehaviour
     public void UnitMouseOver(Unit unit)
     {
          unit.SetMaterial(outlineMaterial);
-        if(unit.card.displayObjects.Count > 0)
+        if(unit.card.selectedTiles.Count > 0)
         {
             unit.card.DisplayObjects(true);
         }
@@ -127,7 +127,7 @@ public class UnitManager : MonoBehaviour
 
         if (Enemies.Contains(unit))
         {
-            if (unit.card.displayObjects.Count > 0)
+            if (unit.card.selectedTiles.Count > 0)
             {
                 unit.card.DisplayObjects(true);
             }
@@ -147,7 +147,7 @@ public class UnitManager : MonoBehaviour
             CinemachineManager.Inst.SetOrthoSize(9);
             CinemachineManager.Inst.SetViewPoint(sUnit.transform.position);
 
-            GridManager.Inst.RevertTiles();
+            GridManager.Inst.RevertTiles(unit);
             if (isCard) return;
             switch (TurnManager.Inst.paze)
             {
@@ -167,12 +167,12 @@ public class UnitManager : MonoBehaviour
     }
     public void DrawCardArea()
     {
-        GridManager.Inst.RevertTiles();
+        GridManager.Inst.RevertTiles(sUnit);
         sUnit_Card.DrawArea(null, false);
     }
     public void DrawMoveArea()
     {
-        GridManager.Inst.RevertTiles();
+        GridManager.Inst.RevertTiles(sUnit);
         sUnit_Move.DrawArea(false);
     }
     public void DeSelectUnit(Unit unit)
@@ -271,7 +271,7 @@ public class UnitManager : MonoBehaviour
             if(info.data.isBeforeMove)
                 yield return StartCoroutine(MoveUnit(unit, targetUnit));
 
-            unit.card.displayObjects = GridManager.Inst.InstantiateSelectNodes(unit.card.GetSelectedArea(GridManager.Inst.GetTile(targetUnit)));
+            unit.card.selectedTiles = unit.card.GetSelectedArea(GridManager.Inst.GetTile(targetUnit));
         }
 
         Sprite sprite = attackSprite;
@@ -298,7 +298,7 @@ public class UnitManager : MonoBehaviour
         else
         {
             unit.card.UseCard(GridManager.Inst.GetTile(unit.targetCoords));
-            foreach(var displayObject in unit.card.displayObjects)
+            foreach(var displayObject in unit.card.selectedTiles)
             {
                 Destroy(displayObject);
             }

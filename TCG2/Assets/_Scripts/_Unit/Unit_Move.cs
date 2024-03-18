@@ -13,7 +13,7 @@ public class Unit_Move : MonoBehaviour
         if(!StatusManager.CanMove(unit)) return null;
 
         var selectCoords = GetArea();
-        GridManager.Inst.SelectNodes(selectCoords, canSelect ? SelectOutline.MoveSelect : SelectOutline.MoveAble);
+        GridManager.Inst.SelectNodes(AreaType.Move, canSelect, selectCoords, unit);
         return selectCoords;
     }
 
@@ -71,7 +71,7 @@ public class Unit_Move : MonoBehaviour
 
     public void OnMove(HexCoords targetCoords, bool? isJump = null, bool useDotween = true, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
     {
-        GridManager.Inst.RevertTiles();
+        GridManager.Inst.RevertTiles(unit);
         TurnManager.UseMoveCost(unit.data.cost);
 
         if (!GridManager.Inst.SetTileUnit(unit.coords, targetCoords, unit))
@@ -107,7 +107,7 @@ public class Unit_Move : MonoBehaviour
 
     public void OnMoved(HexDirection direction, int range, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
     {
-        GridManager.Inst.RevertTiles();
+        GridManager.Inst.RevertTiles(unit);
         TurnManager.UseMoveCost(unit.data.cost);
 
         Sequence sequence = DOTween.Sequence();
@@ -129,7 +129,7 @@ public class Unit_Move : MonoBehaviour
 
     public IEnumerator OnMoveInRange(HexCoords targetCoords, int range, bool useDotween = true, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
     {
-        GridManager.Inst.RevertTiles();
+        GridManager.Inst.RevertTiles(unit);
         TurnManager.UseMoveCost(unit.data.cost);
 
         var targetTile = GridManager.Inst.GetTile(targetCoords);

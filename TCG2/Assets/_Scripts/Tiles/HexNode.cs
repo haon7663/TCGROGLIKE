@@ -5,23 +5,9 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 using System.Linq;
 
-public enum SelectOutline
-{
-    Selected, MoveSelect, MoveAble, AttackSelect, DamageAble, BuffSelect, BuffAble, Outline
-}
-
 public class HexNode : MonoBehaviour
 {
     [SerializeField] SpriteRenderer spriteRenderer;
-    [SerializeField] GameObject outlineObject;
-    [SerializeField] GameObject selectedObject;
-    [SerializeField] GameObject moveSelectObject;
-    [SerializeField] GameObject moveAbleObject;
-    [SerializeField] GameObject attackSelectObject;
-    [SerializeField] GameObject damageAbleObject;
-    [SerializeField] GameObject buffSelectObject;
-    [SerializeField] GameObject buffAbleObject;
-
     [SerializeField] TMP_Text coordsText;
     [SerializeField] TMP_Text damageText;
 
@@ -31,7 +17,6 @@ public class HexNode : MonoBehaviour
 
     public float GetDistance(HexNode other) => coords.GetDistance(other.coords); // Helper to reduce noise in pathfinding
     public bool onObstacle, onUnit;
-    public bool canMove, canAttack, canDamaged;
 
     public List<StatusInfo> statuses;
 
@@ -39,7 +24,6 @@ public class HexNode : MonoBehaviour
     {
         onObstacle = !walkable;
 
-        spriteRenderer.enabled = walkable;
         spriteRenderer.sortingOrder = -coords._r;
 
         this.coords = coords;
@@ -51,39 +35,42 @@ public class HexNode : MonoBehaviour
     {
         if (!CanWalk()) return;
 
-        if (canMove)
+        var canMove = CanMove();
+        var canCard = CanCard();
+        if (canMove.Item1)
         {
-            UnitManager.sUnit_Move.OnMove(coords);
+            canMove.Item2.move.OnMove(coords);
         }
-        else if (canAttack)
+        else if (canCard.Item1)
         {
-            UnitManager.sUnit_Card.UseCard(this);
+            canCard.Item2.card.UseCard(this);
         }
     }
     void OnMouseOver()
     {
-        bool canMoveOrAttack = canMove || canAttack;
+        if (OnSelect()) return;
 
-        GridManager.Inst.SelectNode(this, canMoveOrAttack);
+        var canMove = CanMove();
+        var canCard = CanCard();
 
-        if (canMoveOrAttack)
+        GridManager.Inst.SelectNode(this, canMove.Item1 || canCard.Item1);
+
+        if (canMove.Item1 || canCard.Item1)
             UnitManager.sUnit.Repeat(this);
 
-        if (canMove)
+        if (canMove.Item1)
         {
-            UnitManager.sUnit_Move.TouchArea(this).OnDisplay(SelectOutline.Selected);
+            GridManager.Inst.SelectNodes(AreaType.Select, true, new List<HexNode>() { this }, null);
         }
-        else if (canAttack)
+        else if (canCard.Item1)
         {
-            var selected = UnitManager.sUnit_Card.GetSelectedArea(this);
-            foreach (HexNode hexNode in selected)
-                hexNode.OnDisplay(SelectOutline.Selected, selected);
+            GridManager.Inst.SelectNodes(AreaType.Select, true, canCard.Item2.card.GetSelectedArea(this), null);
         }
     }
 
     void OnMouseExit()
     {
-        if (!canMove && !canAttack) return;
+        if (!CanMove().Item1 && !CanCard().Item1) return;
 
         GridManager.Inst.RevertAbles();
     }
@@ -92,97 +79,6 @@ public class HexNode : MonoBehaviour
     {
         this.unit = isRemove ? null : unit;
         //spriteRenderer.color = isRemove ? Color.white : new Color(1, 0.75f, 0.75f);
-    }
-
-    public void OnDisplay(SelectOutline selectLine, List<HexNode> nodes)
-    {
-        switch (selectLine)
-        {
-            case SelectOutline.Outline:
-                SetOutline(outlineObject, nodes);
-                break;
-            case SelectOutline.Selected:
-                DisplayDamaged(UnitManager.sUnit);
-                SetOutline(selectedObject, nodes);
-                break;
-            case SelectOutline.MoveSelect:
-                canMove = true;
-                SetOutline(moveSelectObject, nodes);
-                break;
-            case SelectOutline.MoveAble:
-                SetOutline(moveAbleObject, nodes);
-                break;
-            case SelectOutline.AttackSelect:
-                canAttack = true;
-                SetOutline(attackSelectObject, nodes);
-                break;
-            case SelectOutline.DamageAble:
-                SetOutline(damageAbleObject, nodes);
-                break;
-            case SelectOutline.BuffSelect:
-                canAttack = true;
-                SetOutline(buffSelectObject, nodes);
-                break;
-            case SelectOutline.BuffAble:
-                SetOutline(buffAbleObject, nodes);
-                break;
-        }
-    }
-    public void SetOutline(GameObject outlineObject, List<HexNode> nodes)
-    {
-        outlineObject.SetActive(true);
-        foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
-        {
-            outlineObject.transform.GetChild((int)direction).gameObject.SetActive(!nodes.Contains(GridManager.Inst.GetTile(coords + direction.Coords())));
-        }
-    }
-
-    public void OnDisplay(SelectOutline selectLine, float intencity = -999)
-    {
-        switch (selectLine)
-        {
-            case SelectOutline.Outline:
-                SetOutline(outlineObject, intencity);
-                break;
-            case SelectOutline.Selected:
-                DisplayDamaged(UnitManager.sUnit);
-                SetOutline(selectedObject, intencity);
-                break;
-            case SelectOutline.MoveSelect:
-                canMove = true;
-                SetOutline(moveSelectObject, intencity);
-                break;
-            case SelectOutline.MoveAble:
-                SetOutline(moveAbleObject, intencity);
-                break;
-            case SelectOutline.AttackSelect:
-                canAttack = true;
-                SetOutline(attackSelectObject, intencity);
-                break;
-            case SelectOutline.DamageAble:
-                SetOutline(damageAbleObject, intencity);
-                break;
-            case SelectOutline.BuffSelect:
-                canAttack = true;
-                SetOutline(buffSelectObject, intencity);
-                break;
-            case SelectOutline.BuffAble:
-                SetOutline(buffAbleObject, intencity);
-                break;
-        }
-    }
-    public void SetOutline(GameObject outlineObject, float intencity = -999)
-    {
-        outlineObject.SetActive(true);
-        for (int i = 0; i < 6; i++)
-        {
-            outlineObject.transform.GetChild(i).gameObject.SetActive(true);
-            if (intencity != -999)
-            {
-                var spriteRenderer = outlineObject.transform.GetChild(i).GetComponent<SpriteRenderer>();
-                spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, intencity);
-            }    
-        }
     }
 
     public void DisplayDamaged(Unit unit)
@@ -195,25 +91,45 @@ public class HexNode : MonoBehaviour
         }
     }
 
-    public void RevertTile()
+    public (bool, Unit) CanMove()
     {
-        outlineObject.SetActive(false);
-        moveSelectObject.SetActive(false);
-        moveAbleObject.SetActive(false);
-        attackSelectObject.SetActive(false);
-        damageAbleObject.SetActive(false);
-        buffSelectObject.SetActive(false);
-        buffAbleObject.SetActive(false);
-        damageText.gameObject.SetActive(false);
+        foreach (var displayNode in transform.GetChild(0).GetComponentsInChildren<DisplayNode>())
+        {
+            if (displayNode.gameObject.activeSelf && displayNode.areaType == AreaType.Move && displayNode.canSelect)
+                return (true, displayNode.unit);
+        }
+        return (false, null);
+    }
+    public (bool, Unit) CanCard()
+    {
+        foreach (var displayNode in transform.GetChild(0).GetComponentsInChildren<DisplayNode>())
+        {
+            if (displayNode.gameObject.activeSelf && (displayNode.areaType == AreaType.Attack || displayNode.areaType == AreaType.Buff) && displayNode.canSelect)
+                return (true, displayNode.unit);
+        }
+        return (false, null);
+    }
 
-        canMove = false;
-        canAttack = false;
-        canDamaged = false;
+    public bool OnSelect()
+    {
+        return transform.GetChild(0).GetComponentsInChildren<DisplayNode>().ToList().Exists(x => x.gameObject.activeSelf && x.areaType == AreaType.Select);
+    }
+
+    public void RevertTile(Unit unit = null)
+    {
+        foreach(var displayNode in transform.GetChild(0).GetComponentsInChildren<DisplayNode>())
+        {
+            displayNode.Release(unit);
+        }
     }
 
     public void RevertAble()
     {
-        selectedObject.SetActive(false);
+        foreach (var displayNode in transform.GetChild(0).GetComponentsInChildren<DisplayNode>())
+        {
+            if(displayNode.areaType == AreaType.Select)
+                displayNode.Release(unit);
+        }
         damageText.gameObject.SetActive(false);
     }
 

@@ -269,7 +269,7 @@ public class CardManager : MonoBehaviour
             if(selectedCard.cardInfo.data.rangeType == RangeType.Self)
             {
                 var tile = GridManager.Inst.GetTile(selectedCard.unit);
-                tile.OnDisplay(SelectOutline.Selected);
+                //tile.OnDisplay(AreaType.Select);
             }
         }
         //GridManager.Inst.ShowEntire();
