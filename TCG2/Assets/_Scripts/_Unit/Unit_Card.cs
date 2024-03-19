@@ -216,7 +216,12 @@ public class Unit_Card : MonoBehaviour
     {
         if (isActive && !isDisplay)
         {
-            GridManager.Inst.SelectNodes(AreaType.Attack, false, selectedTiles, unit);
+            if(data.selectType == SelectType.Liner)
+            {
+
+            }
+            else
+                GridManager.Inst.SelectNodes(data.cardType == CardType.Attack ? AreaType.Attack : AreaType.Buff, false, selectedTiles, unit);
             isDisplay = true;
         }
         else if (!isActive)

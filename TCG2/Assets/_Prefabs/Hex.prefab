@@ -269,7 +269,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5892394044246368978
 RectTransform:
   m_ObjectHideFlags: 0
@@ -810,7 +810,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7492578840464440443}
-  - component: {fileID: 4598888015841640946}
+  - component: {fileID: 2326276855594477052}
   - component: {fileID: 5512704671833790995}
   m_Layer: 3
   m_Name: Hex
@@ -838,7 +838,7 @@ Transform:
   - {fileID: 6068470655004735024}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4598888015841640946
+--- !u!114 &2326276855594477052
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -847,7 +847,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7674716067429212732}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78e6269a60bc0c74a997f4d9e12526ed, type: 3}
+  m_Script: {fileID: 11500000, guid: e3a97552866d3ae499089b8a4adb04f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 1817317257368798094}
