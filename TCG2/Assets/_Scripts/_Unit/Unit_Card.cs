@@ -202,6 +202,7 @@ public class Unit_Card : MonoBehaviour
         if (this.data.isMove)
             unit.move.OnMove(node.coords, this.data.isJump);
 
+        selectedTiles = new();
         GridManager.Inst.RevertTiles(unit);
         return true;
     }

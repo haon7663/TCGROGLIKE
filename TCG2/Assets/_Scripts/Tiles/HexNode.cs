@@ -123,7 +123,7 @@ public class HexNode : MonoBehaviour
         }
     }
 
-    public void RevertAble()
+    public void RevertAble(Unit unit = null)
     {
         foreach (var displayNode in transform.GetChild(0).GetComponentsInChildren<DisplayNode>())
         {

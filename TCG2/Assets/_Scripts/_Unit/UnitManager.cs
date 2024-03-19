@@ -133,7 +133,7 @@ public class UnitManager : MonoBehaviour
             }
 
             //DrawMoveArea();
-            //GridManager.Inst.ShowEntire(tiles);
+            //GridManager.Inst.SelectNodes(AreaType.Default, false, GridManager.Inst.Tiles.Values.ToList(), unit);
 
             LightManager.Inst.ChangeLight(true);
             CinemachineManager.Inst.SetOrthoSize(4);
@@ -177,6 +177,10 @@ public class UnitManager : MonoBehaviour
     }
     public void DeSelectUnit(Unit unit)
     {
+        sUnit = null;
+        sUnit_Move = null;
+        sUnit_Card = null;
+
         infoPanel.SetActive(false);
         unit.SetMaterial(defaultMaterial);
         unit.card.DisplayObjects(false);
