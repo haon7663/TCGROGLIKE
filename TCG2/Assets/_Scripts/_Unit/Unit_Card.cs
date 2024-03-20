@@ -218,7 +218,10 @@ public class Unit_Card : MonoBehaviour
         {
             if(data.selectType == SelectType.Liner)
             {
-
+                foreach(var tile in selectedTiles)
+                {
+                    tile.coords.GetDistance(unit.coords);
+                }
             }
             else
                 GridManager.Inst.SelectNodes(data.cardType == CardType.Attack ? AreaType.Attack : AreaType.Buff, false, selectedTiles, unit);
