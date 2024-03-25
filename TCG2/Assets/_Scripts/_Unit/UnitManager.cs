@@ -94,7 +94,7 @@ public class UnitManager : MonoBehaviour
     public void UnitMouseOver(Unit unit)
     {
          unit.SetMaterial(outlineMaterial);
-        if(unit.card.selectedTiles.Count > 0)
+        if(unit.card.canDisplay)
         {
             unit.card.DisplayObjects(true);
         }
@@ -127,7 +127,7 @@ public class UnitManager : MonoBehaviour
 
         if (Enemies.Contains(unit))
         {
-            if (unit.card.selectedTiles.Count > 0)
+            if (unit.card.canDisplay)
             {
                 unit.card.DisplayObjects(true);
             }
@@ -136,7 +136,7 @@ public class UnitManager : MonoBehaviour
             //GridManager.Inst.SelectNodes(AreaType.Default, false, GridManager.Inst.Tiles.Values.ToList(), unit);
 
             LightManager.Inst.ChangeLight(true);
-            CinemachineManager.Inst.SetOrthoSize(4);
+            CinemachineManager.Inst.SetOrthoSize(true);
             CinemachineManager.Inst.SetViewPoint(sUnit.transform.position + new Vector3(0, 1.5f));
 
             infoPanel.SetActive(true);
@@ -144,8 +144,8 @@ public class UnitManager : MonoBehaviour
         else
         {
             LightManager.Inst.ChangeLight(false);
-            CinemachineManager.Inst.SetOrthoSize(9);
-            CinemachineManager.Inst.SetViewPoint(sUnit.transform.position);
+            CinemachineManager.Inst.SetOrthoSize(false);
+            //CinemachineManager.Inst.SetViewPoint(sUnit.transform.position);
 
             GridManager.Inst.RevertTiles(unit);
             if (isCard) return;
@@ -177,14 +177,15 @@ public class UnitManager : MonoBehaviour
     }
     public void DeSelectUnit(Unit unit)
     {
-        sUnit = null;
-        sUnit_Move = null;
-        sUnit_Card = null;
+        SelectUnit(Commander);
 
-        infoPanel.SetActive(false);
-        unit.SetMaterial(defaultMaterial);
-        unit.card.DisplayObjects(false);
-        unit.card.Cancel();
+        if(unit)
+        {
+            infoPanel.SetActive(false);
+            unit.SetMaterial(defaultMaterial);
+            unit.card.DisplayObjects(false);
+            unit.card.Cancel();
+        }
     }
 
     public IEnumerator AutoSelectCard(Unit unit)
@@ -270,12 +271,13 @@ public class UnitManager : MonoBehaviour
         if (info.data.useType == UseType.Should)
         {
             var targetUnit = GetNearestUnit2(unit);
+            unit.card.canDisplay = true;
             unit.targetCoords = targetUnit.coords;
             unit.SetFlipX(unit.transform.position.x < unit.targetCoords.Pos.x);
             if(info.data.isBeforeMove)
                 yield return StartCoroutine(MoveUnit(unit, targetUnit));
 
-            unit.card.selectedTiles = unit.card.GetSelectedArea(GridManager.Inst.GetTile(targetUnit));
+            unit.card.directionCoords = targetUnit.coords - unit.coords;
         }
 
         Sprite sprite = attackSprite;
@@ -302,10 +304,10 @@ public class UnitManager : MonoBehaviour
         else
         {
             unit.card.UseCard(GridManager.Inst.GetTile(unit.targetCoords));
-            foreach(var displayObject in unit.card.selectedTiles)
+            /*foreach(var displayObject in unit.card.selectedTiles)
             {
                 Destroy(displayObject);
-            }
+            }*/
             yield return YieldInstructionCache.WaitForSeconds(0.5f);
         }
     }

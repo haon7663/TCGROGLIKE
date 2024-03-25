@@ -89,7 +89,8 @@ MonoBehaviour:
     priority: 0
     turnCount: 0
   data: {fileID: 0}
-  displayObjects: []
+  canDisplay: 0
+  lineDot: {fileID: 8459776238546101007, guid: fe84401bc1479eb42b8cf1ca01a94ae4, type: 3}
 --- !u!61 &118337361320573389
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -473,7 +474,7 @@ MonoBehaviour:
   - {x: 0.2306673, y: 0.072422534, z: 0}
   m_ShapePathHash: -2737179
   m_Mesh: {fileID: 0}
-  m_InstanceId: 67566
+  m_InstanceId: 45822
   m_LocalBounds:
     m_Center: {x: 0.0035080314, y: 0.31596392, z: 0}
     m_Extent: {x: 0.4906538, y: 0.24726856, z: 0}

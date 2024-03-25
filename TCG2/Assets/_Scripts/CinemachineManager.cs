@@ -11,32 +11,29 @@ public class CinemachineManager : MonoBehaviour
 
     [SerializeField] CinemachineVirtualCamera cinevirtual;
     [SerializeField] Transform viewPoint;
+    [SerializeField] CameraMovement cameraMovement;
 
     void Update()
     {
         if(Input.GetMouseButtonDown(1))
         {
             LightManager.Inst.ChangeLight(false);
-            SetOrthoSize(9);
-            SetViewPoint(new Vector3(0, 0));
+            SetOrthoSize(false);
 
             UnitManager.Inst.DeSelectUnit(UnitManager.sUnit);
             GridManager.Inst.RevertTiles();
         }
     }
 
-    public void SetOrthoSize(float size, bool useDotween = true, float dotweenTime = 0.5f)
+    public void SetOrthoSize(bool isJoom, bool useDotween = true, float dotweenTime = 0.5f)
     { 
         transform.DOKill();
-
-        if(useDotween)
-            DOTween.To(() => cinevirtual.m_Lens.OrthographicSize, x => cinevirtual.m_Lens.OrthographicSize = x, size, dotweenTime).SetEase(Ease.OutCirc).SetUpdate(UpdateType.Late);
-        else
-            cinevirtual.m_Lens.OrthographicSize = size;
+        cameraMovement.SetOrthoSize(isJoom, useDotween, dotweenTime);
     }
 
-    public void SetViewPoint(Vector3 point)
+    public void SetViewPoint(Vector3 point, bool useDotween = true, float dotweenTime = 0.5f)
     {
-        viewPoint.position = point;
+        point = new Vector3(point.x, point.y - 1.5f, -20);
+        cameraMovement.SetViewPoint(point, useDotween, dotweenTime);
     }
 }

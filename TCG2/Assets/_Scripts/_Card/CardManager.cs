@@ -32,7 +32,7 @@ public class CardManager : MonoBehaviour
 
     [SerializeField] int deckCount;
 
-    [SerializeField] Card hoveredCard;
+    public Card hoveredCard;
     Card selectedCard;
 
     bool isCardDrag;

@@ -11,7 +11,8 @@ public class Unit_Card : MonoBehaviour
 
     [HideInInspector] public CardInfo Info;
     [HideInInspector] public CardSO data;
-    [HideInInspector] public List<HexNode> selectedTiles;
+    [HideInInspector] public HexCoords directionCoords; 
+    [HideInInspector] public bool canDisplay = false;
     bool isDisplay = false;
     int value = -999;
 
@@ -136,7 +137,7 @@ public class Unit_Card : MonoBehaviour
                 hexNodes.AddRange(HexDirectionExtension.Diagonal(unit.coords, direction, data.range));
                 break;
             case SelectType.Liner:
-                for(int i = -data.bulletNumber/2; i <= data.bulletNumber/2; i++)
+                for (int i = -data.bulletNumber/2; i <= data.bulletNumber/2; i++)
                     hexNodes.AddRange(HexDirectionExtension.Liner(unit.coords, direction.Rotate(i), data.realRange, data.lineWidth, data.isPenetrate));
                 break;
             case SelectType.Splash:
@@ -202,7 +203,6 @@ public class Unit_Card : MonoBehaviour
         if (this.data.isMove)
             unit.move.OnMove(node.coords, this.data.isJump);
 
-        selectedTiles = new();
         GridManager.Inst.RevertTiles(unit);
         return true;
     }
@@ -212,15 +212,36 @@ public class Unit_Card : MonoBehaviour
         unit.Anim_SetTrigger("cancel");
     }
 
+    public GameObject lineDot;
     public void DisplayObjects(bool isActive)
     {
         if (isActive && !isDisplay)
         {
-            if(data.selectType == SelectType.Liner)
+            var selectedTiles = GetSelectedArea(GridManager.Inst.GetTile(unit.coords + directionCoords));
+
+            if (data.selectType == SelectType.Liner)
             {
-                foreach(var tile in selectedTiles)
+                int count = 1;
+                bool isHorizontal;
+                switch (directionCoords.GetSignDirection())
                 {
-                    tile.coords.GetDistance(unit.coords);
+                    case HexDirection.W:
+                        isHorizontal = true;
+                        break;
+                    case HexDirection.E:
+                        isHorizontal = true;
+                        break;
+                    default:
+                        isHorizontal = false;
+                        break;
+                }
+                for (int i = 0; i < selectedTiles.Count; i++)
+                {
+                    for (int j = 0; j <= (isHorizontal ? 1 : selectedTiles[i].coords.GetDistance(unit.coords) % 2); j++)
+                    {
+                        Instantiate(lineDot, unit.coords.Pos + (directionCoords.GetSignDirection().Coords() * count).Pos * (isHorizontal ? 0.5f : 0.6667f), Quaternion.identity);
+                        count++;
+                    }
                 }
             }
             else

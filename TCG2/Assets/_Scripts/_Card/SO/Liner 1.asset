@@ -28,7 +28,7 @@ MonoBehaviour:
   splashRange: 1
   realRange: 100
   bulletNumber: 1
-  isPenetrate: 0
+  isPenetrate: 1
   statuses: []
   isMove: 0
   isJump: 0
