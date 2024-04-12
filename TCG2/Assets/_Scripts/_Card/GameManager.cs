@@ -10,8 +10,11 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] NotificationPanel notificationPanel;
     [SerializeField] TMP_Text pazeText;
+    [SerializeField] TMP_Text displayActionText;
+
     [SerializeField] TMP_Text energyText;
     [SerializeField] TMP_Text moveCostText;
+    public bool onDisplayActions;
 
     void Start()
     {
@@ -23,6 +26,19 @@ public class GameManager : MonoBehaviour
         pazeText.text = "Paze: " + TurnManager.Inst.paze.ToString();
         energyText.text = TurnManager.Inst.Energy + " / " + TurnManager.Inst.maxEnergy;
         moveCostText.text = TurnManager.Inst.MoveCost + " / " + TurnManager.Inst.maxMoveCost;
+
+        if(Input.GetKeyDown(KeyCode.Q))
+        {
+            onDisplayActions = !onDisplayActions;
+            displayActionText.text = "DisplayActions: " + onDisplayActions;
+            foreach (Unit unit in UnitManager.Inst.Enemies)
+            {
+                if (unit.card.canDisplay)
+                {
+                    unit.card.DisplayObjects(onDisplayActions);
+                }
+            }
+        }
 
 #if UNITY_EDITOR
         InputCheatKey();
@@ -36,9 +52,6 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Keypad3))
             TurnManager.UseMoveCost(TurnManager.Inst.MoveCost);
-
-        if (Input.GetKeyDown(KeyCode.Keypad4))
-            CardManager.Inst.TryPutCard();
     }
 
     void StartGame()

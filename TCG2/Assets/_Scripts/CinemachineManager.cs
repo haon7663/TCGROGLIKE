@@ -21,7 +21,7 @@ public class CinemachineManager : MonoBehaviour
             SetOrthoSize(false);
 
             UnitManager.Inst.DeSelectUnit(UnitManager.sUnit);
-            GridManager.Inst.RevertTiles();
+            //GridManager.Inst.RevertTiles();
         }
     }
 

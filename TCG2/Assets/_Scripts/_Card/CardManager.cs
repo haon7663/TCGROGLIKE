@@ -34,6 +34,7 @@ public class CardManager : MonoBehaviour
 
     public Card hoveredCard;
     Card selectedCard;
+    List<Card> usingCards = new List<Card>();
 
     bool isCardDrag;
     bool onCardArea;
@@ -100,6 +101,11 @@ public class CardManager : MonoBehaviour
         SetCardLR(cards.Count);
         DetectCardArea();
         SetECardState();
+
+        for (int i = 0; i < usingCards.Count; i++)
+        {
+            PutCard(usingCards[i]);
+        }
     }
 
     void AddCard()
@@ -177,15 +183,16 @@ public class CardManager : MonoBehaviour
         return results;
     }
 
-    public void TryPutCard()
+    public void PutCard(Card card)
     {
-        if (UnitManager.sUnit_Card.UseCard(GridManager.Inst.selectedNode))
-        {
-            cards.Remove(selectedCard);
-            trashCards.Add(selectedCard.cardInfo);
-            selectedCard.transform.DOKill();
-            DestroyImmediate(selectedCard.gameObject);
-        }
+        print("A");
+        StartCoroutine(card.unit.card.UseCard(GridManager.Inst.selectedNode));
+
+        usingCards.Remove(card);
+        cards.Remove(card);
+        trashCards.Add(card.cardInfo);
+        card.transform.DOKill();
+        DestroyImmediate(card.gameObject);
 
         hoveredCard = null;
         selectedCard = null;
@@ -196,6 +203,9 @@ public class CardManager : MonoBehaviour
 
     public void CardMouseOver(Card card)
     {
+        if (usingCards.Contains(card))
+            return;
+
         if (onCardDeck)
         {
             EnlargeCard(true, card, true);
@@ -210,20 +220,28 @@ public class CardManager : MonoBehaviour
             EnlargeCard(true, card);
             var unit = card.GetUnit();
             UnitManager.Inst.SelectUnit(unit, true);
-            unit.card.DrawArea(card.cardInfo.data);
+            unit.card.DrawArea(card.cardInfo.data, eCardState == ECardState.CanMouseDrag);
         }
     }
     public void CardMouseExit(Card card)
     {
-        if (selectedCard == card) return;
+        if (usingCards.Contains(card))
+            return;
+
+        if (selectedCard == card)
+            return;
+
         EnlargeCard(false, card);
         UnitManager.Inst.DeSelectUnit(card.unit);
 
-        if (!selectedCard) GridManager.Inst.RevertTiles();
+        if (!selectedCard) GridManager.Inst.RevertTiles(card.unit);
         if (hoveredCard == card) hoveredCard = null;
     }
     public void CardMouseDown(Card card)
     {
+        if (usingCards.Contains(card))
+            return;
+
         if (eCardState != ECardState.CanMouseDrag || onCardDeck)
             return;
 
@@ -233,17 +251,19 @@ public class CardManager : MonoBehaviour
     }
     public void CardMouseUp(Card card)
     {
+        if (usingCards.Contains(card))
+            return;
+
         isCardDrag = false;
         UnitManager.Inst.SetOrder(true);
 
         if (eCardState != ECardState.CanMouseDrag || onCardDeck)
             return;
 
-        GridManager.Inst.RevertTiles();
         LightManager.Inst.ChangeLight(false);
         hoveredCard.ShowLiner(false);
         if (!onCardArea)
-            TryPutCard();
+            usingCards.Add(card);
         else
         {
             selectedCard = null;

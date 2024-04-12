@@ -153,12 +153,13 @@ public class Unit_Card : MonoBehaviour
         return hexNodes;
     }
 
-    public bool UseCard(HexNode node, CardSO data = null)
+    public IEnumerator UseCard(HexNode node, CardSO data = null)
     {
+        node.coords.DebugQRS();
         if (data)
             this.data = data;
         if (!node && this.data.rangeType != RangeType.Self)
-            return false;
+            yield break;
         else if (this.data.rangeType == RangeType.Self)
             node = GridManager.Inst.GetTile(unit);
 
@@ -168,35 +169,31 @@ public class Unit_Card : MonoBehaviour
         TurnManager.UseEnergy(this.data.energy);
         unit.SetFlipX(unit.transform.position.x < node.coords.Pos.x);
 
-        Sequence sequence = DOTween.Sequence();
         if(this.data.actionTriggerType == ActionTriggerType.Custom)
-            sequence.AppendInterval(this.data.actionTriggerTime);
+            yield return YieldInstructionCache.WaitForSeconds(this.data.actionTriggerTime);
         switch (this.data.selectType)
         {
             case SelectType.Single:
                 for (int i = 0; i < this.data.multiShot; i++)
                 {
-                    sequence.AppendInterval(0.05f);
-                    sequence.AppendCallback(() => Instantiate(this.data.prefab).GetComponent<Action>().Init(unit, node, this.data, value));
+                    yield return YieldInstructionCache.WaitForSeconds(0.05f);
+                    Instantiate(this.data.prefab).GetComponent<Action>().Init(unit, node, this.data, value);
                 }
                 break;
             case SelectType.Liner:
                 var direction = (node.coords - unit.coords).GetSignDirection();
                 for (int i = 0; i < this.data.multiShot; i++)
                 {
-                    sequence.AppendInterval(0.05f);
-                    sequence.AppendCallback(() =>
-                    {
-                        for (int j = -this.data.bulletNumber / 2; j <= this.data.bulletNumber / 2; j++)
-                            Instantiate(this.data.prefab).GetComponent<Action>().Init(unit, direction.Rotate(j), this.data, value);
-                    });
+                    yield return YieldInstructionCache.WaitForSeconds(0.05f);
+                    for (int j = -this.data.bulletNumber / 2; j <= this.data.bulletNumber / 2; j++)
+                        Instantiate(this.data.prefab).GetComponent<Action>().Init(unit, direction.Rotate(j), this.data, value);
                 }
                 break;
             default:
                 for (int i = 0; i < this.data.multiShot; i++)
                 {
-                    sequence.AppendInterval(0.05f);
-                    sequence.AppendCallback(() => Instantiate(this.data.prefab).GetComponent<Action>().Init(unit, node, GetSelectedArea(node), this.data, value));
+                    yield return YieldInstructionCache.WaitForSeconds(0.05f);
+                    Instantiate(this.data.prefab).GetComponent<Action>().Init(unit, node, GetSelectedArea(node), this.data, value);
                 }
                 break;
         }
@@ -204,7 +201,6 @@ public class Unit_Card : MonoBehaviour
             unit.move.OnMove(node.coords, this.data.isJump);
 
         GridManager.Inst.RevertTiles(unit);
-        return true;
     }
 
     public void Cancel()

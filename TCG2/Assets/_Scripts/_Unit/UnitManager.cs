@@ -104,7 +104,8 @@ public class UnitManager : MonoBehaviour
         if (unit != sUnit)
         {
             unit.SetMaterial(defaultMaterial);
-            unit.card.DisplayObjects(false);
+            if(!GameManager.Inst.onDisplayActions)
+                unit.card.DisplayObjects(false);
         }
     }
     public void UnitMouseDown(Unit unit)
@@ -121,7 +122,8 @@ public class UnitManager : MonoBehaviour
         foreach (Unit other in Units)
         {
             other.SetMaterial(defaultMaterial);
-            other.card.DisplayObjects(false);
+            if (!GameManager.Inst.onDisplayActions)
+                other.card.DisplayObjects(false);
         }
         unit.SetMaterial(outlineMaterial);
 
@@ -183,7 +185,8 @@ public class UnitManager : MonoBehaviour
         {
             infoPanel.SetActive(false);
             unit.SetMaterial(defaultMaterial);
-            unit.card.DisplayObjects(false);
+            if (!GameManager.Inst.onDisplayActions)
+                unit.card.DisplayObjects(false);
             unit.card.Cancel();
         }
     }
@@ -296,19 +299,17 @@ public class UnitManager : MonoBehaviour
 
                 if (unit.targetUnit.card.GetArea(unit.card.data).Contains(unit.coords))
                 {
-                    unit.card.UseCard(GridManager.Inst.GetTile(unit.targetUnit));
-                    yield return YieldInstructionCache.WaitForSeconds(0.5f);
+                    yield return StartCoroutine(unit.card.UseCard(GridManager.Inst.GetTile(unit.targetUnit)));
                 }
             }
         }
         else
         {
-            unit.card.UseCard(GridManager.Inst.GetTile(unit.targetCoords));
+            yield return StartCoroutine(unit.card.UseCard(GridManager.Inst.GetTile(unit.targetCoords)));
             /*foreach(var displayObject in unit.card.selectedTiles)
             {
                 Destroy(displayObject);
             }*/
-            yield return YieldInstructionCache.WaitForSeconds(0.5f);
         }
     }
 
