@@ -6,18 +6,18 @@ using TMPro;
 
 public class HealthBar
 {
-    public Transform healthBar;
+    public GameObject prefab;
     public Image healthFilled;
     public TMP_Text healthText;
     public TMP_Text defenceText;
     public float hitTimer;
 
-    public HealthBar(Transform healthBar, float hitTime = 0)
+    public HealthBar(GameObject prefab, float hitTime = 0)
     {
-        this.healthBar = healthBar;
-        healthFilled = healthBar.GetChild(0).GetComponent<Image>();
-        healthText = healthBar.GetChild(1).GetComponent<TMP_Text>();
-        defenceText = healthBar.GetChild(2).GetComponentInChildren<TMP_Text>();
+        this.prefab = prefab;
+        healthFilled = prefab.transform.GetChild(0).GetComponent<Image>();
+        healthText = prefab.transform.GetChild(1).GetComponent<TMP_Text>();
+        defenceText = prefab.transform.GetChild(2).GetComponentInChildren<TMP_Text>();
         hitTimer = hitTime;
     }
 }
@@ -30,7 +30,7 @@ public class HealthManager : MonoBehaviour
     Dictionary<Unit, HealthBar> healthBars = new Dictionary<Unit, HealthBar>();
 
     [SerializeField] Transform canvas;
-    [SerializeField] Transform healthBar;
+    [SerializeField] GameObject healthBarPrefab;
     [Header("Material")]
     [SerializeField] Material defaultMaterial;
     [SerializeField] Material whiteMaterial;
@@ -41,7 +41,7 @@ public class HealthManager : MonoBehaviour
     {
         foreach (KeyValuePair<Unit, HealthBar> healthBar in healthBars)
         {
-            healthBar.Value.healthBar.transform.position = healthBar.Key.coords.Pos + addPos;
+            healthBar.Value.prefab.transform.position = healthBar.Key.coords.Pos + addPos;
 
             /*if(healthBar.Value.hitTimer > 0)
             {
@@ -55,7 +55,7 @@ public class HealthManager : MonoBehaviour
 
     public void GenerateHealthBar(Unit unit)
     {
-        healthBars.Add(unit, new HealthBar(Instantiate(healthBar, canvas)));
+        healthBars.Add(unit, new HealthBar(Instantiate(healthBarPrefab, canvas)));
         SetHealthBar(unit);
     }
 
@@ -64,6 +64,13 @@ public class HealthManager : MonoBehaviour
         healthBars[unit].healthFilled.fillAmount = (float)unit.hp / unit.data.hp;
         healthBars[unit].healthText.text = unit.hp.ToString();
         healthBars[unit].defenceText.text = unit.defence.ToString();
+    }
+
+    public void DestroyHealthBar(Unit unit)
+    {
+        if (healthBars.ContainsKey(unit))
+            Destroy(healthBars[unit].prefab);
+        healthBars.Remove(unit);
     }
 
     public IEnumerator WhiteMaterial(Unit unit)

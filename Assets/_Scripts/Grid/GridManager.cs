@@ -99,26 +99,6 @@ public class GridManager : MonoBehaviour
     {
         foreach (var t in Tiles.Values) t.RevertAble();
     }
-
-    public List<HexNode> CoordsToNodes(List<HexCoords> coordses)
-    {
-        List<HexNode> tiles = new();
-        foreach (HexCoords c in coordses)
-        {
-            if (Tiles.ContainsKey(c.Pos))
-                tiles.Add(Tiles[c.Pos]);
-        }
-        return tiles;
-    }
-    public void SelectNodes(AreaType areaType, bool canSelect, List<HexCoords> coordses, Unit unit)
-    {
-        List<HexNode> tiles = CoordsToNodes(coordses);
-        AreaDisplay(areaType, canSelect, tiles, unit);
-    }
-    public void SelectNodes(AreaType areaType, bool canSelect, List<HexNode> tiles, Unit unit)
-    {
-        AreaDisplay(areaType, canSelect, tiles, unit);
-    }
     /*public List<GameObject> InstantiateSelectNodes(List<HexNode> tiles)
     {
         var outlines = new List<GameObject>();
@@ -172,6 +152,16 @@ public class GridManager : MonoBehaviour
     public HexNode GetTile(Unit unit) => Tiles.ContainsKey(unit.coords.Pos) ? Tiles.TryGetValue(unit.coords.Pos, out var tile) ? tile : null : null;
     public HexNode GetTile(HexCoords coords) => Tiles.ContainsKey(coords.Pos) ? Tiles.TryGetValue(coords.Pos, out var tile) ? tile : null : null;
     public HexNode GetTile(Vector2 pos) => Tiles.ContainsKey(pos) ? Tiles.TryGetValue(pos, out var tile) ? tile : null : null;
+    public List<HexNode> GetTiles(List<HexCoords> coordses)
+    {
+        List<HexNode> tiles = new();
+        foreach (HexCoords c in coordses)
+        {
+            if (Tiles.ContainsKey(c.Pos))
+                tiles.Add(Tiles[c.Pos]);
+        }
+        return tiles;
+    }
     #endregion
     #region GetUnit
     public Unit GetUnit(HexNode hexNode) => OnTileUnits.ContainsKey(hexNode.coords.Pos) ? OnTileUnits[hexNode.coords.Pos] : null;

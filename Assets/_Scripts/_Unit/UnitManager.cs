@@ -74,7 +74,9 @@ public class UnitManager : MonoBehaviour
                 break;
         }
         Units.Remove(unit);
+        HealthManager.Inst.DestroyHealthBar(unit);
         GridManager.Inst.SetTileUnitRemove(unit);
+        GridManager.Inst.RevertTiles(unit);
         DestroyImmediate(unit.gameObject);
     }
 
@@ -94,18 +96,18 @@ public class UnitManager : MonoBehaviour
     public void UnitMouseOver(Unit unit)
     {
          unit.SetMaterial(outlineMaterial);
-        if(unit.card.canDisplay)
+        /*if(unit.card.canDisplay)
         {
             unit.card.DisplayObjects(true);
-        }
+        }*/
     }
     public void UnitMouseExit(Unit unit)
     {
         if (unit != sUnit)
         {
             unit.SetMaterial(defaultMaterial);
-            if(!GameManager.Inst.onDisplayActions)
-                unit.card.DisplayObjects(false);
+            /*if(!GameManager.Inst.onDisplayActions)
+                unit.card.DisplayObjects(false);*/
         }
     }
     public void UnitMouseDown(Unit unit)
@@ -122,17 +124,17 @@ public class UnitManager : MonoBehaviour
         foreach (Unit other in Units)
         {
             other.SetMaterial(defaultMaterial);
-            if (!GameManager.Inst.onDisplayActions)
-                other.card.DisplayObjects(false);
+            /*if (!GameManager.Inst.onDisplayActions)
+                other.card.DisplayObjects(false);*/
         }
         unit.SetMaterial(outlineMaterial);
 
         if (Enemies.Contains(unit))
         {
-            if (unit.card.canDisplay)
+            /*if (unit.card.canDisplay)
             {
                 unit.card.DisplayObjects(true);
-            }
+            }*/
 
             //DrawMoveArea();
             //GridManager.Inst.SelectNodes(AreaType.Default, false, GridManager.Inst.Tiles.Values.ToList(), unit);
@@ -185,8 +187,8 @@ public class UnitManager : MonoBehaviour
         {
             infoPanel.SetActive(false);
             unit.SetMaterial(defaultMaterial);
-            if (!GameManager.Inst.onDisplayActions)
-                unit.card.DisplayObjects(false);
+            /*if (!GameManager.Inst.onDisplayActions)
+                unit.card.DisplayObjects(false);*/
             unit.card.Cancel();
         }
     }
@@ -246,10 +248,6 @@ public class UnitManager : MonoBehaviour
                     for (int i = 0; i < cardInfo.count; i++)
                         cardInfos.Add(cardInfo);
             }
-            /*for (int i = 0; i < cardInfo.count; i++)
-            {
-                cardInfos.Add(new CardInfo(Instantiate(cardInfo.data), cardInfo.count, cardInfo.unit));
-            }*/
         }
 
         List<CardInfo> highCardInfos = new();

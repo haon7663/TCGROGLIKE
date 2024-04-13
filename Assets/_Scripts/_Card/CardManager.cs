@@ -185,7 +185,6 @@ public class CardManager : MonoBehaviour
 
     public void PutCard(Card card)
     {
-        print("A");
         StartCoroutine(card.unit.card.UseCard(GridManager.Inst.selectedNode));
 
         usingCards.Remove(card);

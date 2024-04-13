@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 using TMPro;
 
 public class GameManager : MonoBehaviour
@@ -31,11 +32,22 @@ public class GameManager : MonoBehaviour
         {
             onDisplayActions = !onDisplayActions;
             displayActionText.text = "DisplayActions: " + onDisplayActions;
-            foreach (Unit unit in UnitManager.Inst.Enemies)
+
+            if(onDisplayActions)
             {
-                if (unit.card.canDisplay)
+                List<HexNode> selectedTiles = new();
+                foreach (Unit unit in UnitManager.Inst.Enemies)
                 {
-                    unit.card.DisplayObjects(onDisplayActions);
+                    if (!unit.card.canDisplay) return;
+                    selectedTiles.AddRange(unit.card.SelectedArea);
+                    GridManager.Inst.AreaDisplay(AreaType.Attack, false, selectedTiles, unit);
+                }
+            }
+            else
+            {
+                foreach (Unit unit in UnitManager.Inst.Enemies)
+                {
+                    GridManager.Inst.RevertTiles(unit);
                 }
             }
         }

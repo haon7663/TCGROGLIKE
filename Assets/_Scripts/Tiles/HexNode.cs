@@ -60,11 +60,11 @@ public class HexNode : MonoBehaviour
 
         if (canMove.Item1)
         {
-            GridManager.Inst.SelectNodes(AreaType.Select, true, new List<HexNode>() { this }, null);
+            GridManager.Inst.AreaDisplay(AreaType.Select, true, new List<HexNode>() { this }, null);
         }
         else if (canCard.Item1)
         {
-            GridManager.Inst.SelectNodes(AreaType.Select, true, canCard.Item2.card.GetSelectedArea(this), null);
+            GridManager.Inst.AreaDisplay(AreaType.Select, true, canCard.Item2.card.GetSelectedArea(this), null);
         }
     }
 

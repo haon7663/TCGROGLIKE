@@ -42,7 +42,7 @@ public class Unit_Card : MonoBehaviour
                 areaType = AreaType.Buff;
                 break;
         }
-        GridManager.Inst.SelectNodes(areaType, canSelect, selectCoords, unit);
+        GridManager.Inst.AreaDisplay(areaType, canSelect, GridManager.Inst.GetTiles(selectCoords), unit);
         return selectCoords;
     }
     public List<HexCoords> GetArea(CardSO data, Unit otherUnit = null)
@@ -95,14 +95,14 @@ public class Unit_Card : MonoBehaviour
                 }
                 break;
             case RangeType.OurArea:
-                List<HexNode> AreaNodes = HexDirectionExtension.Area(unit.coords, data.range, data.onSelf);
-                foreach (var unit in GridManager.Inst.OnTileUnits.Values.Where(t => t.data.type != UnitType.Enemy && AreaNodes.Contains(GridManager.Inst.GetTile(t))))
+                List<HexNode> tiles = HexDirectionExtension.Area(unit.coords, data.range, data.onSelf);
+                foreach (var unit in GridManager.Inst.OnTileUnits.Values.Where(t => t.data.type != UnitType.Enemy && tiles.Contains(GridManager.Inst.GetTile(t))))
                 {
                     var tile = GridManager.Inst.GetTile(unit);
                     selectCoords.Add(tile.coords);
-                    AreaNodes.Remove(tile);
+                    tiles.Remove(tile);
                 }
-                GridManager.Inst.SelectNodes(AreaType.Buff, false, AreaNodes, unit);
+                GridManager.Inst.AreaDisplay(AreaType.Buff, false, tiles, unit);
                 break;
             case RangeType.Self:
                 selectCoords.Add(unit.coords);
@@ -110,6 +110,8 @@ public class Unit_Card : MonoBehaviour
         }
         return selectCoords;
     }
+
+    public List<HexNode> SelectedArea => GetSelectedArea(GridManager.Inst.GetTile(unit.coords + directionCoords));
     public List<HexNode> GetSelectedArea(HexNode node)
     {
         unit.Anim_SetTrigger("attackReady");
@@ -147,12 +149,11 @@ public class Unit_Card : MonoBehaviour
                 hexNodes.AddRange(HexDirectionExtension.Diagonal(unit.coords + direction, direction, data.range - 1, true));
                 break;
             case SelectType.Entire:
-                hexNodes.AddRange(GridManager.Inst.CoordsToNodes(GetArea(data)));
+                hexNodes.AddRange(GridManager.Inst.GetTiles(GetArea(data)));
                 break;
         }
         return hexNodes;
     }
-
     public IEnumerator UseCard(HexNode node, CardSO data = null)
     {
         node.coords.DebugQRS();
@@ -200,6 +201,7 @@ public class Unit_Card : MonoBehaviour
         if (this.data.isMove)
             unit.move.OnMove(node.coords, this.data.isJump);
 
+        canDisplay = false;
         GridManager.Inst.RevertTiles(unit);
     }
 
@@ -208,8 +210,8 @@ public class Unit_Card : MonoBehaviour
         unit.Anim_SetTrigger("cancel");
     }
 
-    public GameObject lineDot;
-    public void DisplayObjects(bool isActive)
+    //public GameObject lineDot;
+    /*public void DisplayObjects(bool isActive)
     {
         if (isActive && !isDisplay)
         {
@@ -249,5 +251,5 @@ public class Unit_Card : MonoBehaviour
             GridManager.Inst.RevertTiles(unit);
             isDisplay = false;
         }
-    }
+    }*/
 }

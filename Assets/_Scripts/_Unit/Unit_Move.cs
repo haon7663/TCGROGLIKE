@@ -13,7 +13,7 @@ public class Unit_Move : MonoBehaviour
         if(!StatusManager.CanMove(unit)) return null;
 
         var selectCoords = GetArea();
-        GridManager.Inst.SelectNodes(AreaType.Move, canSelect, selectCoords, unit);
+        GridManager.Inst.AreaDisplay(AreaType.Move, canSelect, GridManager.Inst.GetTiles(selectCoords), unit);
         return selectCoords;
     }
 
