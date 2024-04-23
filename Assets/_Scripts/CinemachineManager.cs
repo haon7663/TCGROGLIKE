@@ -18,10 +18,9 @@ public class CinemachineManager : MonoBehaviour
         if(Input.GetMouseButtonDown(1))
         {
             LightManager.Inst.ChangeLight(false);
-            SetOrthoSize(false);
+            //SetOrthoSize(false);
 
             UnitManager.Inst.DeSelectUnit(UnitManager.sUnit);
-            //GridManager.Inst.RevertTiles();
         }
     }
 

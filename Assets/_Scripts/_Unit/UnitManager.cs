@@ -23,6 +23,8 @@ public class UnitManager : MonoBehaviour
     public static Unit_Move sUnit_Move;
     public static Unit_Card sUnit_Card;
 
+    [SerializeField] Unit unitPrefab;
+
     [Header("Graphic")]
     [SerializeField] Material outlineMaterial;
     [SerializeField] Material defaultMaterial;
@@ -58,7 +60,25 @@ public class UnitManager : MonoBehaviour
             Units.Add(unit);
         }
     }
+    public void SpawnUnit(UnitSO unitData, HexNode tile)
+    {
+        Unit unit = Instantiate(unitPrefab);
+        unit.Init(unitData, tile.coords);
 
+        switch (unitData.type)
+        {
+            case UnitType.Commander:
+                Allies.Add(unit);
+                break;
+            case UnitType.Ally:
+                Allies.Add(unit);
+                break;
+            case UnitType.Enemy:
+                Enemies.Add(unit);
+                break;
+        }
+        Units.Add(unit);
+    }
     public void Death(Unit unit)
     {
         switch (unit.data.type)
@@ -73,6 +93,7 @@ public class UnitManager : MonoBehaviour
                 Enemies.Remove(unit);
                 break;
         }
+
         Units.Remove(unit);
         HealthManager.Inst.DestroyHealthBar(unit);
         GridManager.Inst.SetTileUnitRemove(unit);
@@ -117,6 +138,9 @@ public class UnitManager : MonoBehaviour
 
     public void SelectUnit(Unit unit, bool isCard = false)
     {
+        if (sUnit)
+            DeSelectUnit(sUnit);
+
         sUnit = unit;
         sUnit_Move = sUnit.move;
         sUnit_Card = sUnit.card;
@@ -129,6 +153,7 @@ public class UnitManager : MonoBehaviour
         }
         unit.SetMaterial(outlineMaterial);
 
+        LightManager.Inst.ChangeLight(true);
         if (Enemies.Contains(unit))
         {
             /*if (unit.card.canDisplay)
@@ -139,16 +164,15 @@ public class UnitManager : MonoBehaviour
             //DrawMoveArea();
             //GridManager.Inst.SelectNodes(AreaType.Default, false, GridManager.Inst.Tiles.Values.ToList(), unit);
 
-            LightManager.Inst.ChangeLight(true);
-            CinemachineManager.Inst.SetOrthoSize(true);
-            CinemachineManager.Inst.SetViewPoint(sUnit.transform.position + new Vector3(0, 1.5f));
+            /*CinemachineManager.Inst.SetOrthoSize(true);
+            CinemachineManager.Inst.SetViewPoint(sUnit.transform.position + new Vector3(0, 1.5f));*/
 
             infoPanel.SetActive(true);
         }
         else
         {
-            LightManager.Inst.ChangeLight(false);
-            CinemachineManager.Inst.SetOrthoSize(false);
+            //LightManager.Inst.ChangeLight(false);
+            //CinemachineManager.Inst.SetOrthoSize(false);
             //CinemachineManager.Inst.SetViewPoint(sUnit.transform.position);
 
             GridManager.Inst.RevertTiles(unit);
@@ -181,14 +205,13 @@ public class UnitManager : MonoBehaviour
     }
     public void DeSelectUnit(Unit unit)
     {
-        SelectUnit(Commander);
-
         if(unit)
         {
             infoPanel.SetActive(false);
             unit.SetMaterial(defaultMaterial);
             /*if (!GameManager.Inst.onDisplayActions)
                 unit.card.DisplayObjects(false);*/
+            GridManager.Inst.RevertTiles(unit);
             unit.card.Cancel();
         }
     }

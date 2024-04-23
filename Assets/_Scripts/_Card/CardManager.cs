@@ -215,6 +215,7 @@ public class CardManager : MonoBehaviour
             return;
         if (hoveredCard != card)
         {
+            LightManager.Inst.ChangeLight(true);
             hoveredCard = card;
             EnlargeCard(true, card);
             var unit = card.GetUnit();
@@ -232,8 +233,12 @@ public class CardManager : MonoBehaviour
 
         EnlargeCard(false, card);
         UnitManager.Inst.DeSelectUnit(card.unit);
+        LightManager.Inst.ChangeLight(false);
 
-        if (!selectedCard) GridManager.Inst.RevertTiles(card.unit);
+        if (!selectedCard)
+        {
+            GridManager.Inst.RevertTiles(card.unit);
+        }
         if (hoveredCard == card) hoveredCard = null;
     }
     public void CardMouseDown(Card card)

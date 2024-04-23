@@ -8,17 +8,8 @@ using Random = UnityEngine.Random;
 
 public class Unit : MonoBehaviour
 {
-    #region UnitComponent
     [HideInInspector] public Unit_Move move;
     [HideInInspector] public Unit_Card card;
-    void Awake()
-    {
-        if (transform.TryGetComponent(out Unit_Move unit_Move))
-            move = unit_Move;
-        if (transform.TryGetComponent(out Unit_Card unit_Card))
-            card = unit_Card;
-    }
-    #endregion
 
     SpriteRenderer spriteRenderer;
     Animator animator;
@@ -39,8 +30,13 @@ public class Unit : MonoBehaviour
     public HexCoords targetCoords;
     public List<StatusInfo> statuses;
 
-    void Start()
+    void Awake()
     {
+        if (transform.TryGetComponent(out Unit_Move unit_Move))
+            move = unit_Move;
+        if (transform.TryGetComponent(out Unit_Card unit_Card))
+            card = unit_Card;
+
         if (transform.GetChild(0).TryGetComponent(out SpriteRenderer spriteRenderer))
             this.spriteRenderer = spriteRenderer;
         if (transform.GetChild(0).TryGetComponent(out Animator animator))
@@ -51,10 +47,8 @@ public class Unit : MonoBehaviour
             actionSpriteRenderer = renderer;
         if (actionObject.transform.GetChild(1).TryGetComponent(out TMP_Text text))
             actionText = text;
-
-        Init(data);
     }
-    public void Init(UnitSO data)
+    public void Init(UnitSO data, HexCoords coords)
     {
         this.data = Instantiate(data);
 
@@ -63,7 +57,7 @@ public class Unit : MonoBehaviour
         hp = this.data.hp;
         HealthManager.Inst.GenerateHealthBar(this);
 
-        coords = GridManager.Inst.GetRandomNode().coords;
+        this.coords = coords;
         transform.position = coords.Pos - Vector3.forward;
         GridManager.Inst.SetTileUnit(coords, this);
     }
