@@ -37,6 +37,8 @@ public class HexNode : MonoBehaviour
 
         var canMove = CanMove();
         var canCard = CanCard();
+        var canArrange = CanArrange();
+
         if (canMove.Item1)
         {
             canMove.Item2.move.OnMove(coords);
@@ -52,10 +54,11 @@ public class HexNode : MonoBehaviour
 
         var canMove = CanMove();
         var canCard = CanCard();
+        var canArrange = CanArrange();
 
-        GridManager.Inst.SelectNode(this, canMove.Item1 || canCard.Item1);
+        GridManager.Inst.SelectNode(this, canMove.Item1 || canCard.Item1 || canArrange.Item1);
 
-        if (canMove.Item1 || canCard.Item1)
+        if (canMove.Item1 || canCard.Item1 || canArrange.Item1)
             UnitManager.sUnit.Repeat(this);
 
         if (canMove.Item1)
@@ -65,6 +68,10 @@ public class HexNode : MonoBehaviour
         else if (canCard.Item1)
         {
             GridManager.Inst.AreaDisplay(AreaType.Select, true, canCard.Item2.card.GetSelectedArea(this), null);
+        }
+        else if (canArrange.Item1)
+        {
+            GridManager.Inst.AreaDisplay(AreaType.Select, true, new List<HexNode>() { this }, null);
         }
     }
 
@@ -105,6 +112,15 @@ public class HexNode : MonoBehaviour
         foreach (var displayNode in transform.GetChild(0).GetComponentsInChildren<DisplayNode>())
         {
             if (displayNode.gameObject.activeSelf && (displayNode.areaType == AreaType.Attack || displayNode.areaType == AreaType.Buff) && displayNode.canSelect)
+                return (true, displayNode.unit);
+        }
+        return (false, null);
+    }
+    public (bool, Unit) CanArrange()
+    {
+        foreach (var displayNode in transform.GetChild(0).GetComponentsInChildren<DisplayNode>())
+        {
+            if (displayNode.gameObject.activeSelf && displayNode.areaType == AreaType.Arrange && displayNode.canSelect)
                 return (true, displayNode.unit);
         }
         return (false, null);

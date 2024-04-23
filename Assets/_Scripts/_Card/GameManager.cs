@@ -52,6 +52,13 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (Input.GetMouseButtonDown(1))
+        {
+            LightManager.Inst.ChangeLight(false);
+            //SetOrthoSize(false);
+            UnitManager.Inst.DeSelectUnit(UnitManager.sUnit);
+        }
+
 #if UNITY_EDITOR
         InputCheatKey();
 #endif

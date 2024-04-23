@@ -48,6 +48,10 @@ public class Unit : MonoBehaviour
         if (actionObject.transform.GetChild(1).TryGetComponent(out TMP_Text text))
             actionText = text;
     }
+    void Start()
+    {
+        Init(data, coords);
+    }
     public void Init(UnitSO data, HexCoords coords)
     {
         this.data = Instantiate(data);

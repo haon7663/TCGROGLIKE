@@ -4,7 +4,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public enum DisplayType { Area, Arrow }
-public enum AreaType { Select, Move, Attack, Buff }
+public enum AreaType { Select, Move, Attack, Buff, Arrange }
 
 public class GridManager : MonoBehaviour
 {

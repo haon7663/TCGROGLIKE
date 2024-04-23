@@ -213,6 +213,10 @@ public class UnitManager : MonoBehaviour
                 unit.card.DisplayObjects(false);*/
             GridManager.Inst.RevertTiles(unit);
             unit.card.Cancel();
+
+            sUnit = null;
+            sUnit_Move = null;
+            sUnit_Card = null;
         }
     }
 

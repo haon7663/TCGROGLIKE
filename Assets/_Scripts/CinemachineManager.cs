@@ -13,17 +13,6 @@ public class CinemachineManager : MonoBehaviour
     [SerializeField] Transform viewPoint;
     [SerializeField] CameraMovement cameraMovement;
 
-    void Update()
-    {
-        if(Input.GetMouseButtonDown(1))
-        {
-            LightManager.Inst.ChangeLight(false);
-            //SetOrthoSize(false);
-
-            UnitManager.Inst.DeSelectUnit(UnitManager.sUnit);
-        }
-    }
-
     public void SetOrthoSize(bool isJoom, bool useDotween = true, float dotweenTime = 0.5f)
     { 
         transform.DOKill();
