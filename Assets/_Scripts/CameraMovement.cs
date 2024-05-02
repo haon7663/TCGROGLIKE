@@ -23,7 +23,7 @@ public class CameraMovement : MonoBehaviour
 
     void Update()
     {
-        if (CardManager.Inst.hoveredCard || isJoom)
+        if (CardManager.Inst.hoveredCard || UnitArrangeManager.Inst.isArrange || isJoom)
             return;
 
         ControlCameraPosition();
@@ -36,6 +36,7 @@ public class CameraMovement : MonoBehaviour
     void ControlCameraPosition()
     {
         var mouseWorldPosition = _camera.ScreenToWorldPoint(Input.mousePosition);
+
         if (Input.GetMouseButtonDown(0))
             CameraPositionMoveStart(mouseWorldPosition);
         else if (Input.GetMouseButton(0))

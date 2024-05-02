@@ -58,7 +58,7 @@ public class HexNode : MonoBehaviour
 
         GridManager.Inst.SelectNode(this, canMove.Item1 || canCard.Item1 || canArrange.Item1);
 
-        if (canMove.Item1 || canCard.Item1 || canArrange.Item1)
+        if ((canMove.Item1 || canCard.Item1 || canArrange.Item1) && UnitManager.sUnit)
             UnitManager.sUnit.Repeat(this);
 
         if (canMove.Item1)
@@ -77,7 +77,7 @@ public class HexNode : MonoBehaviour
 
     void OnMouseExit()
     {
-        if (!CanMove().Item1 && !CanCard().Item1) return;
+        if (!CanMove().Item1 && !CanCard().Item1 && !CanArrange().Item1) return;
 
         GridManager.Inst.RevertAbles();
     }

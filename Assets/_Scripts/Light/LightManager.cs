@@ -13,20 +13,18 @@ public class LightManager : MonoBehaviour
     [SerializeField] Light2D worldLight;
     [SerializeField] float worldIntensity;
     [Header("CardLight")]
-    [SerializeField] Light2D cardLight;
-    [SerializeField] float cardIntensity;
+    [SerializeField] Light2D selectLight;
+    [SerializeField] float selectIntensity;
 
     void Start()
     {
         ChangeLight(false);
     }
 
-    public void ChangeLight(bool onCard)
+    public void ChangeLight(bool isSeleted)
     {
-        print(onCard);
-
         DOTween.Kill(this);
-        DOTween.To(() => worldLight.intensity, x => worldLight.intensity = x, onCard ? 0f : worldIntensity, 0.3f).SetEase(Ease.OutCirc);
-        DOTween.To(() => cardLight.intensity, x => cardLight.intensity = x, onCard ? cardIntensity : 0f, 0.3f).SetEase(Ease.OutCirc);
+        DOTween.To(() => worldLight.intensity, x => worldLight.intensity = x, isSeleted ? 0f : worldIntensity, 0.3f).SetEase(Ease.OutCirc);
+        DOTween.To(() => selectLight.intensity, x => selectLight.intensity = x, isSeleted ? selectIntensity : 0f, 0.3f).SetEase(Ease.OutCirc);
     }
 }

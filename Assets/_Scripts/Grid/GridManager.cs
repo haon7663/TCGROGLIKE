@@ -31,6 +31,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] Color moveAreaColor;
     [SerializeField] Color attackAreaColor;
     [SerializeField] Color buffAreaColor;
+    [SerializeField] Color arrangeAreaColor;
     [SerializeField] RuntimeAnimatorController hatch;
 
     public void AreaDisplay(AreaType areaType, bool canSelect, List<HexNode> tiles, Unit unit)
@@ -51,6 +52,9 @@ public class GridManager : MonoBehaviour
                     break;
                 case AreaType.Buff:
                     color = buffAreaColor;
+                    break;
+                case AreaType.Arrange:
+                    color = arrangeAreaColor;
                     break;
             }
 

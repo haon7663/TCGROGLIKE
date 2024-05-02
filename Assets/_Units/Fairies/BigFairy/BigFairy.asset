@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: BigFairy
   m_EditorClassIdentifier: 
   type: 1
+  sprite: {fileID: -243993202, guid: 59b6e2fd19d489744829bef8ababef66, type: 3}
   animatorController: {fileID: 22100000, guid: 877bee83f5c6ebf46a9760d40da7b006, type: 2}
   hp: 27
   rangeType: 1

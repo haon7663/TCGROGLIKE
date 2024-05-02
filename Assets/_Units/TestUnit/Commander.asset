@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Commander
   m_EditorClassIdentifier: 
   type: 2
+  sprite: {fileID: 21300000, guid: 71c9ca15d43751e419ccec15a10db708, type: 3}
   animatorController: {fileID: 22100000, guid: 9effe3dec0b017a4b988dd71586de52c, type: 2}
   hp: 99
   rangeType: 1

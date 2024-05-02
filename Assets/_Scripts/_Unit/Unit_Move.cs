@@ -12,6 +12,7 @@ public class Unit_Move : MonoBehaviour
     {
         if(!StatusManager.CanMove(unit)) return null;
 
+        Debug.Log("Afdf");
         var selectCoords = GetArea();
         GridManager.Inst.AreaDisplay(AreaType.Move, canSelect, GridManager.Inst.GetTiles(selectCoords), unit);
         return selectCoords;

@@ -8,6 +8,7 @@ public class UnitSO : ScriptableObject
     public UnitType type;
 
     [Header("스프라이트")]
+    public Sprite sprite;
     public AnimatorOverrideController animatorController;
     [Header("체력")]
     public int hp;

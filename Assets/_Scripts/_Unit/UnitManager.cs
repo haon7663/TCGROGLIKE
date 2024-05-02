@@ -24,6 +24,8 @@ public class UnitManager : MonoBehaviour
     public static Unit_Card sUnit_Card;
 
     [SerializeField] Unit unitPrefab;
+    [SerializeField] Transform allyBundle;
+    [SerializeField] Transform enemyBundle;
 
     [Header("Graphic")]
     [SerializeField] Material outlineMaterial;
@@ -44,6 +46,7 @@ public class UnitManager : MonoBehaviour
     {
         foreach (Unit unit in FindObjectsOfType<Unit>())
         {
+            unit.Init(unit.data, GridManager.Inst.GetRandomNode().coords);
             switch (unit.data.type)
             {
                 case UnitType.Commander:
@@ -72,9 +75,11 @@ public class UnitManager : MonoBehaviour
                 break;
             case UnitType.Ally:
                 Allies.Add(unit);
+                unit.transform.SetParent(allyBundle);
                 break;
             case UnitType.Enemy:
                 Enemies.Add(unit);
+                unit.transform.SetParent(enemyBundle);
                 break;
         }
         Units.Add(unit);
@@ -177,6 +182,8 @@ public class UnitManager : MonoBehaviour
 
             GridManager.Inst.RevertTiles(unit);
             if (isCard) return;
+
+            Debug.Log("AD");
             switch (TurnManager.Inst.paze)
             {
                 case Paze.Draw | Paze.End | Paze.Enemy:
