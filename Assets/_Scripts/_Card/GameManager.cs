@@ -12,10 +12,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] NotificationPanel notificationPanel;
     [SerializeField] TMP_Text pazeText;
     [SerializeField] TMP_Text displayActionText;
+    [SerializeField] TMP_Text moveAbleText;
 
     [SerializeField] TMP_Text energyText;
     [SerializeField] TMP_Text moveCostText;
     public bool onDisplayActions;
+    public bool moveAble;
 
     void Start()
     {
@@ -33,7 +35,7 @@ public class GameManager : MonoBehaviour
             onDisplayActions = !onDisplayActions;
             displayActionText.text = "DisplayActions: " + onDisplayActions;
 
-            if(onDisplayActions)
+            if (onDisplayActions)
             {
                 List<HexNode> selectedTiles = new();
                 foreach (Unit unit in UnitManager.Inst.Enemies)
@@ -51,12 +53,16 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            moveAble = !moveAble;
+            moveAbleText.text = "MoveAble: " + moveAble;
+        }
 
         if (Input.GetMouseButtonDown(1))
         {
-            LightManager.Inst.ChangeLight(false);
-            //SetOrthoSize(false);
             UnitManager.Inst.DeSelectUnit(UnitManager.sUnit);
+            CinemachineManager.Inst.SetOrthoSize(false);
         }
 
 #if UNITY_EDITOR
@@ -66,11 +72,17 @@ public class GameManager : MonoBehaviour
 
     void InputCheatKey()
     {
-        if (Input.GetKeyDown(KeyCode.Keypad2))
+        if (Input.GetKeyDown(KeyCode.Z))
             TurnManager.UseEnergy(TurnManager.Inst.Energy);
 
-        if (Input.GetKeyDown(KeyCode.Keypad3))
+        if (Input.GetKeyDown(KeyCode.X))
             TurnManager.UseMoveCost(TurnManager.Inst.MoveCost);
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            TurnManager.UseEnergy(TurnManager.Inst.Energy);
+            TurnManager.UseMoveCost(TurnManager.Inst.MoveCost);
+        }
     }
 
     void StartGame()

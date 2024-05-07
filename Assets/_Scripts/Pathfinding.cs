@@ -69,6 +69,9 @@ public static class Pathfinding
 
     public static int FindPathDistance(HexNode startNode, HexNode targetNode)
     {
+        if (startNode == targetNode)
+            return 0;
+
         var toSearch = new List<HexNode>() { startNode };
         var processed = new List<HexNode>();
 

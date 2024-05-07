@@ -146,8 +146,8 @@ public class Unit : MonoBehaviour
     }
     public void SetActionText()
     {
-        if(actionObject.activeSelf)
-            actionText.text = StatusManager.Calculate(this, card.data, value).ToString();
+        //if(actionObject.activeSelf)
+            //actionText.text = StatusManager.Calculate(this, card.data, value).ToString();
     }
     public void HideAction()
     {

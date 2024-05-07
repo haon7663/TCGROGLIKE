@@ -86,6 +86,15 @@ public class UnitManager : MonoBehaviour
     }
     public void Death(Unit unit)
     {
+        //사망 이벤트 삽입
+        sUnit = unit;
+        Retreat();
+    }
+    public void Retreat()
+    {
+        var unit = sUnit;
+        DeSelectUnit(unit);
+
         switch (unit.data.type)
         {
             case UnitType.Commander:
@@ -121,10 +130,40 @@ public class UnitManager : MonoBehaviour
 
     public void UnitMouseOver(Unit unit)
     {
-         unit.SetMaterial(outlineMaterial);
-        /*if(unit.card.canDisplay)
+        unit.SetMaterial(outlineMaterial);
+
+        /*if (sUnit == unit)
+            return;
+
+        if (sUnit)
+            DeSelectUnit(sUnit);
+
+        sUnit = unit;
+        sUnit_Move = sUnit.move;
+        sUnit_Card = sUnit.card;
+
+        foreach (Unit other in Units)
         {
-            unit.card.DisplayObjects(true);
+            other.SetMaterial(defaultMaterial);
+        }
+        unit.SetMaterial(outlineMaterial);
+
+        LightManager.Inst.ChangeLight(true);
+        if (Allies.Contains(unit))
+        {
+            GridManager.Inst.RevertTiles(unit);
+            switch (TurnManager.Inst.paze)
+            {
+                case Paze.Draw | Paze.End | Paze.Enemy:
+                    sUnit_Move.DrawArea(false);
+                    break;
+                case Paze.Commander:
+                    sUnit_Move.DrawArea();
+                    break;
+                case Paze.Card:
+                    sUnit_Move.DrawArea(false);
+                    break;
+            }
         }*/
     }
     public void UnitMouseExit(Unit unit)
@@ -169,21 +208,18 @@ public class UnitManager : MonoBehaviour
             //DrawMoveArea();
             //GridManager.Inst.SelectNodes(AreaType.Default, false, GridManager.Inst.Tiles.Values.ToList(), unit);
 
-            /*CinemachineManager.Inst.SetOrthoSize(true);
-            CinemachineManager.Inst.SetViewPoint(sUnit.transform.position + new Vector3(0, 1.5f));*/
-
-            infoPanel.SetActive(true);
+            CinemachineManager.Inst.SetOrthoSize(true);
+            CinemachineManager.Inst.SetViewPoint(sUnit.transform.position + new Vector3(0, 1.5f));
         }
         else
         {
             //LightManager.Inst.ChangeLight(false);
-            //CinemachineManager.Inst.SetOrthoSize(false);
-            //CinemachineManager.Inst.SetViewPoint(sUnit.transform.position);
+            CinemachineManager.Inst.SetOrthoSize(false);
+            CinemachineManager.Inst.SetViewPoint(sUnit.transform.position);
 
             GridManager.Inst.RevertTiles(unit);
             if (isCard) return;
 
-            Debug.Log("AD");
             switch (TurnManager.Inst.paze)
             {
                 case Paze.Draw | Paze.End | Paze.Enemy:
@@ -196,9 +232,10 @@ public class UnitManager : MonoBehaviour
                     sUnit_Move.DrawArea(false);
                     break;
             }
-
-            infoPanel.SetActive(false);
         }
+
+        infoPanel.SetActive(true); //정보 패널 표시 분류 작업 나중에 하기
+        infoPanel.transform.GetChild(2).gameObject.SetActive(unit.data.type == UnitType.Ally);
     }
     public void DrawCardArea()
     {
@@ -219,6 +256,7 @@ public class UnitManager : MonoBehaviour
             /*if (!GameManager.Inst.onDisplayActions)
                 unit.card.DisplayObjects(false);*/
             GridManager.Inst.RevertTiles(unit);
+            LightManager.Inst.ChangeLight(false);
             unit.card.Cancel();
 
             sUnit = null;
@@ -396,7 +434,7 @@ public class UnitManager : MonoBehaviour
     public Unit GetNearestUnit2(Unit unit) //가까운 유닛 탐색, 거리가 같으면 원래 유닛 타겟 고정
     {
         if (unit.card.data.rangeType == RangeType.Self)
-            return unit.targetUnit;
+            return unit;
 
         Unit targetUnit = null;
         var minDistance = 10000f;
