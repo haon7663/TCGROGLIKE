@@ -27,6 +27,8 @@ public class UnitManager : MonoBehaviour
     [SerializeField] Transform allyBundle;
     [SerializeField] Transform enemyBundle;
 
+    public bool isDrag;
+
     [Header("Graphic")]
     [SerializeField] Material outlineMaterial;
     [SerializeField] Material defaultMaterial;
@@ -40,6 +42,14 @@ public class UnitManager : MonoBehaviour
         FindUnits();
         TurnManager.OnTurnStarted += OnTurnStarted;
         CardManager.Inst.StartSet();
+    }
+
+    void LateUpdate()
+    {
+        if (isDrag)
+        {
+
+        }
     }
 
     void FindUnits()
@@ -132,6 +142,14 @@ public class UnitManager : MonoBehaviour
     {
         unit.SetMaterial(outlineMaterial);
 
+        if(GameManager.Inst.moveAble && unit.data.type == UnitType.Ally)
+        {
+            isDrag = true;
+
+            GridManager.Inst.RevertTiles(unit);
+            LightManager.Inst.ChangeLight(true);
+            unit.move.DrawArea();
+        }
         /*if (sUnit == unit)
             return;
 
@@ -213,7 +231,6 @@ public class UnitManager : MonoBehaviour
         }
         else
         {
-            //LightManager.Inst.ChangeLight(false);
             CinemachineManager.Inst.SetOrthoSize(false);
             CinemachineManager.Inst.SetViewPoint(sUnit.transform.position);
 
@@ -369,6 +386,7 @@ public class UnitManager : MonoBehaviour
 
                 if (unit.targetUnit.card.GetArea(unit.card.data).Contains(unit.coords))
                 {
+                    yield return YieldInstructionCache.WaitForSeconds(0.7f);
                     yield return StartCoroutine(unit.card.UseCard(GridManager.Inst.GetTile(unit.targetUnit)));
                 }
             }
