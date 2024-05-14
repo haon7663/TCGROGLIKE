@@ -87,7 +87,7 @@ public class Unit : MonoBehaviour
 
             if (hp <= 0)
             {
-                UnitManager.Inst.Death(this);
+                UnitManager.inst.Death(this);
             }
             return true;
         }
@@ -118,15 +118,20 @@ public class Unit : MonoBehaviour
 
     void OnMouseOver()
     {
-        UnitManager.Inst.UnitMouseOver(this);
+        UnitManager.inst.UnitMouseOver(this);
     }
     void OnMouseExit()
     {
-        UnitManager.Inst.UnitMouseExit(this);
+        UnitManager.inst.UnitMouseExit(this);
     }
     void OnMouseDown()
     {
-        UnitManager.Inst.UnitMouseDown(this);
+        UnitManager.inst.UnitMouseDown(this);
+    }
+    void OnMouseUp()
+    {
+        if(UnitManager.inst.downedUnit == this)
+            UnitManager.inst.UnitMouseUp(this);
     }
 
     #region Animations

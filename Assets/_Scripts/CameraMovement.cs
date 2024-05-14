@@ -23,7 +23,7 @@ public class CameraMovement : MonoBehaviour
 
     void Update()
     {
-        if (CardManager.Inst.hoveredCard || UnitArrangeManager.Inst.isArrange || (GameManager.Inst.moveAble && UnitManager.sUnit) || isJoom)
+        if (CardManager.Inst.hoveredCard || UnitArrangeManager.Inst.isArrange || UnitManager.inst.isDrag || isJoom)
             return;
 
         ControlCameraPosition();

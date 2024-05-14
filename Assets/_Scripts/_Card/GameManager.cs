@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
             if (onDisplayActions)
             {
                 List<HexNode> selectedTiles = new();
-                foreach (Unit unit in UnitManager.Inst.Enemies)
+                foreach (Unit unit in UnitManager.inst.enemies)
                 {
                     if (!unit.card.canDisplay) return;
                     selectedTiles.AddRange(unit.card.SelectedArea);
@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                foreach (Unit unit in UnitManager.Inst.Enemies)
+                foreach (Unit unit in UnitManager.inst.enemies)
                 {
                     GridManager.Inst.RevertTiles(unit);
                 }
@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1))
         {
-            UnitManager.Inst.DeSelectUnit(UnitManager.sUnit);
+            UnitManager.inst.DeSelectUnit(UnitManager.sUnit);
             CinemachineManager.Inst.SetOrthoSize(false);
         }
 

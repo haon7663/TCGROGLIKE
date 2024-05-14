@@ -103,7 +103,7 @@ public class Unit_Move : MonoBehaviour
             else
                 transform.position = targetCoords.Pos - Vector3.forward;
         }
-        UnitManager.Inst.SetOrder(true);
+        UnitManager.inst.SetOrderUnits(true);
     }
 
     public void OnMoved(HexDirection direction, int range, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
@@ -125,7 +125,7 @@ public class Unit_Move : MonoBehaviour
                 sequence.AppendCallback(() => unit.coords = targetCoords);
             }
         }
-        UnitManager.Inst.SetOrder(true);
+        UnitManager.inst.SetOrderUnits(true);
     }
 
     public IEnumerator OnMoveInRange(HexCoords targetCoords, int range, bool useDotween = true, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
@@ -151,6 +151,6 @@ public class Unit_Move : MonoBehaviour
                 yield return YieldInstructionCache.WaitForSeconds(dotweenTime);
             }
         }
-        UnitManager.Inst.SetOrder(true);
+        UnitManager.inst.SetOrderUnits(true);
     }
 }

@@ -3,100 +3,96 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public enum UnitType { Ally, Enemy, Commander }
 
 public class UnitManager : MonoBehaviour
 {
-    public static UnitManager Inst;
-    void Awake() => Inst = this;
+    public static UnitManager inst;
+    private void Awake() => inst = this;
 
     [HideInInspector]
-    public List<Unit> Units;
+    public List<Unit> units;
 
-    public Unit Commander;
-    public List<Unit> Allies;
-    public List<Unit> Enemies;
+    public Unit commander;
+    public List<Unit> allies;
+    public List<Unit> enemies;
 
     public static Unit sUnit;
-    public static Unit_Move sUnit_Move;
-    public static Unit_Card sUnit_Card;
+    private Unit_Move _sUnitMove;
+    private Unit_Card _sUnitCard;
 
-    [SerializeField] Unit unitPrefab;
-    [SerializeField] Transform allyBundle;
-    [SerializeField] Transform enemyBundle;
+    [SerializeField] private Unit unitPrefab;
+    [SerializeField] private Transform allyBundle;
+    [SerializeField] private Transform enemyBundle;
 
     public bool isDrag;
 
     [Header("Graphic")]
-    [SerializeField] Material outlineMaterial;
-    [SerializeField] Material defaultMaterial;
+    [SerializeField] private Material outlineMaterial;
+    [SerializeField] private Material defaultMaterial;
     [Space]
-    [SerializeField] Sprite attackSprite;
+    [SerializeField] private Sprite attackSprite;
     [Space]
-    [SerializeField] GameObject infoPanel;
+    [SerializeField] private GameObject infoPanel;
 
-    void Start()
+    private void Start()
     {
         FindUnits();
         TurnManager.OnTurnStarted += OnTurnStarted;
         CardManager.Inst.StartSet();
     }
-
-    void LateUpdate()
+    private void FindUnits()
     {
-        if (isDrag)
-        {
-
-        }
-    }
-
-    void FindUnits()
-    {
-        foreach (Unit unit in FindObjectsOfType<Unit>())
+        foreach (var unit in FindObjectsOfType<Unit>())
         {
             unit.Init(unit.data, GridManager.Inst.GetRandomNode().coords);
             switch (unit.data.type)
             {
                 case UnitType.Commander:
-                    Commander = unit;
-                    Allies.Add(unit);
+                    commander = unit;
+                    allies.Add(unit);
                     break;
                 case UnitType.Ally:
-                    Allies.Add(unit);
+                    allies.Add(unit);
                     break;
                 case UnitType.Enemy:
-                    Enemies.Add(unit);
+                    enemies.Add(unit);
+                    break;
+                default:
                     break;
             }
-            Units.Add(unit);
+            units.Add(unit);
         }
     }
     public void SpawnUnit(UnitSO unitData, HexNode tile)
     {
-        Unit unit = Instantiate(unitPrefab);
+        var unit = Instantiate(unitPrefab);
         unit.Init(unitData, tile.coords);
 
         switch (unitData.type)
         {
             case UnitType.Commander:
-                Allies.Add(unit);
+                allies.Add(unit);
                 break;
             case UnitType.Ally:
-                Allies.Add(unit);
+                allies.Add(unit);
                 unit.transform.SetParent(allyBundle);
                 break;
             case UnitType.Enemy:
-                Enemies.Add(unit);
+                enemies.Add(unit);
                 unit.transform.SetParent(enemyBundle);
                 break;
+            default:
+                break;
         }
-        Units.Add(unit);
+        units.Add(unit);
     }
     public void Death(Unit unit)
     {
-        //ªÁ∏¡ ¿Ã∫•∆Æ ª¿‘
+        //ÏÇ¨Îßù Ïù¥Î≤§Ìä∏ ÏÇΩÏûÖ
         sUnit = unit;
         Retreat();
     }
@@ -108,31 +104,31 @@ public class UnitManager : MonoBehaviour
         switch (unit.data.type)
         {
             case UnitType.Commander:
-                Allies.Remove(unit);
+                allies.Remove(unit);
                 break;
             case UnitType.Ally:
-                Allies.Remove(unit);
+                allies.Remove(unit);
                 break;
             case UnitType.Enemy:
-                Enemies.Remove(unit);
+                enemies.Remove(unit);
                 break;
         }
 
-        Units.Remove(unit);
+        units.Remove(unit);
         HealthManager.Inst.DestroyHealthBar(unit);
         GridManager.Inst.SetTileUnitRemove(unit);
         GridManager.Inst.RevertTiles(unit);
         DestroyImmediate(unit.gameObject);
     }
 
-    void OnTurnStarted(bool myTurn)
+    private void OnTurnStarted(bool myTurn)
     {
 
     }
 
-    public void SetOrder(bool isFront)
+    public void SetOrderUnits(bool isFront)
     {
-        foreach (Unit unit in Units)
+        foreach (var unit in units)
         {
             unit.transform.position = new Vector3(unit.coords.Pos.x, unit.coords.Pos.y, isFront ? -1 : 1);
         }
@@ -142,60 +138,57 @@ public class UnitManager : MonoBehaviour
     {
         unit.SetMaterial(outlineMaterial);
 
-        if(GameManager.Inst.moveAble && unit.data.type == UnitType.Ally)
+        if (GameManager.Inst.moveAble && unit.data.type == UnitType.Ally)
         {
-            isDrag = true;
-
             GridManager.Inst.RevertTiles(unit);
             LightManager.Inst.ChangeLight(true);
             unit.move.DrawArea();
         }
-        /*if (sUnit == unit)
-            return;
-
-        if (sUnit)
-            DeSelectUnit(sUnit);
-
-        sUnit = unit;
-        sUnit_Move = sUnit.move;
-        sUnit_Card = sUnit.card;
-
-        foreach (Unit other in Units)
-        {
-            other.SetMaterial(defaultMaterial);
-        }
-        unit.SetMaterial(outlineMaterial);
-
-        LightManager.Inst.ChangeLight(true);
-        if (Allies.Contains(unit))
-        {
-            GridManager.Inst.RevertTiles(unit);
-            switch (TurnManager.Inst.paze)
-            {
-                case Paze.Draw | Paze.End | Paze.Enemy:
-                    sUnit_Move.DrawArea(false);
-                    break;
-                case Paze.Commander:
-                    sUnit_Move.DrawArea();
-                    break;
-                case Paze.Card:
-                    sUnit_Move.DrawArea(false);
-                    break;
-            }
-        }*/
     }
     public void UnitMouseExit(Unit unit)
     {
-        if (unit != sUnit)
+        if (GameManager.Inst.moveAble && unit.data.type == UnitType.Ally)
         {
-            unit.SetMaterial(defaultMaterial);
-            /*if(!GameManager.Inst.onDisplayActions)
-                unit.card.DisplayObjects(false);*/
+            if (!isDrag)
+            {
+                GridManager.Inst.RevertTiles(unit);
+                LightManager.Inst.ChangeLight(false);
+            }
+        }
+        else
+        {
+            if (unit != sUnit)
+            {
+                unit.SetMaterial(defaultMaterial);
+                /*if(!GameManager.Inst.onDisplayActions)
+                    unit.card.DisplayObjects(false);*/
+            }
         }
     }
     public void UnitMouseDown(Unit unit)
     {
-        SelectUnit(unit);
+        if (GameManager.Inst.moveAble && unit.data.type == UnitType.Ally)
+        {
+            isDrag = true;
+        }
+        else
+        {
+            SelectUnit(unit);
+        }
+    }
+    public void UnitMouseUp(Unit unit)
+    {
+        if (GameManager.Inst.moveAble && unit.data.type == UnitType.Ally)
+        {
+            if(GridManager.Inst.selectedNode)
+            {
+                
+            }
+
+            isDrag = false;
+            GridManager.Inst.RevertTiles(unit);
+            LightManager.Inst.ChangeLight(false);
+        }
     }
 
     public void SelectUnit(Unit unit, bool isCard = false)
@@ -204,10 +197,10 @@ public class UnitManager : MonoBehaviour
             DeSelectUnit(sUnit);
 
         sUnit = unit;
-        sUnit_Move = sUnit.move;
-        sUnit_Card = sUnit.card;
+        _sUnitMove = sUnit.move;
+        _sUnitCard = sUnit.card;
 
-        foreach (Unit other in Units)
+        foreach (Unit other in units)
         {
             other.SetMaterial(defaultMaterial);
             /*if (!GameManager.Inst.onDisplayActions)
@@ -216,7 +209,7 @@ public class UnitManager : MonoBehaviour
         unit.SetMaterial(outlineMaterial);
 
         LightManager.Inst.ChangeLight(true);
-        if (Enemies.Contains(unit))
+        if (enemies.Contains(unit))
         {
             /*if (unit.card.canDisplay)
             {
@@ -240,29 +233,29 @@ public class UnitManager : MonoBehaviour
             switch (TurnManager.Inst.paze)
             {
                 case Paze.Draw | Paze.End | Paze.Enemy:
-                    sUnit_Move.DrawArea(false);
+                    _sUnitMove.DrawArea(false);
                     break;
                 case Paze.Commander:
-                    sUnit_Move.DrawArea();
+                    _sUnitMove.DrawArea();
                     break;
                 case Paze.Card:
-                    sUnit_Move.DrawArea(false);
+                    _sUnitMove.DrawArea(false);
                     break;
             }
         }
 
-        infoPanel.SetActive(true); //¡§∫∏ ∆–≥Œ «•Ω√ ∫–∑˘ ¿€æ˜ ≥™¡ﬂø° «œ±‚
+        infoPanel.SetActive(true); //Ï†ïÎ≥¥ Ìå®ÎÑê ÌëúÏãú Î∂ÑÎ•ò ÏûëÏóÖ ÎÇòÏ§ëÏóê ÌïòÍ∏∞
         infoPanel.transform.GetChild(2).gameObject.SetActive(unit.data.type == UnitType.Ally);
     }
     public void DrawCardArea()
     {
         GridManager.Inst.RevertTiles(sUnit);
-        sUnit_Card.DrawArea(null, false);
+        _sUnitCard.DrawArea(null, false);
     }
     public void DrawMoveArea()
     {
         GridManager.Inst.RevertTiles(sUnit);
-        sUnit_Move.DrawArea(false);
+        _sUnitMove.DrawArea(false);
     }
     public void DeSelectUnit(Unit unit)
     {
@@ -277,8 +270,8 @@ public class UnitManager : MonoBehaviour
             unit.card.Cancel();
 
             sUnit = null;
-            sUnit_Move = null;
-            sUnit_Card = null;
+            _sUnitMove = null;
+            _sUnitCard = null;
         }
     }
 
@@ -320,7 +313,7 @@ public class UnitManager : MonoBehaviour
                             break;
                         case ActivatedType.Range:
                             List<HexCoords> targetArea = new();
-                            foreach (Unit ally in Allies)
+                            foreach (Unit ally in allies)
                                 targetArea.AddRange(ally.card.GetArea(cardInfo.data));
                             if (!(cardInfo.data.isBeforeMove ? targetArea.Exists(x => unit.move.GetArea(true).Contains(x)) : targetArea.Contains(unit.coords)))
                                 saticfiedCondition = false;
@@ -435,11 +428,11 @@ public class UnitManager : MonoBehaviour
             HexCoords targetCoords;
             if (targetCoordses.Count == 0)
             {
-                targetArea = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance).OrderBy(x => x.GetPathDistance(unit.coords)).ToList(); //ºˆ¡§« ø‰
+                targetArea = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance).OrderBy(x => x.GetPathDistance(unit.coords)).ToList(); //ÏàòÏ†ïÌïÑÏöî
                 if (targetArea.Count == 0)
                     targetCoords = targetUnit.coords;
                 else
-                    targetCoords = targetArea[0]; //ºˆ¡§« ø‰
+                    targetCoords = targetArea[0]; //ÏàòÏ†ïÌïÑÏöî
             }
             else
             {
@@ -449,14 +442,14 @@ public class UnitManager : MonoBehaviour
             yield return StartCoroutine(unit.move.OnMoveInRange(targetCoords, unit.data.range));
         }
     }
-    public Unit GetNearestUnit2(Unit unit) //∞°±ÓøÓ ¿Ø¥÷ ≈Ωªˆ, ∞≈∏Æ∞° ∞∞¿∏∏È ø¯∑° ¿Ø¥÷ ≈∏∞Ÿ ∞Ì¡§
+    public Unit GetNearestUnit2(Unit unit) //Í∞ÄÍπåÏö¥ Ïú†Îãõ ÌÉêÏÉâ, Í±∞Î¶¨Í∞Ä Í∞ôÏúºÎ©¥ ÏõêÎûò Ïú†Îãõ ÌÉÄÍ≤ü Í≥†Ï†ï
     {
         if (unit.card.data.rangeType == RangeType.Self)
             return unit;
 
         Unit targetUnit = null;
         var minDistance = 10000f;
-        foreach (Unit target in unit.card.data.cardType == CardType.Attack ? Allies : Enemies)
+        foreach (Unit target in unit.card.data.cardType == CardType.Attack ? allies : enemies)
         {
             var distance = unit.coords.GetPathDistance(target.coords);
             if (distance < minDistance)
@@ -532,11 +525,11 @@ public class UnitManager : MonoBehaviour
         var result = GetMinCoordses(startUnit, targetCoords);
         return result[Random.Range(0, result.Count)];
     }
-    public Unit GetNearestUnit(Unit startUnit, bool isEnemy = true) //¥‹º¯ ∞°±ÓøÓ ¿Ø¥÷ ≈Ωªˆ, ∞≈∏Æ∞° ∞∞¿∏∏È ¿Ø¥÷¿Ã πŸ≤ºˆµµ ¿÷¿Ω
+    public Unit GetNearestUnit(Unit startUnit, bool isEnemy = true) //Îã®Ïàú Í∞ÄÍπåÏö¥ Ïú†Îãõ ÌÉêÏÉâ, Í±∞Î¶¨Í∞Ä Í∞ôÏúºÎ©¥ Ïú†ÎãõÏù¥ Î∞îÎÄîÏàòÎèÑ ÏûàÏùå
     {
         Unit targetUnit = null;
         var minDistance = 10000f;
-        foreach (Unit unit in isEnemy ? Allies : Enemies)
+        foreach (Unit unit in isEnemy ? allies : enemies)
         {
             var distance = startUnit.coords.GetPathDistance(unit.coords);
             if (distance < minDistance)

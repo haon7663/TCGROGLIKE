@@ -45,7 +45,7 @@ public class CardManager : MonoBehaviour
     public CardInfo PopItem()
     {
         if (cardBuffer.Count == 0)
-            SetupItemBuffer(UnitManager.Inst.Allies);
+            SetupItemBuffer(UnitManager.inst.allies);
 
         CardInfo card = cardBuffer[0];
         cardBuffer.RemoveAt(0);
@@ -77,7 +77,7 @@ public class CardManager : MonoBehaviour
 
     public void StartSet()
     {
-        SetupItemBuffer(UnitManager.Inst.Allies);
+        SetupItemBuffer(UnitManager.inst.allies);
         TurnManager.OnAddCard += AddCard;
         TurnManager.OnTurnStarted += OnTurnStarted;
 
@@ -219,7 +219,7 @@ public class CardManager : MonoBehaviour
             hoveredCard = card;
             EnlargeCard(true, card);
             var unit = card.GetUnit();
-            UnitManager.Inst.SelectUnit(unit, true);
+            UnitManager.inst.SelectUnit(unit, true);
             unit.card.DrawArea(card.cardInfo.data, eCardState == ECardState.CanMouseDrag);
         }
     }
@@ -232,7 +232,7 @@ public class CardManager : MonoBehaviour
             return;
 
         EnlargeCard(false, card);
-        UnitManager.Inst.DeSelectUnit(card.unit);
+        UnitManager.inst.DeSelectUnit(card.unit);
         LightManager.Inst.ChangeLight(false);
 
         if (!selectedCard)
@@ -250,7 +250,7 @@ public class CardManager : MonoBehaviour
             return;
 
         isCardDrag = true;
-        UnitManager.Inst.SetOrder(false);
+        UnitManager.inst.SetOrderUnits(false);
         LightManager.Inst.ChangeLight(true);
     }
     public void CardMouseUp(Card card)
@@ -259,7 +259,7 @@ public class CardManager : MonoBehaviour
             return;
 
         isCardDrag = false;
-        UnitManager.Inst.SetOrder(true);
+        UnitManager.inst.SetOrderUnits(true);
 
         if (eCardState != ECardState.CanMouseDrag || onCardDeck)
             return;

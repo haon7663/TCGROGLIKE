@@ -31,6 +31,25 @@ public class HexNode : MonoBehaviour
         transform.position = this.coords.Pos;
     }
 
+
+    void OnMouseUp()
+    {
+        if (!CanWalk()) return;
+
+        var canMove = CanMove();
+        var canCard = CanCard();
+        var canArrange = CanArrange();
+
+        if (canMove.Item1)
+        {
+            canMove.Item2.move.OnMove(coords);
+        }
+        else if (canCard.Item1)
+        {
+            canCard.Item2.card.UseCard(this);
+        }
+    }
+
     void OnMouseDown()
     {
         if (!CanWalk()) return;

@@ -22,7 +22,7 @@ public class UnitArrangeManager : MonoBehaviour
             {
                 isArranged = true;
                 arrangeSR.sprite = null;
-                GridManager.Inst.RevertTiles(UnitManager.Inst.Commander);
+                GridManager.Inst.RevertTiles(UnitManager.inst.commander);
             }
             return;
         }
@@ -32,7 +32,7 @@ public class UnitArrangeManager : MonoBehaviour
             if(isArranged)
             {
                 isArranged = false;
-                GridManager.Inst.AreaDisplay(AreaType.Arrange, true, HexDirectionExtension.Area(UnitManager.Inst.Commander.coords, arrangeRange), UnitManager.Inst.Commander);
+                GridManager.Inst.AreaDisplay(AreaType.Arrange, true, HexDirectionExtension.Area(UnitManager.inst.commander.coords, arrangeRange), UnitManager.inst.commander);
             }
 
             if(GridManager.Inst.selectedNode)
@@ -60,7 +60,7 @@ public class UnitArrangeManager : MonoBehaviour
     {
         if (GridManager.Inst.selectedNode)
         {
-            UnitManager.Inst.SpawnUnit(unitData, GridManager.Inst.selectedNode);
+            UnitManager.inst.SpawnUnit(unitData, GridManager.Inst.selectedNode);
         }
 
         LightManager.Inst.ChangeLight(false);

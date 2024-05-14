@@ -12,8 +12,8 @@ public class TurnManager : MonoBehaviour
     void Awake() => Inst = this;
 
     [Header("Develop")]
-    [SerializeField][Tooltip("½ÃÀÛ ÅÏ ¸ðµå¸¦ Á¤ÇÕ´Ï´Ù")] ETurnMode eTurnMode;
-    [SerializeField][Tooltip("½ÃÀÛ Ä«µå °³¼ö¸¦ Á¤ÇÕ´Ï´Ù")] int startCardCount;
+    [SerializeField][Tooltip("ì‹œìž‘ í„´ ëª¨ë“œë¥¼ ì •í•©ë‹ˆë‹¤")] ETurnMode eTurnMode;
+    [SerializeField][Tooltip("ì‹œìž‘ ì¹´ë“œ ê°œìˆ˜ë¥¼ ì •í•©ë‹ˆë‹¤")] int startCardCount;
 
     [Header("Properties")]
     public Paze paze = Paze.Draw;
@@ -53,9 +53,9 @@ public class TurnManager : MonoBehaviour
         MoveCost = maxMoveCost;
         Energy = maxEnergy;
 
-        for (int i = UnitManager.Inst.Enemies.Count - 1; i >= 0; i--)
+        for (int i = UnitManager.inst.enemies.Count - 1; i >= 0; i--)
         {
-            yield return StartCoroutine(UnitManager.Inst.AutoSelectCard(UnitManager.Inst.Enemies[i]));
+            yield return StartCoroutine(UnitManager.inst.AutoSelectCard(UnitManager.inst.enemies[i]));
         }
 
         paze = Paze.Draw;
@@ -78,24 +78,24 @@ public class TurnManager : MonoBehaviour
 
         GridManager.Inst.StatusNode();
 
-        for (int i = UnitManager.Inst.Units.Count - 1; i >= 0; i--)
+        for (int i = UnitManager.inst.units.Count - 1; i >= 0; i--)
         {
-            StatusManager.Inst.StatusActive(UnitManager.Inst.Units[i]);
+            StatusManager.Inst.StatusActive(UnitManager.inst.units[i]);
             yield return delay05;
         }
 
         paze = Paze.Enemy;
 
-        var enemies = UnitManager.Inst.Enemies.OrderByDescending(x => x.coords.GetPathDistance(UnitManager.Inst.GetNearestUnit2(x).coords)).ToList();
+        var enemies = UnitManager.inst.enemies.OrderByDescending(x => x.coords.GetPathDistance(UnitManager.inst.GetNearestUnit2(x).coords)).ToList();
         var ableEnemies = enemies.FindAll(x => x.card.data.useType == UseType.Able);
         var shouldEnemies = enemies.FindAll(x => x.card.data.useType == UseType.Should);
         for (int i = shouldEnemies.Count - 1; i >= 0; i--)
         {
-            yield return StartCoroutine(UnitManager.Inst.Action(shouldEnemies[i], false));
+            yield return StartCoroutine(UnitManager.inst.Action(shouldEnemies[i], false));
         }
         for (int i = ableEnemies.Count - 1; i >= 0; i--)
         {
-            yield return StartCoroutine(UnitManager.Inst.Action(ableEnemies[i], true));
+            yield return StartCoroutine(UnitManager.inst.Action(ableEnemies[i], true));
             yield return delay7;
         }
 
