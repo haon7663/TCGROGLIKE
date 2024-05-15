@@ -84,7 +84,7 @@ public class StatusManager : MonoBehaviour
     }
 
     #region Calculate
-    public static int Calculate(Unit unit, CardSO data, int value = -999)
+    public static int Calculate(Unit unit, CardData data, int value = -999)
     {
         value = value == -999 ? data.value : value;
         switch (data.activeType)
@@ -100,7 +100,7 @@ public class StatusManager : MonoBehaviour
         }
         return 0;
     }
-    public static int Calculate(Unit unit, Unit targetUnit, CardSO data)
+    public static int Calculate(Unit unit, Unit targetUnit, CardData data)
     {
         switch (data.activeType)
         {

@@ -30,13 +30,12 @@ public class UnitManager : MonoBehaviour
 
     public bool isDrag;
 
-    [Header("Graphic")]
+    [Header("메테리얼")]
     [SerializeField] private Material outlineMaterial;
     [SerializeField] private Material defaultMaterial;
-    [Space]
+    
+    [Header("스프라이트")]
     [SerializeField] private Sprite attackSprite;
-    [Space]
-    [SerializeField] private GameObject infoPanel;
 
     private void Start()
     {
@@ -48,7 +47,7 @@ public class UnitManager : MonoBehaviour
     {
         foreach (var unit in FindObjectsOfType<Unit>())
         {
-            unit.Init(unit.data, GridManager.Inst.GetRandomNode().coords);
+            unit.Init(unit.data, unit.coords);
             switch (unit.data.type)
             {
                 case UnitType.Commander:
@@ -67,10 +66,10 @@ public class UnitManager : MonoBehaviour
             units.Add(unit);
         }
     }
-    public void SpawnUnit(UnitSO unitData, HexNode tile)
+    public void SpawnUnit(UnitData unitData, HexNode tile)
     {
         var unit = Instantiate(unitPrefab);
-        unit.Init(unitData, tile.coords);
+        unit.Init(unitData, tile.Coords);
 
         switch (unitData.type)
         {
@@ -116,8 +115,8 @@ public class UnitManager : MonoBehaviour
 
         units.Remove(unit);
         HealthManager.Inst.DestroyHealthBar(unit);
-        GridManager.Inst.SetTileUnitRemove(unit);
-        GridManager.Inst.RevertTiles(unit);
+        GridManager.inst.SetTileUnitRemove(unit);
+        GridManager.inst.RevertTiles(unit);
         DestroyImmediate(unit.gameObject);
     }
 
@@ -140,7 +139,7 @@ public class UnitManager : MonoBehaviour
 
         if (GameManager.Inst.moveAble && unit.data.type == UnitType.Ally)
         {
-            GridManager.Inst.RevertTiles(unit);
+            GridManager.inst.RevertTiles(unit);
             LightManager.Inst.ChangeLight(true);
             unit.move.DrawArea();
         }
@@ -151,7 +150,7 @@ public class UnitManager : MonoBehaviour
         {
             if (!isDrag)
             {
-                GridManager.Inst.RevertTiles(unit);
+                GridManager.inst.RevertTiles(unit);
                 LightManager.Inst.ChangeLight(false);
             }
         }
@@ -180,13 +179,13 @@ public class UnitManager : MonoBehaviour
     {
         if (GameManager.Inst.moveAble && unit.data.type == UnitType.Ally)
         {
-            if(GridManager.Inst.selectedNode)
+            if(GridManager.inst.selectedNode)
             {
                 
             }
 
             isDrag = false;
-            GridManager.Inst.RevertTiles(unit);
+            GridManager.inst.RevertTiles(unit);
             LightManager.Inst.ChangeLight(false);
         }
     }
@@ -200,85 +199,72 @@ public class UnitManager : MonoBehaviour
         _sUnitMove = sUnit.move;
         _sUnitCard = sUnit.card;
 
-        foreach (Unit other in units)
-        {
-            other.SetMaterial(defaultMaterial);
-            /*if (!GameManager.Inst.onDisplayActions)
-                other.card.DisplayObjects(false);*/
-        }
         unit.SetMaterial(outlineMaterial);
 
         LightManager.Inst.ChangeLight(true);
         if (enemies.Contains(unit))
         {
-            /*if (unit.card.canDisplay)
-            {
-                unit.card.DisplayObjects(true);
-            }*/
-
-            //DrawMoveArea();
-            //GridManager.Inst.SelectNodes(AreaType.Default, false, GridManager.Inst.Tiles.Values.ToList(), unit);
-
-            CinemachineManager.Inst.SetOrthoSize(true);
-            CinemachineManager.Inst.SetViewPoint(sUnit.transform.position + new Vector3(0, 1.5f));
+            CameraManager.inst.SetOrthographicSize(true);
+            CameraManager.inst.SetViewPoint(sUnit.transform.position + new Vector3(0, 1.5f));
         }
         else
         {
-            CinemachineManager.Inst.SetOrthoSize(false);
-            CinemachineManager.Inst.SetViewPoint(sUnit.transform.position);
+            CameraManager.inst.SetOrthographicSize(false);
+            CameraManager.inst.SetViewPoint(sUnit.transform.position);
 
-            GridManager.Inst.RevertTiles(unit);
+            GridManager.inst.RevertTiles(unit);
             if (isCard) return;
 
             switch (TurnManager.Inst.paze)
             {
-                case Paze.Draw | Paze.End | Paze.Enemy:
-                    _sUnitMove.DrawArea(false);
-                    break;
                 case Paze.Commander:
                     _sUnitMove.DrawArea();
                     break;
-                case Paze.Card:
+                default:
                     _sUnitMove.DrawArea(false);
                     break;
             }
         }
-
-        infoPanel.SetActive(true); //정보 패널 표시 분류 작업 나중에 하기
-        infoPanel.transform.GetChild(2).gameObject.SetActive(unit.data.type == UnitType.Ally);
-    }
-    public void DrawCardArea()
-    {
-        GridManager.Inst.RevertTiles(sUnit);
-        _sUnitCard.DrawArea(null, false);
-    }
-    public void DrawMoveArea()
-    {
-        GridManager.Inst.RevertTiles(sUnit);
-        _sUnitMove.DrawArea(false);
+        
+        UIManager.inst.OpenInfoPanel();
     }
     public void DeSelectUnit(Unit unit)
     {
-        if(unit)
-        {
-            infoPanel.SetActive(false);
-            unit.SetMaterial(defaultMaterial);
-            /*if (!GameManager.Inst.onDisplayActions)
-                unit.card.DisplayObjects(false);*/
-            GridManager.Inst.RevertTiles(unit);
-            LightManager.Inst.ChangeLight(false);
-            unit.card.Cancel();
+        if (!unit)
+            return;
+        
+        unit.SetMaterial(defaultMaterial);
+        unit.card.Cancel();
+        GridManager.inst.RevertTiles(unit);
+        LightManager.Inst.ChangeLight(false);
 
-            sUnit = null;
-            _sUnitMove = null;
-            _sUnitCard = null;
-        }
+        if (sUnit != unit)
+            return;
+
+        sUnit = null;
+        _sUnitMove = null;
+        _sUnitCard = null;
+        
+        //인포패널 닫기 추가요망
     }
+    
+    public void DrawCardArea()
+    {
+        GridManager.inst.RevertTiles(sUnit);
+        _sUnitCard.DrawRange(null, false);
+    }
+    public void DrawMoveArea()
+    {
+        GridManager.inst.RevertTiles(sUnit);
+        _sUnitMove.DrawArea(false);
+    }
+
+    #region UnitAlgorithm
 
     public IEnumerator AutoSelectCard(Unit unit)
     {
         List<CardInfo> cardInfos = new();
-        foreach (CardInfo cardInfo in unit.data._CardInfo)
+        foreach (CardInfo cardInfo in unit.data.cardInfo)
         {
             if (cardInfo.data.conditions.Count == 0)
             {
@@ -353,7 +339,7 @@ public class UnitManager : MonoBehaviour
         unit.card.SetUp(info, value);
         if (info.data.useType == UseType.Should)
         {
-            var targetUnit = GetNearestUnit2(unit);
+            var targetUnit = GetNearestUnit(unit);
             unit.card.canDisplay = true;
             unit.targetCoords = targetUnit.coords;
             unit.SetFlipX(unit.transform.position.x < unit.targetCoords.Pos.x);
@@ -377,47 +363,44 @@ public class UnitManager : MonoBehaviour
             {
                 yield return StartCoroutine(MoveUnit(unit, unit.targetUnit));
 
-                if (unit.targetUnit.card.GetArea(unit.card.data).Contains(unit.coords))
+                if (unit.targetUnit.card.GetArea(unit.card.CardData).Contains(unit.coords))
                 {
                     yield return YieldInstructionCache.WaitForSeconds(0.7f);
-                    yield return StartCoroutine(unit.card.UseCard(GridManager.Inst.GetTile(unit.targetUnit)));
+                    yield return StartCoroutine(unit.card.UseCard(GridManager.inst.GetTile(unit.targetUnit)));
                 }
             }
         }
         else
         {
-            yield return StartCoroutine(unit.card.UseCard(GridManager.Inst.GetTile(unit.targetCoords)));
+            yield return StartCoroutine(unit.card.UseCard(GridManager.inst.GetTile(unit.targetCoords)));
             /*foreach(var displayObject in unit.card.selectedTiles)
             {
                 Destroy(displayObject);
             }*/
         }
     }
-
-    #region UnitAlgorithm
-
-    IEnumerator MoveUnit(Unit unit, Unit targetUnit)
+    private IEnumerator MoveUnit(Unit unit, Unit targetUnit)
     {
         if (StatusManager.CanMove(unit))
         {
             unit.SetFlipX(unit.transform.position.x < targetUnit.transform.position.x);
 
             var targetDistance = 1;
-            switch (unit.card.data.recommendedDistanceType)
+            switch (unit.card.CardData.recommendedDistanceType)
             {
                 case RecommendedDistanceType.Far:
-                    targetDistance = unit.card.data.range;
+                    targetDistance = unit.card.CardData.range;
                     break;
                 case RecommendedDistanceType.Close:
                     targetDistance = 1;
                     break;
                 case RecommendedDistanceType.Custom:
-                    targetDistance = unit.card.data.recommendedDistance;
+                    targetDistance = unit.card.CardData.recommendedDistance;
                     break;
             }
 
-            List<HexCoords> targetArea = unit.card.data.rangeType == RangeType.Self ? unit.move.GetArea(true) : targetUnit.card.GetArea(unit.card.data, unit);
-            targetArea = targetArea.FindAll(x => GridManager.Inst.GetTile(x).CanWalk() || x == unit.coords);
+            List<HexCoords> targetArea = unit.card.CardData.rangeType == RangeType.Self ? unit.move.GetArea(true) : targetUnit.card.GetArea(unit.card.CardData, unit);
+            targetArea = targetArea.FindAll(x => GridManager.inst.GetTile(x).CanWalk() || x == unit.coords);
             List<HexCoords> targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance && unit.move.GetArea(true).Contains(x));
             for (int i = targetDistance - 1; i > 0 && targetCoordses.Count == 0; i--)
             {
@@ -442,14 +425,14 @@ public class UnitManager : MonoBehaviour
             yield return StartCoroutine(unit.move.OnMoveInRange(targetCoords, unit.data.range));
         }
     }
-    public Unit GetNearestUnit2(Unit unit) //가까운 유닛 탐색, 거리가 같으면 원래 유닛 타겟 고정
+    public Unit GetNearestUnit(Unit unit) //가까운 유닛 탐색, 거리가 같으면 원래 유닛 타겟 고정
     {
-        if (unit.card.data.rangeType == RangeType.Self)
+        if (unit.card.CardData.rangeType == RangeType.Self)
             return unit;
 
         Unit targetUnit = null;
         var minDistance = 10000f;
-        foreach (Unit target in unit.card.data.cardType == CardType.Attack ? allies : enemies)
+        foreach (Unit target in unit.card.CardData.cardType == CardType.Attack ? allies : enemies)
         {
             var distance = unit.coords.GetPathDistance(target.coords);
             if (distance < minDistance)
@@ -462,111 +445,7 @@ public class UnitManager : MonoBehaviour
         unit.targetUnit = targetUnit;
         return targetUnit;
     }
-
-    #region Trash
-    public void FollowUnit(Unit startUnit, Unit targetUnit)
-    {
-        var coordses = GetMinCoordses(startUnit, targetUnit.coords);
-
-        //startUnit.move.OnMove(coordses[Random.Range(0, coordses.Count)]);
-    }
-    public HexCoords? FollowRange(Unit startUnit, Unit targetUnit)
-    {
-        Dictionary<HexCoords, float> coordses = new();
-        var minDistance = 10000f;
-        foreach (var coords in targetUnit.card.GetArea(startUnit.card.data))
-        {
-            if (coords == startUnit.coords) return null;
-
-            var distance = coords.GetPathDistance(startUnit.coords);
-            if (distance <= minDistance)
-            {
-                minDistance = distance;
-                coordses.Add(coords, distance);
-            }
-        }
-        var minCoordses = new List<HexCoords>();
-        foreach (var coords in coordses)
-        {
-            if (coords.Value == minDistance)
-            {
-                minCoordses.Add(coords.Key);
-            }
-        }
-
-        HexCoords targetCoords = new();
-        /*if (startUnit.card.data.shouldClose)
-        {
-            var min = 10000f;
-            foreach (var coords in minCoordses)
-            {
-                var distance = coords.GetPathDistance(targetUnit.coords);
-                if (distance <= min)
-                {
-                    min = distance;
-                    targetCoords = coords;
-                }
-            }
-        }
-        else
-        {
-            var max = 0f;
-            foreach (var coords in minCoordses)
-            {
-                var distance = coords.GetPathDistance(targetUnit.coords);
-                if (distance >= max)
-                {
-                    max = distance;
-                    targetCoords = coords;
-                }
-            }
-        }
-        */
-        var result = GetMinCoordses(startUnit, targetCoords);
-        return result[Random.Range(0, result.Count)];
-    }
-    public Unit GetNearestUnit(Unit startUnit, bool isEnemy = true) //단순 가까운 유닛 탐색, 거리가 같으면 유닛이 바뀔수도 있음
-    {
-        Unit targetUnit = null;
-        var minDistance = 10000f;
-        foreach (Unit unit in isEnemy ? allies : enemies)
-        {
-            var distance = startUnit.coords.GetPathDistance(unit.coords);
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-                targetUnit = unit;
-            }
-        }
-        startUnit.targetUnit = targetUnit;
-        return targetUnit;
-    }
-    List<HexCoords> GetMinCoordses(Unit startUnit, HexCoords targetCoords)
-    {
-        if (startUnit.coords == targetCoords) return new List<HexCoords> { startUnit.coords };
-
-        Dictionary<HexCoords, float> coordses = new();
-        var minDistance = 10000f;
-        foreach (var coords in startUnit.move.GetArea())
-        {
-            var distance = coords.GetPathDistance(targetCoords);
-            if (distance <= minDistance)
-            {
-                minDistance = distance;
-                coordses.Add(coords, distance);
-            }
-        }
-
-        var minCoordses = new List<HexCoords>();
-        foreach (var coords in coordses)
-        {
-            if (coords.Value == minDistance)
-                minCoordses.Add(coords.Key);
-        }
-
-        return minCoordses;
-    }
-    #endregion
+    
     #endregion
 
     void OnDestroy()

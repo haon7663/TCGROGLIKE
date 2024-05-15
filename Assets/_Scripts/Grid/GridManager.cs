@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public enum DisplayType { Area, Arrow }
@@ -8,35 +9,31 @@ public enum AreaType { Select, Move, Attack, Buff, Arrange }
 
 public class GridManager : MonoBehaviour
 {
-    public static GridManager Inst;
-    void Awake()
+    public static GridManager inst;
+    public Dictionary<Vector2, HexNode> Tiles { get; private set; }
+    private void Awake()
     {
-        Inst = this;
+        inst = this;
 
-        Tiles = _scriptableGrid.GenerateGrid();
+        Tiles = scriptableGrid.GenerateGrid();
         foreach (var tile in Tiles.Values) tile.CacheNeighbors();
-        OnTileUnits = new Dictionary<Vector2, Unit>();
     }
 
-    [SerializeField] ScriptableGrid _scriptableGrid;
-    //[SerializeField] bool _drawConnections;
-
-    public Dictionary<Vector2, HexNode> Tiles { get; private set; }
-    public Dictionary<Vector2, Unit> OnTileUnits { get; private set; }
+    [SerializeField] private ScriptableGrid scriptableGrid;
     public HexNode selectedNode;
 
-    [SerializeField] GameObject areaPrefab;
-    [SerializeField] Sprite areaSprite;
-    [SerializeField] Color selectAreaColor;
-    [SerializeField] Color moveAreaColor;
-    [SerializeField] Color attackAreaColor;
-    [SerializeField] Color buffAreaColor;
-    [SerializeField] Color arrangeAreaColor;
-    [SerializeField] RuntimeAnimatorController hatch;
+    [SerializeField] private GameObject areaPrefab;
+    [SerializeField] private Sprite areaSprite;
+    [SerializeField] private Color selectAreaColor;
+    [SerializeField] private Color moveAreaColor;
+    [SerializeField] private Color attackAreaColor;
+    [SerializeField] private Color buffAreaColor;
+    [SerializeField] private Color arrangeAreaColor;
+    [SerializeField] private RuntimeAnimatorController hatch;
 
     public void AreaDisplay(AreaType areaType, bool canSelect, List<HexNode> tiles, Unit unit)
     {
-        foreach (HexNode t in tiles)
+        foreach (var t in tiles)
         {
             var color = Color.white;
             switch (areaType)
@@ -73,20 +70,22 @@ public class GridManager : MonoBehaviour
                 displayArea = Instantiate(areaPrefab, t.transform.GetChild(0).transform);
                 displayArea.transform.localPosition = Vector2.zero;
             }
+            
             displayArea.SetActive(true);
             displayArea.GetComponent<Animator>().enabled = !canSelect;
+            
             var displaySpriteRenderer = displayArea.GetComponent<SpriteRenderer>();
             displaySpriteRenderer.color = canSelect ? new Color(color.r, color.g, color.b, 0.2f) : new Color(color.r, color.g, color.b, 0.5f);
             displaySpriteRenderer.sprite = areaSprite;
 
-            foreach (HexDirection direction in HexDirectionExtension.Loop(HexDirection.EN))
+            foreach (var direction in HexDirectionExtension.Loop(HexDirection.EN))
             {
-                var isContain = !tiles.Contains(GetTile(t.coords + direction.Coords()));
+                var isContain = !tiles.Contains(GetTile(t.Coords + direction.Coords()));
                 displayArea.transform.GetChild((int)direction).gameObject.SetActive(isContain);
                 if (isContain)
                     displayArea.transform.GetChild((int)direction).GetComponent<SpriteRenderer>().color = color;
             }
-            displayArea.GetComponent<DisplayNode>().Get(areaType, canSelect, unit);
+            displayArea.GetComponent<RangeDisplayer>().Get(areaType, canSelect, unit);
         }
     }
 
@@ -123,9 +122,7 @@ public class GridManager : MonoBehaviour
     #region SetTileUnit
     public void SetTileUnit(HexCoords hexCoords, Unit unit)
     {
-        GetTile(hexCoords).OnUnit(unit);
-        OnTileUnits.Add(hexCoords.Pos, unit);
-        SetWalkable();
+        GetTile(hexCoords).PutUnit(unit);
     }
     public bool SetTileUnit(HexCoords prevCoords, HexCoords nextCoords, Unit unit)
     {
@@ -134,18 +131,13 @@ public class GridManager : MonoBehaviour
         if (GetTile(nextCoords)?.CanWalk() != true)
             return false;
 
-        GetTile(nextCoords).OnUnit(unit);
-        OnTileUnits.Add(nextCoords.Pos, unit);
-        GetTile(prevCoords).OnUnit(unit, true);
-        OnTileUnits.Remove(prevCoords.Pos);
-        SetWalkable();
+        GetTile(nextCoords).PutUnit(unit);
+        GetTile(prevCoords).RemoveUnit(unit);
         return true;
     }
     public void SetTileUnitRemove(Unit unit)
     {
-        GetTile(unit).OnUnit(unit, true);
-        OnTileUnits.Remove(unit.coords.Pos);
-        SetWalkable();
+        GetTile(unit).RemoveUnit(unit);
     }
     #endregion    
     #region GetTile
@@ -164,40 +156,26 @@ public class GridManager : MonoBehaviour
     }
     #endregion
     #region GetUnit
-    public Unit GetUnit(HexNode hexNode) => OnTileUnits.ContainsKey(hexNode.coords.Pos) ? OnTileUnits[hexNode.coords.Pos] : null;
-    public Unit GetUnit(HexCoords hexCoords) => OnTileUnits.ContainsKey(hexCoords.Pos) ? OnTileUnits[hexCoords.Pos] : null;
-    public Unit GetUnit(Vector2 pos) => OnTileUnits.ContainsKey(pos) ? OnTileUnits[pos] : null;
-    #endregion
-
-    public void SetWalkable()
+    public Unit GetUnit(HexNode hexNode) => hexNode.OnUnit ? hexNode.Unit : null;
+    public Unit GetUnit(HexCoords hexCoords)
     {
-        foreach (KeyValuePair<Vector2, HexNode> tile in Tiles)
-            tile.Value.onUnit = OnTileUnits.ContainsKey(tile.Value.coords.Pos);
+        var hexNode = GetTile(hexCoords);
+        return hexNode.OnUnit ? hexNode.Unit : null;
     }
+    public Unit GetUnit(Vector2 pos)
+    {
+        var hexNode = GetTile(pos);
+        return hexNode.OnUnit ? hexNode.Unit : null;
+    }
+    #endregion
+    
     public HexNode GetRandomNode() => Tiles.Where(t => t.Value.CanWalk()).OrderBy(t => Random.value).First().Value;
     public void StatusNode()
     {
-        foreach (var tile in Tiles.Where(t => t.Value.onUnit && t.Value.statuses.Count != 0))
+        foreach (var tile in Tiles.Where(t => t.Value.OnUnit && t.Value.statuses.Count != 0))
         {
             print(tile.Value.statuses[0].data.name);
             StatusManager.Inst.AddUnitStatus(tile.Value.statuses, GetUnit(tile.Value));
         }
     }
-    /*public void ShowEntire(List<HexNode> tiles = null)
-    {
-        foreach (var tile in Tiles)
-            if(tiles.Contains(tile.Value) == false)
-                tile.Value.OnDisplay(DisplayType.Outline);
-    }*/
-
-    /*void OnDrawGizmos()
-    {
-        if (!Application.isPlaying) return;
-        Gizmos.color = Color.red;
-        foreach (var t in Tiles)
-        {
-            if (t.Value.Connection == null) continue;
-            Gizmos.DrawLine((Vector3)t.Key + new Vector3(0, 0, -1), (Vector3)t.Value.Connection.coords.Pos + new Vector3(0, 0, -1));
-        }
-    }*/
 }

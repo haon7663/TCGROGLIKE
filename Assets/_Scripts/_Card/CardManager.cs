@@ -5,42 +5,45 @@ using System;
 using System.Linq;
 using Random = UnityEngine.Random;
 using DG.Tweening;
+using UnityEngine.Serialization;
 
 public class CardManager : MonoBehaviour
 {
     public static CardManager Inst { get; private set; }
+    private void Awake() => Inst = this;
+    
+    private enum ECardState { Noting, CanMouseOver, CanMouseDrag }
 
-    void Awake() => Inst = this;
+    [Header("카드 상태")]
+    [SerializeField] private ECardState eCardState;
+    
+    [Header("프리팹")]
+    [SerializeField] private GameObject cardPrefab;
+    
+    [Header("덱")]
+    [SerializeField] private List<CardInfo> cardBuffer;
+    [SerializeField] private List<Card> cards;
+    [SerializeField] private List<CardInfo> trashCards;
+    [SerializeField] private List<CardInfo> exhaustCards;
+    
+    [Header("트랜스폼")]
+    [SerializeField] private Transform cardSpawnPoint;
+    [SerializeField] private Transform cardTrashPoint;
+    [SerializeField] private Transform cardBundle;
+    [SerializeField] private Transform cardDeck;
+    [SerializeField] private Transform cardLeftSetter;
+    [SerializeField] private Transform cardRightSetter;
+    
+    [SerializeField] private int deckCount;
+    
+   [HideInInspector] public List<CardInfo> cardInfos;
 
-    [HideInInspector] public List<CardInfo> _CardSO;
+    private Card _hoveredCard;
+    private Card _selectedCard;
 
-    [SerializeField] ECardState eCardState;
-    [Space]
-    [SerializeField] GameObject cardPrefab;
-    [Space]
-    [SerializeField] List<CardInfo> cardBuffer;
-    [SerializeField] List<Card> cards;
-    [SerializeField] List<CardInfo> trashCards;
-    [SerializeField] List<CardInfo> exhaustCards;
-    [Space(20)]
-    [SerializeField] Transform cardSpawnPoint;
-    [SerializeField] Transform cardTrashPoint;
-    [SerializeField] Transform cardBundle;
-    [SerializeField] Transform cardDeck;
-    [SerializeField] Transform cardLeftSetter;
-    [SerializeField] Transform cardRightSetter;
-
-    [SerializeField] int deckCount;
-
-    public Card hoveredCard;
-    Card selectedCard;
-    List<Card> usingCards = new List<Card>();
-
-    bool isCardDrag;
-    bool onCardArea;
-    bool onCardDeck;
-
-    enum ECardState { Noting, CanMouseOver, CanMouseDrag }
+    private bool _isCardDrag;
+    private bool _onCardArea;
+    private bool _onCardDeck;
 
     public CardInfo PopItem()
     {
@@ -52,25 +55,25 @@ public class CardManager : MonoBehaviour
         return card;
     }
 
-    void SetupItemBuffer(List<Unit> units)
+    private void SetupItemBuffer(List<Unit> units)
     {
         cardBuffer = new List<CardInfo>();
         trashCards = new List<CardInfo>();
 
-        for(int i = units.Count - 1; i >= 0; i--)
+        for(var i = units.Count - 1; i >= 0; i--)
         {
-            foreach (CardInfo cardInfo in units[i].data._CardInfo)
+            foreach (var cardInfo in units[i].data.cardInfo)
             {
-                for (int j = 0; j < cardInfo.count; j++)
+                for (var j = 0; j < cardInfo.count; j++)
                 {
                     cardInfo.unit = units[i];
                     cardBuffer.Add(new CardInfo(cardInfo));
                 }
             }
         }
-        for(int i = 0; i < cardBuffer.Count; i++)
+        for(var i = 0; i < cardBuffer.Count; i++)
         {
-            int rand = Random.Range(i, cardBuffer.Count);
+            var rand = Random.Range(i, cardBuffer.Count);
             (cardBuffer[rand], cardBuffer[i]) = (cardBuffer[i], cardBuffer[rand]);
         }
     }
@@ -95,17 +98,12 @@ public class CardManager : MonoBehaviour
 
     void Update()
     {
-        if (isCardDrag)
+        if (_isCardDrag)
             CardDrag();
 
         SetCardLR(cards.Count);
         DetectCardArea();
         SetECardState();
-
-        for (int i = 0; i < usingCards.Count; i++)
-        {
-            PutCard(usingCards[i]);
-        }
     }
 
     void AddCard()
@@ -185,16 +183,15 @@ public class CardManager : MonoBehaviour
 
     public void PutCard(Card card)
     {
-        StartCoroutine(card.unit.card.UseCard(GridManager.Inst.selectedNode));
-
-        usingCards.Remove(card);
+        StartCoroutine(card.unit.card.UseCard(GridManager.inst.selectedNode));
+        
         cards.Remove(card);
         trashCards.Add(card.cardInfo);
         card.transform.DOKill();
         DestroyImmediate(card.gameObject);
 
-        hoveredCard = null;
-        selectedCard = null;
+        _hoveredCard = null;
+        _selectedCard = null;
         CardAlignment();
     }
 
@@ -202,78 +199,65 @@ public class CardManager : MonoBehaviour
 
     public void CardMouseOver(Card card)
     {
-        if (usingCards.Contains(card))
-            return;
-
-        if (onCardDeck)
+        if (_onCardDeck)
         {
             EnlargeCard(true, card, true);
             return;
         }
 
-        if (eCardState == ECardState.Noting || selectedCard)
+        if (eCardState == ECardState.Noting || _selectedCard)
             return;
-        if (hoveredCard != card)
+        if (_hoveredCard != card)
         {
             LightManager.Inst.ChangeLight(true);
-            hoveredCard = card;
+            _hoveredCard = card;
             EnlargeCard(true, card);
             var unit = card.GetUnit();
             UnitManager.inst.SelectUnit(unit, true);
-            unit.card.DrawArea(card.cardInfo.data, eCardState == ECardState.CanMouseDrag);
+            unit.card.DrawRange(card.cardInfo.data, eCardState == ECardState.CanMouseDrag);
         }
     }
     public void CardMouseExit(Card card)
     {
-        if (usingCards.Contains(card))
-            return;
-
-        if (selectedCard == card)
+        if (_selectedCard == card)
             return;
 
         EnlargeCard(false, card);
         UnitManager.inst.DeSelectUnit(card.unit);
         LightManager.Inst.ChangeLight(false);
 
-        if (!selectedCard)
+        if (!_selectedCard)
         {
-            GridManager.Inst.RevertTiles(card.unit);
+            GridManager.inst.RevertTiles(card.unit);
         }
-        if (hoveredCard == card) hoveredCard = null;
+        if (_hoveredCard == card) _hoveredCard = null;
     }
     public void CardMouseDown(Card card)
     {
-        if (usingCards.Contains(card))
+        if (eCardState != ECardState.CanMouseDrag || _onCardDeck)
             return;
 
-        if (eCardState != ECardState.CanMouseDrag || onCardDeck)
-            return;
-
-        isCardDrag = true;
+        _isCardDrag = true;
         UnitManager.inst.SetOrderUnits(false);
         LightManager.Inst.ChangeLight(true);
     }
     public void CardMouseUp(Card card)
     {
-        if (usingCards.Contains(card))
-            return;
-
-        isCardDrag = false;
+        _isCardDrag = false;
         UnitManager.inst.SetOrderUnits(true);
 
-        if (eCardState != ECardState.CanMouseDrag || onCardDeck)
+        if (eCardState != ECardState.CanMouseDrag || _onCardDeck)
             return;
 
         LightManager.Inst.ChangeLight(false);
-        hoveredCard.ShowLiner(false);
-        if (!onCardArea)
-            usingCards.Add(card);
-        else
-        {
-            selectedCard = null;
-            hoveredCard = null;
-            EnlargeCard(false, card);
-        }
+        _hoveredCard.ShowLiner(false);
+        
+        if (!_onCardArea)
+            return;
+        
+        _selectedCard = null;
+        _hoveredCard = null;
+        EnlargeCard(false, card);
     }
 
     void CardDrag()
@@ -281,18 +265,18 @@ public class CardManager : MonoBehaviour
         if (eCardState != ECardState.CanMouseDrag)
             return;
 
-        SelectCard(true, hoveredCard);
-        if (onCardArea)
+        SelectCard(true, _hoveredCard);
+        if (_onCardArea)
         {
-            hoveredCard.MoveTransform(new PRS(Utils.MousePos, Utils.QI, hoveredCard.originPRS.scale), false, 0, false);
-            hoveredCard.ShowLiner(false);
+            _hoveredCard.MoveTransform(new PRS(Utils.MousePos, Utils.QI, _hoveredCard.originPRS.scale), false, 0, false);
+            _hoveredCard.ShowLiner(false);
         }
         else
         {
-            selectedCard.ShowLiner();
-            if(selectedCard.cardInfo.data.rangeType == RangeType.Self)
+            _selectedCard.ShowLiner();
+            if(_selectedCard.cardInfo.data.rangeType == RangeType.Self)
             {
-                var tile = GridManager.Inst.GetTile(selectedCard.unit);
+                var tile = GridManager.inst.GetTile(_selectedCard.unit);
                 //tile.OnDisplay(AreaType.Select);
             }
         }
@@ -303,7 +287,7 @@ public class CardManager : MonoBehaviour
     {
         RaycastHit2D[] hits = Physics2D.RaycastAll(Utils.MousePos, Vector3.forward);
         int layer = LayerMask.NameToLayer("CardArea");
-        onCardArea = Array.Exists(hits, x => x.collider.gameObject.layer == layer);
+        _onCardArea = Array.Exists(hits, x => x.collider.gameObject.layer == layer);
     }
 
     void EnlargeCard(bool isEnlarge, Card card, bool isOriginPos = false)
@@ -322,14 +306,14 @@ public class CardManager : MonoBehaviour
     {
         if (isSelect)
         {
-            selectedCard = card;
+            _selectedCard = card;
             Vector3 enlargePos = new Vector3(0, -4.06f, -9);
             card.MoveTransform(new PRS(enlargePos, Utils.QI, Vector3.one), true, 0.1f);
         }
         else
         {
-            selectedCard.ShowLiner(false);
-            selectedCard = null;
+            _selectedCard.ShowLiner(false);
+            _selectedCard = null;
             card.MoveTransform(card.originPRS, true, 0.3f);
         }
 
@@ -368,9 +352,9 @@ public class CardManager : MonoBehaviour
     List<Card> openedCards = new List<Card>();
     void OpenDeck(List<CardInfo> cardsInfo)
     {
-        onCardDeck = !onCardDeck;
-        cardDeck.gameObject.SetActive(onCardDeck);
-        if (onCardDeck)
+        _onCardDeck = !_onCardDeck;
+        cardDeck.gameObject.SetActive(_onCardDeck);
+        if (_onCardDeck)
         {
             cardsInfo = cardsInfo.OrderBy(x => x.data.name).ToList();
             for (int i = 0; i < cardsInfo.Count; i++)

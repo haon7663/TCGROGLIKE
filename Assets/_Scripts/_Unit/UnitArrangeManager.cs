@@ -4,67 +4,53 @@ using UnityEngine;
 
 public class UnitArrangeManager : MonoBehaviour
 {
-    public static UnitArrangeManager Inst;
-    void Awake() => Inst = this;
+    public static UnitArrangeManager inst;
 
-    public UnitSO unitData;
+    private void Awake()
+    {
+        inst = this;
+    }
+    
     public bool isArrange;
     public int arrangeRange;
-    bool isArranged;
+    private UnitData _unitData;
 
-    [SerializeField] SpriteRenderer arrangeSR;
+    [SerializeField] private SpriteRenderer arrangeSR;
 
-    void Update()
+    private void Update()
     {
-        if(!isArrange)
-        {
-            if (!isArranged)
-            {
-                isArranged = true;
-                arrangeSR.sprite = null;
-                GridManager.Inst.RevertTiles(UnitManager.inst.commander);
-            }
+        if (!_unitData)
             return;
-        }
+        
+        GridManager.inst.AreaDisplay(AreaType.Arrange, true, HexDirectionExtension.Area(UnitManager.inst.commander.coords, arrangeRange), UnitManager.inst.commander);
 
-        if(unitData)
+        if(GridManager.inst.selectedNode)
         {
-            if(isArranged)
-            {
-                isArranged = false;
-                GridManager.Inst.AreaDisplay(AreaType.Arrange, true, HexDirectionExtension.Area(UnitManager.inst.commander.coords, arrangeRange), UnitManager.inst.commander);
-            }
-
-            if(GridManager.Inst.selectedNode)
-            {
-                arrangeSR.transform.position = GridManager.Inst.selectedNode.coords.Pos;
-            }
-            else
-            {
-                arrangeSR.transform.position = Utils.MousePos;
-            }
-            arrangeSR.sprite = unitData.sprite;
+            arrangeSR.transform.position = GridManager.inst.selectedNode.Coords.Pos;
         }
+        else
+        {
+            arrangeSR.transform.position = Utils.MousePos;
+        }
+        arrangeSR.sprite = _unitData.sprite;
     }
-    public void MouseExit(UnitSO unitData)
+    public void MouseExit(UnitData unitData)
     {
 
     }
-    public void MouseDown(UnitSO unitData)
+    public void MouseDown(UnitData unitData)
     {
         LightManager.Inst.ChangeLight(true);
-        isArrange = true;
-        this.unitData = unitData;
+        this._unitData = unitData;
     }
-    public void MouseUp(UnitSO unitData)
+    public void MouseUp(UnitData unitData)
     {
-        if (GridManager.Inst.selectedNode)
+        if (GridManager.inst.selectedNode)
         {
-            UnitManager.inst.SpawnUnit(unitData, GridManager.Inst.selectedNode);
+            UnitManager.inst.SpawnUnit(unitData, GridManager.inst.selectedNode);
         }
 
         LightManager.Inst.ChangeLight(false);
-        isArrange = false;
-        this.unitData = null;
+        this._unitData = null;
     }
 }

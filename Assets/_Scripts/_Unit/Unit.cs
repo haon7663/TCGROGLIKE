@@ -18,7 +18,7 @@ public class Unit : MonoBehaviour
     TMP_Text actionText;
 
     public HexCoords coords;
-    public UnitSO data;
+    public UnitData data;
 
     [Header("Stats")]
     public int hp;
@@ -49,7 +49,7 @@ public class Unit : MonoBehaviour
             actionText = text;
     }
 
-    public void Init(UnitSO data, HexCoords coords)
+    public void Init(UnitData data, HexCoords coords)
     {
         this.data = Instantiate(data);
 
@@ -60,12 +60,12 @@ public class Unit : MonoBehaviour
 
         this.coords = coords;
         transform.position = coords.Pos - Vector3.forward;
-        GridManager.Inst.SetTileUnit(coords, this);
+        GridManager.inst.SetTileUnit(coords, this);
     }
 
     public void Repeat(HexNode hexNode)
     {
-        spriteRenderer.flipX = hexNode.coords.Pos.x > transform.position.x;
+        spriteRenderer.flipX = hexNode.Coords.Pos.x > transform.position.x;
     }
 
     #region OnReceive
@@ -130,8 +130,8 @@ public class Unit : MonoBehaviour
     }
     void OnMouseUp()
     {
-        if(UnitManager.inst.downedUnit == this)
-            UnitManager.inst.UnitMouseUp(this);
+        //if(UnitManager.inst.downedUnit == this)
+            //UnitManager.inst.UnitMouseUp(this);
     }
 
     #region Animations

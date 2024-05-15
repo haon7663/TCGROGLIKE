@@ -10,8 +10,8 @@ public enum KnockbackType { FromUnit, FromPoint }
 public enum RecommendedDistanceType { Far, Close, Custom }
 public enum ActionTriggerType { Instant, Custom }
 
-[CreateAssetMenu(fileName = "CardSO", menuName = "Scriptable Object/CardSO")]
-public class CardSO : ScriptableObject
+[CreateAssetMenu(fileName = "CardData", menuName = "Scriptable Object/CardData")]
+public class CardData : ScriptableObject
 {
     public Sprite sprite;
     public GameObject prefab;
@@ -21,17 +21,17 @@ public class CardSO : ScriptableObject
     [Space]
     public CardType cardType;
 
-    [Header("È¿°ú")]
+    [Header("ì¹´ë“œ íƒ€ì…")]
     public ActiveType activeType;
 
-    [Header("¹üÀ§")]
+    [Header("ì‚¬ê±°ë¦¬")]
     public RangeType rangeType;
     public bool onSelf;
     public int range;
     [DrawIf("rangeType", RangeType.Area)] public bool canSelectAll = true;
     [DrawIf("rangeType", RangeType.Liner)] public int lineWidth = 1;
 
-    [Header("¼±ÅÃ")]
+    [Header("ì‚¬ìš© íš¨ê³¼")]
     public SelectType selectType;
     public int multiShot = 1;
     [DrawIf("selectType", SelectType.Splash)] public int splashRange = 1;
@@ -39,7 +39,7 @@ public class CardSO : ScriptableObject
     [DrawIf("selectType", SelectType.Liner)] public int bulletNumber = 1;
     [DrawIf("selectType", SelectType.Liner)] public bool isPenetrate = false;
 
-    [Header("Æ¯¼öÈ¿°ú")]
+    [Header("íŠ¹ìˆ˜ íš¨ê³¼")]
     public List<StatusInfo> statuses;
     public bool isMove;
     [DrawIf("isMove", true)] public bool isJump;
@@ -47,7 +47,7 @@ public class CardSO : ScriptableObject
     [DrawIf("isKnockback", true)] public KnockbackType knockbackType;
     [DrawIf("isKnockback", true)] public int knockbackPower;
 
-    [Header("ÃßÃµ ¼±ÅÃ °æ·Î")]
+    [Header("ì¸ê³µì§€ëŠ¥")]
     public UseType useType;
     public RecommendedDistanceType recommendedDistanceType = RecommendedDistanceType.Close;
     [DrawIf("recommendedDistanceType", RecommendedDistanceType.Custom)] public int recommendedDistance = 1;
@@ -55,7 +55,7 @@ public class CardSO : ScriptableObject
     [DrawIf("useType", UseType.Should)] public bool isAfterMove;
     public List<Condition> conditions;
 
-    [Header("ºñÁÖ¾ó")]
+    [Header("ì• ë‹ˆë©”ì´ì…˜")]
     public ActionTriggerType actionTriggerType;
     [DrawIf("actionTriggerType", ActionTriggerType.Custom)] public float actionTriggerTime = 0.1f;
 }
@@ -64,7 +64,7 @@ public class CardSO : ScriptableObject
 public class CardInfo
 {
     [HideInInspector] public Unit unit;
-    public CardSO data;
+    public CardData data;
     public int count;
     public int priority;
     public int turnCount;

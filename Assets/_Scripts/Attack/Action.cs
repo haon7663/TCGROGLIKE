@@ -7,14 +7,14 @@ using UnityEngine.Pool;
 public abstract class Action : MonoBehaviour
 {
     protected Unit unit;
-    protected CardSO data;
+    protected CardData data;
     protected HexCoords coords;
     protected List<HexNode> nodes = new List<HexNode>();
 
     HexDirection saveDirection = HexDirection.Default;
     int value;
 
-    public virtual void Init(Unit unit, HexDirection direction, CardSO data, int value = -999)
+    public virtual void Init(Unit unit, HexDirection direction, CardData data, int value = -999)
     {
         this.unit = unit;
         this.data = data;
@@ -23,25 +23,25 @@ public abstract class Action : MonoBehaviour
         saveDirection = direction;
         this.value = value;
     }
-    public virtual void Init(Unit unit, HexNode node, CardSO data, int value = -999)
+    public virtual void Init(Unit unit, HexNode node, CardData data, int value = -999)
     {
         this.unit = unit;
         this.data = data;
-        coords = node.coords;
+        coords = node.Coords;
         transform.position = coords.Pos;
         this.value = value;
     }
-    public virtual void Init(Unit unit, HexNode node, List<HexNode> nodes, CardSO data, int value = -999)
+    public virtual void Init(Unit unit, HexNode node, List<HexNode> nodes, CardData data, int value = -999)
     {
         this.unit = unit;
         this.data = data;
         this.nodes = nodes;
-        coords = node.coords;
+        coords = node.Coords;
         transform.position = coords.Pos;
         this.value = value;
     }
 
-    public bool ActiveEventValue(HexCoords coords, CardSO data)
+    public bool ActiveEventValue(HexCoords coords, CardData data)
     {
         this.coords = coords;
         this.data = data;
@@ -52,7 +52,7 @@ public abstract class Action : MonoBehaviour
         List<Unit> afterEventUnits = new();
         if (nodes.Count <= 1)
         {
-            var onUnit = GridManager.Inst.GetUnit(coords);
+            var onUnit = GridManager.inst.GetUnit(coords);
             if (onUnit != null)
             {
                 TypeToEffect(onUnit);
@@ -65,7 +65,7 @@ public abstract class Action : MonoBehaviour
         {
             foreach(HexNode node in nodes)
             {
-                var onUnit = GridManager.Inst.GetUnit(node);
+                var onUnit = GridManager.inst.GetUnit(node);
                 if (onUnit != null)
                 {
                     if(TypeToEffect(onUnit))

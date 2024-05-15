@@ -20,24 +20,14 @@ MonoBehaviour:
   range: 2
   cost: 5
   isJump: 0
-  _CardInfo:
+  cardInfo:
+  - unit: {fileID: 0}
+    data: {fileID: 11400000, guid: fb31c414d60c4a544b182720ee9cc06f, type: 2}
+    count: 1
+    priority: 0
+    turnCount: 0
   - unit: {fileID: 0}
     data: {fileID: 11400000, guid: 783d9860ddd060140bfccdb6dc649d79, type: 2}
-    count: 4
-    priority: 0
-    turnCount: 0
-  - unit: {fileID: 0}
-    data: {fileID: 11400000, guid: db8aed033d6f36140b81f191adfcc69e, type: 2}
-    count: 4
-    priority: 0
-    turnCount: 0
-  - unit: {fileID: 0}
-    data: {fileID: 11400000, guid: 2a79fe02400061246ac82459864844b3, type: 2}
-    count: 4
-    priority: 0
-    turnCount: 0
-  - unit: {fileID: 0}
-    data: {fileID: 11400000, guid: 4eacc02dc57ec594e9a2f65a4689a13f, type: 2}
-    count: 4
+    count: 2
     priority: 0
     turnCount: 0

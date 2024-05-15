@@ -3,14 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.Serialization;
 
 public class Unit_Card : MonoBehaviour
 {
-    Unit unit;
-    void Awake() => unit = GetComponent<Unit>();
+    private Unit _unit;
+    private void Awake() => _unit = GetComponent<Unit>();
 
-    [HideInInspector] public CardInfo Info;
-    [HideInInspector] public CardSO data;
+    public CardInfo CardInfo { get; private set; }
+    public CardData CardData { get; private set; }
+    
     [HideInInspector] public HexCoords directionCoords; 
     [HideInInspector] public bool canDisplay = false;
     bool isDisplay = false;
@@ -18,22 +20,25 @@ public class Unit_Card : MonoBehaviour
 
     public void SetUp(CardInfo cardInfo, int value)
     {
-        Info = cardInfo;
-        data = cardInfo.data;
+        CardInfo = cardInfo;
+        CardData = cardInfo.data;
         this.value = value;
     }
 
-    public List<HexCoords> DrawArea(CardSO data = null, bool canSelect = true)
+    public void DrawRange(CardData data = null, bool canSelect = true)
     {
-        if (StatusManager.CanAction(unit)) return null;
+        if (StatusManager.CanAction(_unit))
+            return;
+        
+        Debug.Log("카드표시");
 
         if(data)
-            this.data = data;
+            CardData = data;
+        
+        var selectCoords = GetArea(CardData);
 
-        List<HexCoords> selectCoords = GetArea(this.data);
-
-        AreaType areaType = AreaType.Attack;
-        switch(this.data.cardType)
+        var areaType = AreaType.Attack;
+        switch(CardData.cardType)
         {
             case CardType.Attack:
                 areaType = AreaType.Attack;
@@ -42,29 +47,29 @@ public class Unit_Card : MonoBehaviour
                 areaType = AreaType.Buff;
                 break;
         }
-        GridManager.Inst.AreaDisplay(areaType, canSelect, GridManager.Inst.GetTiles(selectCoords), unit);
-        return selectCoords;
+        GridManager.inst.AreaDisplay(areaType, canSelect, GridManager.inst.GetTiles(selectCoords), _unit);
     }
-    public List<HexCoords> GetArea(CardSO data, Unit otherUnit = null)
+    public List<HexCoords> GetArea(CardData data, Unit otherUnit = null)
     {
-        List<HexCoords> selectCoords = new();
+        var selectCoords = new List<HexCoords>();
+        
         switch (data.rangeType)
         {
             case RangeType.Liner:
-                foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
+                foreach (var hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                 {
                     var floorWide = Mathf.FloorToInt((float)data.lineWidth / 2);
-                    for (int j = -floorWide; j <= floorWide; j++)
+                    for (var j = -floorWide; j <= floorWide; j++)
                     {
-                        for (int i = 0; i < data.range; i++)
+                        for (var i = 0; i < data.range; i++)
                         {
-                            var coords = unit.coords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i;
-                            var node = GridManager.Inst.GetTile(coords);
+                            var coords = _unit.coords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i;
+                            var node = GridManager.inst.GetTile(coords);
                             if (node)
                             {
-                                if (node.CanWalk() || node.coords == otherUnit?.coords || data.isPenetrate && !node.onObstacle)
+                                if (node.CanWalk() || node.Coords == otherUnit?.coords || data.isPenetrate && !node.OnObstacle)
                                     selectCoords.Add(coords);
-                                else if (node.onUnit)
+                                else if (node.OnUnit)
                                 {
                                     selectCoords.Add(coords);
                                     break;
@@ -78,178 +83,134 @@ public class Unit_Card : MonoBehaviour
                 break;
             case RangeType.Area:
                 if (data.canSelectAll)
-                    foreach (HexNode hexNode in HexDirectionExtension.Area(unit.coords, data.range, data.onSelf))
+                    foreach (var hexNode in HexDirectionExtension.Area(_unit.coords, data.range, data.onSelf))
                     {
-                        selectCoords.Add(hexNode.coords);
+                        selectCoords.Add(hexNode.Coords);
                     }
                 else
                 {
-                    foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
+                    foreach (var hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                     {
-                        selectCoords.Add(unit.coords + hexDirection.Coords());
+                        selectCoords.Add(_unit.coords + hexDirection.Coords());
                     }
-                    foreach (HexNode hexNode in HexDirectionExtension.Area(unit.coords, data.range, data.onSelf))
+                    foreach (var hexNode in HexDirectionExtension.Area(_unit.coords, data.range, data.onSelf))
                     {
-                        selectCoords.Add(hexNode.coords);
+                        selectCoords.Add(hexNode.Coords);
                     }
                 }
                 break;
             case RangeType.OurArea:
-                List<HexNode> tiles = HexDirectionExtension.Area(unit.coords, data.range, data.onSelf);
-                foreach (var unit in GridManager.Inst.OnTileUnits.Values.Where(t => t.data.type != UnitType.Enemy && tiles.Contains(GridManager.Inst.GetTile(t))))
+                var tiles = HexDirectionExtension.Area(_unit.coords, data.range, data.onSelf);
+                foreach (var unit in UnitManager.inst.allies.FindAll(x => tiles.Contains(GridManager.inst.GetTile(x))))
                 {
-                    var tile = GridManager.Inst.GetTile(unit);
-                    selectCoords.Add(tile.coords);
+                    var tile = GridManager.inst.GetTile(unit);
+                    selectCoords.Add(tile.Coords);
                     tiles.Remove(tile);
                 }
-                GridManager.Inst.AreaDisplay(AreaType.Buff, false, tiles, unit);
+                GridManager.inst.AreaDisplay(AreaType.Buff, false, tiles, _unit);
                 break;
             case RangeType.Self:
-                selectCoords.Add(unit.coords);
+                selectCoords.Add(_unit.coords);
                 break;
         }
         return selectCoords;
     }
 
-    public List<HexNode> SelectedArea => GetSelectedArea(GridManager.Inst.GetTile(unit.coords + directionCoords));
+    public List<HexNode> SelectedArea => GetSelectedArea(GridManager.inst.GetTile(_unit.coords + directionCoords));
     public List<HexNode> GetSelectedArea(HexNode node)
     {
-        unit.Anim_SetTrigger("attackReady");
+        _unit.Anim_SetTrigger("attackReady");
 
-        var targetCoords = node.coords - unit.coords;
+        var targetCoords = node.Coords - _unit.coords;
         var direction = targetCoords.GetSignDirection();
         if (!targetCoords.ContainsDirection())
         {
-            if (unit.data.type != UnitType.Enemy)
-                direction = unit.coords.GetNearlyMouseDirection();
+            if (_unit.data.type != UnitType.Enemy)
+                direction = _unit.coords.GetNearlyMouseDirection();
             else
-                direction = unit.coords.GetNearlyDirection(node.coords);
+                direction = _unit.coords.GetNearlyDirection(node.Coords);
         }
 
-        GridManager.Inst.RevertAbles();
+        GridManager.inst.RevertAbles();
         List<HexNode> hexNodes = new();
 
         //Debug.Log(hexDirection.Coords()._q.ToString() + "/" + hexDirection.Coords()._r.ToString());
-        switch (data.selectType)
+        switch (CardData.selectType)
         {
             case SelectType.Single:
                 hexNodes.Add(node);
                 break;
             case SelectType.Wide:
-                hexNodes.AddRange(HexDirectionExtension.Diagonal(unit.coords, direction, data.range));
+                hexNodes.AddRange(HexDirectionExtension.Diagonal(_unit.coords, direction, CardData.range));
                 break;
             case SelectType.Liner:
-                for (int i = -data.bulletNumber/2; i <= data.bulletNumber/2; i++)
-                    hexNodes.AddRange(HexDirectionExtension.Liner(unit.coords, direction.Rotate(i), data.realRange, data.lineWidth, data.isPenetrate));
+                for (int i = -CardData.bulletNumber/2; i <= CardData.bulletNumber/2; i++)
+                    hexNodes.AddRange(HexDirectionExtension.Liner(_unit.coords, direction.Rotate(i), CardData.realRange, CardData.lineWidth, CardData.isPenetrate));
                 break;
             case SelectType.Splash:
-                hexNodes.AddRange(HexDirectionExtension.Area(node.coords, data.splashRange, true));
+                hexNodes.AddRange(HexDirectionExtension.Area(node.Coords, CardData.splashRange, true));
                 break;
             case SelectType.Emission:
-                hexNodes.AddRange(HexDirectionExtension.Diagonal(unit.coords + direction, direction, data.range - 1, true));
+                hexNodes.AddRange(HexDirectionExtension.Diagonal(_unit.coords + direction, direction, CardData.range - 1, true));
                 break;
             case SelectType.Entire:
-                hexNodes.AddRange(GridManager.Inst.GetTiles(GetArea(data)));
+                hexNodes.AddRange(GridManager.inst.GetTiles(GetArea(CardData)));
                 break;
         }
         return hexNodes;
     }
-    public IEnumerator UseCard(HexNode node, CardSO data = null)
+    public IEnumerator UseCard(HexNode node, CardData data = null)
     {
-        node.coords.DebugQRS();
         if (data)
-            this.data = data;
-        if (!node && this.data.rangeType != RangeType.Self)
+            CardData = data;
+        if (!node && CardData.rangeType != RangeType.Self)
             yield break;
-        else if (this.data.rangeType == RangeType.Self)
-            node = GridManager.Inst.GetTile(unit);
+        else if (CardData.rangeType == RangeType.Self)
+            node = GridManager.inst.GetTile(_unit);
 
 
-        unit.Anim_SetTrigger("attack");
+        _unit.Anim_SetTrigger("attack");
 
-        TurnManager.UseEnergy(this.data.energy);
-        unit.SetFlipX(unit.transform.position.x < node.coords.Pos.x);
+        TurnManager.UseEnergy(this.CardData.energy);
+        _unit.SetFlipX(_unit.transform.position.x < node.Coords.Pos.x);
 
-        if(this.data.actionTriggerType == ActionTriggerType.Custom)
-            yield return YieldInstructionCache.WaitForSeconds(this.data.actionTriggerTime);
-        switch (this.data.selectType)
+        if(this.CardData.actionTriggerType == ActionTriggerType.Custom)
+            yield return YieldInstructionCache.WaitForSeconds(this.CardData.actionTriggerTime);
+        switch (this.CardData.selectType)
         {
             case SelectType.Single:
-                for (int i = 0; i < this.data.multiShot; i++)
+                for (int i = 0; i < this.CardData.multiShot; i++)
                 {
                     yield return YieldInstructionCache.WaitForSeconds(0.05f);
-                    Instantiate(this.data.prefab).GetComponent<Action>().Init(unit, node, this.data, value);
+                    Instantiate(this.CardData.prefab).GetComponent<Action>().Init(_unit, node, this.CardData, value);
                 }
                 break;
             case SelectType.Liner:
-                var direction = (node.coords - unit.coords).GetSignDirection();
-                for (int i = 0; i < this.data.multiShot; i++)
+                var direction = (node.Coords - _unit.coords).GetSignDirection();
+                for (int i = 0; i < this.CardData.multiShot; i++)
                 {
                     yield return YieldInstructionCache.WaitForSeconds(0.05f);
-                    for (int j = -this.data.bulletNumber / 2; j <= this.data.bulletNumber / 2; j++)
-                        Instantiate(this.data.prefab).GetComponent<Action>().Init(unit, direction.Rotate(j), this.data, value);
+                    for (int j = -this.CardData.bulletNumber / 2; j <= this.CardData.bulletNumber / 2; j++)
+                        Instantiate(this.CardData.prefab).GetComponent<Action>().Init(_unit, direction.Rotate(j), this.CardData, value);
                 }
                 break;
             default:
-                for (int i = 0; i < this.data.multiShot; i++)
+                for (int i = 0; i < this.CardData.multiShot; i++)
                 {
                     yield return YieldInstructionCache.WaitForSeconds(0.05f);
-                    Instantiate(this.data.prefab).GetComponent<Action>().Init(unit, node, GetSelectedArea(node), this.data, value);
+                    Instantiate(this.CardData.prefab).GetComponent<Action>().Init(_unit, node, GetSelectedArea(node), this.CardData, value);
                 }
                 break;
         }
-        if (this.data.isMove)
-            unit.move.OnMove(node.coords, this.data.isJump);
+        if (this.CardData.isMove)
+            _unit.move.OnMove(node.Coords, this.CardData.isJump);
 
         canDisplay = false;
-        GridManager.Inst.RevertTiles(unit);
+        GridManager.inst.RevertTiles(_unit);
     }
 
     public void Cancel()
     {
-        unit.Anim_SetTrigger("cancel");
+        _unit.Anim_SetTrigger("cancel");
     }
-
-    //public GameObject lineDot;
-    /*public void DisplayObjects(bool isActive)
-    {
-        if (isActive && !isDisplay)
-        {
-            var selectedTiles = GetSelectedArea(GridManager.Inst.GetTile(unit.coords + directionCoords));
-
-            if (data.selectType == SelectType.Liner)
-            {
-                int count = 1;
-                bool isHorizontal;
-                switch (directionCoords.GetSignDirection())
-                {
-                    case HexDirection.W:
-                        isHorizontal = true;
-                        break;
-                    case HexDirection.E:
-                        isHorizontal = true;
-                        break;
-                    default:
-                        isHorizontal = false;
-                        break;
-                }
-                for (int i = 0; i < selectedTiles.Count; i++)
-                {
-                    for (int j = 0; j <= (isHorizontal ? 1 : selectedTiles[i].coords.GetDistance(unit.coords) % 2); j++)
-                    {
-                        Instantiate(lineDot, unit.coords.Pos + (directionCoords.GetSignDirection().Coords() * count).Pos * (isHorizontal ? 0.5f : 0.6667f), Quaternion.identity);
-                        count++;
-                    }
-                }
-            }
-            else
-                GridManager.Inst.SelectNodes(data.cardType == CardType.Attack ? AreaType.Attack : AreaType.Buff, false, selectedTiles, unit);
-            isDisplay = true;
-        }
-        else if (!isActive)
-        {
-            GridManager.Inst.RevertTiles(unit);
-            isDisplay = false;
-        }
-    }*/
 }

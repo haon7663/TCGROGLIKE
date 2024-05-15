@@ -42,14 +42,14 @@ public class GameManager : MonoBehaviour
                 {
                     if (!unit.card.canDisplay) return;
                     selectedTiles.AddRange(unit.card.SelectedArea);
-                    GridManager.Inst.AreaDisplay(AreaType.Attack, false, selectedTiles, unit);
+                    GridManager.inst.AreaDisplay(AreaType.Attack, false, selectedTiles, unit);
                 }
             }
             else
             {
                 foreach (Unit unit in UnitManager.inst.enemies)
                 {
-                    GridManager.Inst.RevertTiles(unit);
+                    GridManager.inst.RevertTiles(unit);
                 }
             }
         }
@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetMouseButtonDown(1))
         {
             UnitManager.inst.DeSelectUnit(UnitManager.sUnit);
-            CinemachineManager.Inst.SetOrthoSize(false);
+            CameraManager.inst.SetOrthographicSize(false);
         }
 
 #if UNITY_EDITOR

@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DisplayNode : MonoBehaviour
+public class RangeDisplayer : MonoBehaviour
 {
-    public AreaType areaType;
-    public bool canSelect;
-    public Unit unit;
+    [HideInInspector] public AreaType areaType;
+    [HideInInspector] public Unit unit;
+    [HideInInspector] public bool canSelect;
 
     public void Get(AreaType areaType, bool canSelect, Unit unit)
     {
@@ -17,6 +17,7 @@ public class DisplayNode : MonoBehaviour
 
     public void Release(Unit unit = null)
     {
+        print("a");
         if (this.unit == unit || !unit)
             gameObject.SetActive(false);
     }

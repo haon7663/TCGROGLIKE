@@ -94,10 +94,10 @@ public static class HexDirectionExtension
     public static List<HexNode> Area(HexCoords coords, int range, bool onSelf = false)
     {
         List<HexNode> hexNodes = new List<HexNode>();
-        foreach(KeyValuePair<Vector2, HexNode> tile in GridManager.Inst.Tiles)
+        foreach(KeyValuePair<Vector2, HexNode> tile in GridManager.inst.Tiles)
         {
-            if (!onSelf && tile.Value.coords == coords) continue;
-            if (Cube_distance(coords, tile.Value.coords) <= range)
+            if (!onSelf && tile.Value.Coords == coords) continue;
+            if (Cube_distance(coords, tile.Value.Coords) <= range)
                 hexNodes.Add(tile.Value);
         }
         return hexNodes;
@@ -105,7 +105,7 @@ public static class HexDirectionExtension
 
     public static List<HexNode> ReachArea(HexCoords coords, int range, bool onSelf = false)
     {
-        var startNode = GridManager.Inst.GetTile(coords.Pos);
+        var startNode = GridManager.inst.GetTile(coords.Pos);
         List<HexNode> visited = new List<HexNode>() { startNode };
         List<HexNode> fringes = new List<HexNode>() { startNode };
 
@@ -132,10 +132,10 @@ public static class HexDirectionExtension
     public static List<HexNode> TransitArea(HexCoords coords, int range)
     {
         List<HexNode> hexNodes = new List<HexNode>();
-        foreach (KeyValuePair<Vector2, HexNode> tile in GridManager.Inst.Tiles)
+        foreach (KeyValuePair<Vector2, HexNode> tile in GridManager.inst.Tiles)
         {
-            if (tile.Value.coords == coords) continue;
-            if (Cube_distance(coords, tile.Value.coords) == range)
+            if (tile.Value.Coords == coords) continue;
+            if (Cube_distance(coords, tile.Value.Coords) == range)
                 hexNodes.Add(tile.Value);
         }
         return hexNodes;
@@ -151,11 +151,11 @@ public static class HexDirectionExtension
             for (int j = -floorWide; j <= floorWide; j++)
             {
                 var SelectedCoords = coords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i;
-                if (GridManager.Inst.Tiles.ContainsKey(SelectedCoords.Pos) && (isPenetrate || GridManager.Inst.GetTile(SelectedCoords).CanWalk()) && GridManager.Inst.GetTile(SelectedCoords)?.onObstacle == false)
-                    linerNode.Add(GridManager.Inst.GetTile(SelectedCoords.Pos));
-                else if (GridManager.Inst.Tiles.ContainsKey(SelectedCoords.Pos) && GridManager.Inst.GetTile(SelectedCoords).onUnit)
+                if (GridManager.inst.Tiles.ContainsKey(SelectedCoords.Pos) && (isPenetrate || GridManager.inst.GetTile(SelectedCoords).CanWalk()) && GridManager.inst.GetTile(SelectedCoords)?.OnObstacle == false)
+                    linerNode.Add(GridManager.inst.GetTile(SelectedCoords.Pos));
+                else if (GridManager.inst.Tiles.ContainsKey(SelectedCoords.Pos) && GridManager.inst.GetTile(SelectedCoords).OnUnit)
                 {
-                    linerNode.Add(GridManager.Inst.GetTile(SelectedCoords.Pos));
+                    linerNode.Add(GridManager.inst.GetTile(SelectedCoords.Pos));
                     isBlocked = true;
                     break;
                 }
@@ -178,11 +178,11 @@ public static class HexDirectionExtension
 
         foreach (HexNode hexNode in Area(unitCoords, range))
             if (!isSubtract || !Liner(unitCoords, hexDirection, range).Contains(hexNode))
-                if (DiagonalRange(directionCoords._q, hexNode.coords._q, unitCoords._q, range) && DiagonalRange(directionCoords._r, hexNode.coords._r, unitCoords._r, range) && DiagonalRange(directionCoords._s, hexNode.coords._s, unitCoords._s, range))
+                if (DiagonalRange(directionCoords._q, hexNode.Coords._q, unitCoords._q, range) && DiagonalRange(directionCoords._r, hexNode.Coords._r, unitCoords._r, range) && DiagonalRange(directionCoords._s, hexNode.Coords._s, unitCoords._s, range))
                     resultNode.Add(hexNode);
 
         if(onSelf)
-            resultNode.Add(GridManager.Inst.Tiles[unitCoords.Pos]);
+            resultNode.Add(GridManager.inst.Tiles[unitCoords.Pos]);
 
         return resultNode;
     }

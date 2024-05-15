@@ -42,7 +42,7 @@ MonoBehaviour:
   isAfterMove: 0
   conditions:
   - activatedType: 2
-    count: 0
+    turnCount: 0
     conditionType: 0
     value: 0
   actionTriggerType: 0

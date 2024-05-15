@@ -517,7 +517,7 @@ GameObject:
   - component: {fileID: 7821896124256163587}
   - component: {fileID: 3629156543573047470}
   m_Layer: 0
-  m_Name: OutLine
+  m_Name: RangeDisplayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -608,6 +608,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf08a6cf2c725fd4898507d3b32b0f9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  areaType: 0
+  unit: {fileID: 0}
+  canSelect: 0
 --- !u!95 &3629156543573047470
 Animator:
   serializedVersion: 5

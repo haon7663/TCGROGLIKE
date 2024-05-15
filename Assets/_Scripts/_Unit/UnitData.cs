@@ -1,23 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-[CreateAssetMenu(fileName = "UnitSO", menuName = "Scriptable Object/UnitSO")]
-public class UnitSO : ScriptableObject
+[CreateAssetMenu(fileName = "UnitData", menuName = "Scriptable Object/UnitData")]
+public class UnitData : ScriptableObject
 {
     public UnitType type;
 
-    [Header("½ºÇÁ¶óÀÌÆ®")]
+    [Header("ìŠ¤í”„ë¼ì´íŠ¸")]
     public Sprite sprite;
     public AnimatorOverrideController animatorController;
-    [Header("Ã¼·Â")]
+    
+    [Header("ì²´ë ¥")]
     public int hp;
-    [Header("ÀÌµ¿")]
+    
+    [Header("ì´ë™")]
     public RangeType rangeType;
     public int range;
     public int cost;
     public bool isJump = false;
 
-    [Space]
-    public List<CardInfo> _CardInfo;
+    [Header("ì¹´ë“œ")]
+    public List<CardInfo> cardInfo;
 }

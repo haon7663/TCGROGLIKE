@@ -23,14 +23,14 @@ public class ScriptableHexGrid : ScriptableGrid
             {
                 var tile = Instantiate(nodeBasePrefab, grid.transform);
                 tile.Init(DecideIfObstacle(), new HexCoords(q, r));
-                tiles.Add(tile.coords.Pos, tile);
+                tiles.Add(tile.Coords.Pos, tile);
             }
             if (r == 0) continue;
             for (var q = r - halfGridWidth; q <= halfGridWidth; q++)
             {
                 var tile = Instantiate(nodeBasePrefab, grid.transform);
                 tile.Init(DecideIfObstacle(), new HexCoords(q, -r));
-                tiles.Add(tile.coords.Pos, tile);
+                tiles.Add(tile.Coords.Pos, tile);
             }
         }
 

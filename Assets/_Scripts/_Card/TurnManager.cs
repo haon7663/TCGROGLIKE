@@ -76,7 +76,7 @@ public class TurnManager : MonoBehaviour
         CardManager.Inst.RemoveCards();
         yield return delay7;
 
-        GridManager.Inst.StatusNode();
+        GridManager.inst.StatusNode();
 
         for (int i = UnitManager.inst.units.Count - 1; i >= 0; i--)
         {
@@ -86,9 +86,9 @@ public class TurnManager : MonoBehaviour
 
         paze = Paze.Enemy;
 
-        var enemies = UnitManager.inst.enemies.OrderByDescending(x => x.coords.GetPathDistance(UnitManager.inst.GetNearestUnit2(x).coords)).ToList();
-        var ableEnemies = enemies.FindAll(x => x.card.data.useType == UseType.Able);
-        var shouldEnemies = enemies.FindAll(x => x.card.data.useType == UseType.Should);
+        var enemies = UnitManager.inst.enemies.OrderByDescending(x => x.coords.GetPathDistance(UnitManager.inst.GetNearestUnit(x).coords)).ToList();
+        var ableEnemies = enemies.FindAll(x => x.card.CardData.useType == UseType.Able);
+        var shouldEnemies = enemies.FindAll(x => x.card.CardData.useType == UseType.Should);
         for (int i = shouldEnemies.Count - 1; i >= 0; i--)
         {
             yield return StartCoroutine(UnitManager.inst.Action(shouldEnemies[i], false));

@@ -4,19 +4,19 @@ using UnityEngine;
 
 public class UnitArrangeButton : MonoBehaviour
 {
-    public UnitSO unitData;
+    public UnitData unitData;
 
     public void ButtonExit()
     {
-        UnitArrangeManager.Inst.MouseExit(unitData);
+        UnitArrangeManager.inst.MouseExit(unitData);
     }
     public void ButtonDown()
     {
-        UnitArrangeManager.Inst.MouseDown(unitData);
+        UnitArrangeManager.inst.MouseDown(unitData);
     }
     public void ButtonUp()
     {
-        UnitArrangeManager.Inst.MouseUp(unitData);
+        UnitArrangeManager.inst.MouseUp(unitData);
     }
 
 }
