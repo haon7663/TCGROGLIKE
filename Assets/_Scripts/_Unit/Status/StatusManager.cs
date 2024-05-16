@@ -36,9 +36,9 @@ public class StatusManager : MonoBehaviour
         }
     }
 
-    public void AddUnitStatus(List<StatusInfo> statuses, Unit targetUnit)
+    public IEnumerator AddUnitStatus(List<StatusInfo> statuses, Unit targetUnit)
     {
-        foreach (StatusInfo status in statuses)
+        foreach (var status in statuses)
         {
             var newStatus = new StatusInfo(status.data, status.stack);
 
@@ -60,6 +60,8 @@ public class StatusManager : MonoBehaviour
                     targetUnit.statuses.Add(newStatus);
                     break;
             }
+            UIManager.inst.ShowStatusTMP(targetUnit, newStatus.data);
+            yield return YieldInstructionCache.WaitForSeconds(0.33f);
         }
         targetUnit.SetActionText();
     }

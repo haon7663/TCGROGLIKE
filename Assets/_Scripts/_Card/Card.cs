@@ -27,24 +27,25 @@ public class Card : MonoBehaviour
         energyTMP.text = this.cardInfo.data.energy.ToString();
     }
 
-    void OnMouseOver()
+    private void OnMouseOver()
     {
         CardManager.Inst.CardMouseOver(this);
     }
 
-    void OnMouseExit()
+    private void OnMouseExit()
     {
         CardManager.Inst.CardMouseExit(this);
     }
 
-    void OnMouseDown()
+    private void OnMouseDown()
     {
         CardManager.Inst.CardMouseDown(this);
     }
 
-    void OnMouseUp()
+    private void OnMouseUp()
     {
         CardManager.Inst.CardMouseUp(this);
+        print("WQEEQEWQ");
     }
 
     public void MoveTransform(PRS prs, bool useDotween, float dotweenTime = 0, bool isLocal = true)

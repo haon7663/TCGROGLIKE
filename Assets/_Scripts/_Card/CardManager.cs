@@ -36,9 +36,10 @@ public class CardManager : MonoBehaviour
     
     [SerializeField] private int deckCount;
     
-   [HideInInspector] public List<CardInfo> cardInfos;
+    [HideInInspector] public List<CardInfo> cardInfos;
+    [HideInInspector] public Card hoveredCard;
 
-    private Card _hoveredCard;
+    private List<Card> _usingCards;
     private Card _selectedCard;
 
     private bool _isCardDrag;
@@ -96,7 +97,7 @@ public class CardManager : MonoBehaviour
     {
     }
 
-    void Update()
+    private void Update()
     {
         if (_isCardDrag)
             CardDrag();
@@ -106,7 +107,7 @@ public class CardManager : MonoBehaviour
         SetECardState();
     }
 
-    void AddCard()
+    private void AddCard()
     {
         var cardObject = Instantiate(cardPrefab, cardSpawnPoint.localPosition, Utils.QI);
         cardObject.transform.SetParent(cardBundle);
@@ -139,7 +140,7 @@ public class CardManager : MonoBehaviour
             targetCard?.GetComponent<Order>().SetOriginOrder(i);
         }
     }
-    void CardAlignment()
+    private void CardAlignment()
     {
         List<PRS> originCardPRSs = new List<PRS>();
         originCardPRSs = RoundAlignment(cards.Count, 0.5f, Vector3.one);
@@ -154,7 +155,7 @@ public class CardManager : MonoBehaviour
         }
     }
 
-    List<PRS> RoundAlignment(int objCount, float height, Vector3 scale)
+    private List<PRS> RoundAlignment(int objCount, float height, Vector3 scale)
     {
         float[] objLerps = new float[objCount];
         List<PRS> results = new List<PRS>(objCount);
@@ -190,7 +191,7 @@ public class CardManager : MonoBehaviour
         card.transform.DOKill();
         DestroyImmediate(card.gameObject);
 
-        _hoveredCard = null;
+        hoveredCard = null;
         _selectedCard = null;
         CardAlignment();
     }
@@ -207,10 +208,10 @@ public class CardManager : MonoBehaviour
 
         if (eCardState == ECardState.Noting || _selectedCard)
             return;
-        if (_hoveredCard != card)
+        if (hoveredCard != card)
         {
-            LightManager.Inst.ChangeLight(true);
-            _hoveredCard = card;
+            LightManager.inst.ChangeLight(true);
+            hoveredCard = card;
             EnlargeCard(true, card);
             var unit = card.GetUnit();
             UnitManager.inst.SelectUnit(unit, true);
@@ -224,13 +225,13 @@ public class CardManager : MonoBehaviour
 
         EnlargeCard(false, card);
         UnitManager.inst.DeSelectUnit(card.unit);
-        LightManager.Inst.ChangeLight(false);
+        LightManager.inst.ChangeLight(false);
 
         if (!_selectedCard)
         {
             GridManager.inst.RevertTiles(card.unit);
         }
-        if (_hoveredCard == card) _hoveredCard = null;
+        if (hoveredCard == card) hoveredCard = null;
     }
     public void CardMouseDown(Card card)
     {
@@ -239,7 +240,7 @@ public class CardManager : MonoBehaviour
 
         _isCardDrag = true;
         UnitManager.inst.SetOrderUnits(false);
-        LightManager.Inst.ChangeLight(true);
+        LightManager.inst.ChangeLight(true);
     }
     public void CardMouseUp(Card card)
     {
@@ -249,27 +250,32 @@ public class CardManager : MonoBehaviour
         if (eCardState != ECardState.CanMouseDrag || _onCardDeck)
             return;
 
-        LightManager.Inst.ChangeLight(false);
-        _hoveredCard.ShowLiner(false);
-        
-        if (!_onCardArea)
-            return;
+        LightManager.inst.ChangeLight(false);
+        hoveredCard.ShowLiner(false);
         
         _selectedCard = null;
-        _hoveredCard = null;
+        hoveredCard = null;
         EnlargeCard(false, card);
+        
+        if (_onCardArea)
+            return;
+
+        PutCard(card);
+        //StartCoroutine(UnitManager.sUnit.card.UseCard(GridManager.inst.selectedNode, card.cardInfo.data));
+        
+        print("ASE");
     }
 
-    void CardDrag()
+    private void CardDrag()
     {
         if (eCardState != ECardState.CanMouseDrag)
             return;
 
-        SelectCard(true, _hoveredCard);
+        SelectCard(true, hoveredCard);
         if (_onCardArea)
         {
-            _hoveredCard.MoveTransform(new PRS(Utils.MousePos, Utils.QI, _hoveredCard.originPRS.scale), false, 0, false);
-            _hoveredCard.ShowLiner(false);
+            hoveredCard.MoveTransform(new PRS(Utils.MousePos, Utils.QI, hoveredCard.originPRS.scale), false, 0, false);
+            hoveredCard.ShowLiner(false);
         }
         else
         {

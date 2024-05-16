@@ -30,8 +30,6 @@ public class Unit_Card : MonoBehaviour
         if (StatusManager.CanAction(_unit))
             return;
         
-        Debug.Log("카드표시");
-
         if(data)
             CardData = data;
         

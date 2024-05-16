@@ -39,6 +39,7 @@ public class HexNode : MonoBehaviour
     
     private void OnMouseUp()
     {
+        print("de");
         if (!CanWalk()) return;
 
         var canMove = CanMove();
@@ -51,9 +52,10 @@ public class HexNode : MonoBehaviour
         }
         else if (canCard.Item1)
         {
+            print("ca");
             canCard.Item2.card.UseCard(this);
         }
-    } 
+    }
     private void OnMouseDown()
     {
         if (!CanWalk()) return;
@@ -128,7 +130,7 @@ public class HexNode : MonoBehaviour
     {
         foreach (var displayNode in transform.GetChild(0).GetComponentsInChildren<RangeDisplayer>())
         {
-            if (displayNode.gameObject.activeSelf && (displayNode.areaType == AreaType.Attack || displayNode.areaType == AreaType.Buff) && displayNode.canSelect)
+            if (displayNode.gameObject.activeSelf && displayNode.canSelect)
                 return (true, displayNode.unit);
         }
         return (false, null);
@@ -171,7 +173,7 @@ public class HexNode : MonoBehaviour
 
 
     #region Pathfinding
-    public List<HexNode> Neighbors { get; protected set; }
+    public List<HexNode> Neighbors { get; private set; }
     public HexNode Connection { get; private set; }
     public float G { get; private set; }
     public float H { get; private set; }

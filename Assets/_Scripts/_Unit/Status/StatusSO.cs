@@ -13,6 +13,7 @@ public class StatusSO : ScriptableObject
     [Header("Ç¥±â")]
     public Sprite sprite;
     public string explain;
+    public string displayExplain;
 }
 
 [Serializable]

@@ -47,7 +47,7 @@ public class UnitManager : MonoBehaviour
     {
         foreach (var unit in FindObjectsOfType<Unit>())
         {
-            unit.Init(unit.data, unit.coords);
+            unit.Init(unit.data, GridManager.inst.GetRandomNode().Coords);
             switch (unit.data.type)
             {
                 case UnitType.Commander:
@@ -140,7 +140,7 @@ public class UnitManager : MonoBehaviour
         if (GameManager.Inst.moveAble && unit.data.type == UnitType.Ally)
         {
             GridManager.inst.RevertTiles(unit);
-            LightManager.Inst.ChangeLight(true);
+            LightManager.inst.ChangeLight(true);
             unit.move.DrawArea();
         }
     }
@@ -151,7 +151,7 @@ public class UnitManager : MonoBehaviour
             if (!isDrag)
             {
                 GridManager.inst.RevertTiles(unit);
-                LightManager.Inst.ChangeLight(false);
+                LightManager.inst.ChangeLight(false);
             }
         }
         else
@@ -186,7 +186,7 @@ public class UnitManager : MonoBehaviour
 
             isDrag = false;
             GridManager.inst.RevertTiles(unit);
-            LightManager.Inst.ChangeLight(false);
+            LightManager.inst.ChangeLight(false);
         }
     }
 
@@ -201,7 +201,7 @@ public class UnitManager : MonoBehaviour
 
         unit.SetMaterial(outlineMaterial);
 
-        LightManager.Inst.ChangeLight(true);
+        LightManager.inst.ChangeLight(true);
         if (enemies.Contains(unit))
         {
             CameraManager.inst.SetOrthographicSize(true);
@@ -214,7 +214,7 @@ public class UnitManager : MonoBehaviour
 
             GridManager.inst.RevertTiles(unit);
             if (isCard) return;
-
+            
             switch (TurnManager.Inst.paze)
             {
                 case Paze.Commander:
@@ -236,7 +236,8 @@ public class UnitManager : MonoBehaviour
         unit.SetMaterial(defaultMaterial);
         unit.card.Cancel();
         GridManager.inst.RevertTiles(unit);
-        LightManager.Inst.ChangeLight(false);
+        LightManager.inst.ChangeLight(false);
+        UIManager.inst.CloseInfoPanel();
 
         if (sUnit != unit)
             return;
@@ -244,8 +245,6 @@ public class UnitManager : MonoBehaviour
         sUnit = null;
         _sUnitMove = null;
         _sUnitCard = null;
-        
-        //인포패널 닫기 추가요망
     }
     
     public void DrawCardArea()
@@ -273,7 +272,7 @@ public class UnitManager : MonoBehaviour
             }
             else
             {
-                bool saticfiedCondition = true;
+                bool contentCondition = true;
                 foreach (Condition condition in cardInfo.data.conditions)
                 {
                     switch (condition.activatedType)
@@ -285,15 +284,15 @@ public class UnitManager : MonoBehaviour
                             {
                                 case ConditionType.Less:
                                     if (leftValue > rightValue)
-                                        saticfiedCondition = false;
+                                        contentCondition = false;
                                     break;
                                 case ConditionType.Greater:
                                     if (leftValue <= rightValue)
-                                        saticfiedCondition = false;
+                                        contentCondition = false;
                                     break;
                                 case ConditionType.Equal:
                                     if (leftValue == rightValue)
-                                        saticfiedCondition = false;
+                                        contentCondition = false;
                                     break;
                             }
                             break;
@@ -302,17 +301,17 @@ public class UnitManager : MonoBehaviour
                             foreach (Unit ally in allies)
                                 targetArea.AddRange(ally.card.GetArea(cardInfo.data));
                             if (!(cardInfo.data.isBeforeMove ? targetArea.Exists(x => unit.move.GetArea(true).Contains(x)) : targetArea.Contains(unit.coords)))
-                                saticfiedCondition = false;
+                                contentCondition = false;
                             break;
                         case ActivatedType.Count:
                             if (cardInfo.turnCount-- > 0)
                             {
-                                saticfiedCondition = false;
+                                contentCondition = false;
                             }
                             break;
                     }
                 }
-                if(saticfiedCondition)
+                if(contentCondition)
                     for (int i = 0; i < cardInfo.count; i++)
                         cardInfos.Add(cardInfo);
             }

@@ -91,6 +91,7 @@ public class GridManager : MonoBehaviour
 
     public void RevertTiles(Unit unit = null)
     {
+        //print("RevertTiles / Unit: " + unit.data.name);
         foreach (var t in Tiles.Values) t.RevertTile(unit);
         RevertAbles();
     }
@@ -175,7 +176,7 @@ public class GridManager : MonoBehaviour
         foreach (var tile in Tiles.Where(t => t.Value.OnUnit && t.Value.statuses.Count != 0))
         {
             print(tile.Value.statuses[0].data.name);
-            StatusManager.Inst.AddUnitStatus(tile.Value.statuses, GetUnit(tile.Value));
+            StartCoroutine(StatusManager.Inst.AddUnitStatus(tile.Value.statuses, GetUnit(tile.Value)));
         }
     }
 }

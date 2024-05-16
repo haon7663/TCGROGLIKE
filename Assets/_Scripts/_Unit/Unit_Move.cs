@@ -2,19 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using System.Linq;
 
 public class Unit_Move : MonoBehaviour
 {
     private Unit _unit;
     private void Awake() => _unit = GetComponent<Unit>();
 
-    public List<HexCoords> DrawArea(bool canSelect = true)
+    public void DrawArea(bool canSelect = true)
     {
-        if(!StatusManager.CanMove(_unit)) return null;
+        if(!StatusManager.CanMove(_unit))
+            return;
         
         var selectCoords = GetArea();
         GridManager.inst.AreaDisplay(AreaType.Move, canSelect, GridManager.inst.GetTiles(selectCoords), _unit);
-        return selectCoords;
     }
 
     public List<HexCoords> GetArea(bool onSelf = false)
@@ -23,9 +24,9 @@ public class Unit_Move : MonoBehaviour
         switch (_unit.data.rangeType)
         {
             case RangeType.Liner:
-                foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))
+                foreach (var hexDirection in HexDirectionExtension.Loop(HexDirection.E))
                 {
-                    for (int i = 1; i <= _unit.data.range; i++)
+                    for (var i = 1; i <= _unit.data.range; i++)
                     {
                         var coords = _unit.coords + hexDirection.Coords() * i;
                         if (GridManager.inst.GetUnit(coords) == null)
@@ -36,10 +37,7 @@ public class Unit_Move : MonoBehaviour
                 }
                 break;
             case RangeType.Area:
-                foreach (HexNode hexNode in HexDirectionExtension.ReachArea(_unit.coords, _unit.data.range))
-                {
-                    selectCoords.Add(hexNode.Coords);
-                }
+                selectCoords.AddRange(HexDirectionExtension.ReachArea(_unit.coords, _unit.data.range).Select(hexNode => hexNode.Coords));
                 break;
             case RangeType.TransitLiner:
                 foreach (HexDirection hexDirection in HexDirectionExtension.Loop(HexDirection.E))

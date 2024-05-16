@@ -28,9 +28,9 @@ public class CameraManager : MonoBehaviour
     private Vector3 _startPosition;
     private Vector3 _directionForce;
 
-    private void Update()
+    private void LateUpdate()
     {
-        if (CardManager.Inst.hoveredCard || UnitArrangeManager.inst.isArrange || UnitManager.inst.isDrag || _isZoom)
+        if (CardManager.Inst.hoveredCard || ArrangeManager.inst.isArrange || UnitManager.inst.isDrag || _isZoom)
             return;
 
         ControlCameraPosition();
@@ -60,10 +60,7 @@ public class CameraManager : MonoBehaviour
     private void CameraPositionMoveProgress(Vector3 targetPosition)
     {
         if (!_userMoveInput)
-        {
-            CameraPositionMoveStart(targetPosition);
             return;
-        }
 
         _directionForce = _startPosition - targetPosition;
     }

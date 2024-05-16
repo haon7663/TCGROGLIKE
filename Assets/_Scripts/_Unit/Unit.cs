@@ -11,11 +11,12 @@ public class Unit : MonoBehaviour
     [HideInInspector] public Unit_Move move;
     [HideInInspector] public Unit_Card card;
 
-    SpriteRenderer spriteRenderer;
-    Animator animator;
-    GameObject actionObject;
-    SpriteRenderer actionSpriteRenderer;
-    TMP_Text actionText;
+    private SpriteRenderer _spriteRenderer;
+    private Animator _animator;
+    private GameObject _actionObject;
+    private SpriteRenderer _actionSpriteRenderer;
+    
+    private TMP_Text _actionTMP;
 
     public HexCoords coords;
     public UnitData data;
@@ -23,39 +24,39 @@ public class Unit : MonoBehaviour
     [Header("Stats")]
     public int hp;
     public int defence;
-    int value;
+    private int _value;
 
     [Header("Systems")]
     public Unit targetUnit;
     public HexCoords targetCoords;
     public List<StatusInfo> statuses;
 
-    void Awake()
+    private void Awake()
     {
-        if (transform.TryGetComponent(out Unit_Move unit_Move))
-            move = unit_Move;
-        if (transform.TryGetComponent(out Unit_Card unit_Card))
-            card = unit_Card;
+        if (transform.TryGetComponent(out Unit_Move unitMove))
+            move = unitMove;
+        if (transform.TryGetComponent(out Unit_Card unitCard))
+            card = unitCard;
 
         if (transform.GetChild(0).TryGetComponent(out SpriteRenderer spriteRenderer))
-            this.spriteRenderer = spriteRenderer;
+            _spriteRenderer = spriteRenderer;
         if (transform.GetChild(0).TryGetComponent(out Animator animator))
-            this.animator = animator;
+            _animator = animator;
 
-        actionObject = transform.GetChild(3).gameObject;
-        if (actionObject.transform.GetChild(0).TryGetComponent(out SpriteRenderer renderer))
-            actionSpriteRenderer = renderer;
-        if (actionObject.transform.GetChild(1).TryGetComponent(out TMP_Text text))
-            actionText = text;
+        _actionObject = transform.GetChild(3).gameObject;
+        if (_actionObject.transform.GetChild(0).TryGetComponent(out SpriteRenderer renderer))
+            _actionSpriteRenderer = renderer;
+        if (_actionObject.transform.GetChild(1).TryGetComponent(out TMP_Text text))
+            _actionTMP = text;
     }
 
-    public void Init(UnitData data, HexCoords coords)
+    public void Init(UnitData unitData, HexCoords coords)
     {
-        this.data = Instantiate(data);
+        data = Instantiate(unitData);
 
-        animator.runtimeAnimatorController = this.data.animatorController;
+        _animator.runtimeAnimatorController = this.data.animatorController;
 
-        hp = this.data.hp;
+        hp = data.hp;
         HealthManager.Inst.GenerateHealthBar(this);
 
         this.coords = coords;
@@ -65,7 +66,7 @@ public class Unit : MonoBehaviour
 
     public void Repeat(HexNode hexNode)
     {
-        spriteRenderer.flipX = hexNode.Coords.Pos.x > transform.position.x;
+        _spriteRenderer.flipX = hexNode.Coords.Pos.x > transform.position.x;
     }
 
     #region OnReceive
@@ -116,37 +117,37 @@ public class Unit : MonoBehaviour
     }
     #endregion
 
-    void OnMouseOver()
+    private void OnMouseOver()
     {
         UnitManager.inst.UnitMouseOver(this);
     }
-    void OnMouseExit()
+    private void OnMouseExit()
     {
         UnitManager.inst.UnitMouseExit(this);
     }
-    void OnMouseDown()
+    private void OnMouseDown()
     {
         UnitManager.inst.UnitMouseDown(this);
     }
-    void OnMouseUp()
+    private void OnMouseUp()
     {
         //if(UnitManager.inst.downedUnit == this)
             //UnitManager.inst.UnitMouseUp(this);
     }
 
     #region Animations
-    public void Anim_SetTrigger(string name) => animator.SetTrigger(name);
-    public void Anim_SetBool(string name, bool value) => animator.SetBool(name, value);
+    public void Anim_SetTrigger(string name) => _animator.SetTrigger(name);
+    public void Anim_SetBool(string name, bool value) => _animator.SetBool(name, value);
     #endregion
 
-    public void SetMaterial(Material material) => spriteRenderer.material = material;
-    public void SetFlipX(bool value) => spriteRenderer.flipX = value;
+    public void SetMaterial(Material material) => _spriteRenderer.material = material;
+    public void SetFlipX(bool value) => _spriteRenderer.flipX = value;
 
     public void ShowAction(Sprite sprite, int value)
     {
-        this.value = value;
-        actionObject.SetActive(true);
-        actionSpriteRenderer.sprite = sprite;
+        this._value = value;
+        _actionObject.SetActive(true);
+        _actionSpriteRenderer.sprite = sprite;
         SetActionText();
     }
     public void SetActionText()
@@ -156,6 +157,6 @@ public class Unit : MonoBehaviour
     }
     public void HideAction()
     {
-        actionObject.SetActive(false);
+        _actionObject.SetActive(false);
     }
 }

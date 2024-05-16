@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 571a3b3281273754496295c19ac7a978, type: 3}
+  m_Name: Recovery_Fairy
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 0}
+  prefab: {fileID: 6037482832087054386, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
+  energy: 1
+  value: 6
+  cardType: 1
+  activeType: 2
+  rangeType: 1
+  onSelf: 1
+  range: 1
+  canSelectAll: 1
+  lineWidth: 1
+  selectType: 5
+  multiShot: 1
+  splashRange: 1
+  realRange: 0
+  bulletNumber: 1
+  isPenetrate: 0
+  statuses: []
+  isMove: 0
+  isJump: 0
+  isKnockback: 0
+  knockbackType: 0
+  knockbackPower: 0
+  useType: 0
+  recommendedDistanceType: 1
+  recommendedDistance: 1
+  isBeforeMove: 0
+  isAfterMove: 0
+  conditions: []
+  actionTriggerType: 0
+  actionTriggerTime: 0.1

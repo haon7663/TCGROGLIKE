@@ -17,7 +17,6 @@ public class RangeDisplayer : MonoBehaviour
 
     public void Release(Unit unit = null)
     {
-        print("a");
         if (this.unit == unit || !unit)
             gameObject.SetActive(false);
     }

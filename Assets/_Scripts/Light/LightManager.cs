@@ -6,8 +6,8 @@ using DG.Tweening;
 
 public class LightManager : MonoBehaviour
 {
-    public static LightManager Inst;
-    void Awake() => Inst = this;
+    public static LightManager inst;
+    void Awake() => inst = this;
 
     [Header("WorldLight")]
     [SerializeField] Light2D worldLight;

@@ -97,7 +97,7 @@ public abstract class Action : MonoBehaviour
         if (!targetUnit) 
             return false;
 
-        StatusManager.Inst.AddUnitStatus(data.statuses, targetUnit);
+        StartCoroutine(StatusManager.Inst.AddUnitStatus(data.statuses, targetUnit));
         return true;
     }
     void AfterEvent(List<Unit> units)

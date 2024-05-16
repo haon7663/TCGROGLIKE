@@ -8,15 +8,15 @@ public class UnitArrangeButton : MonoBehaviour
 
     public void ButtonExit()
     {
-        UnitArrangeManager.inst.MouseExit(unitData);
+        ArrangeManager.inst.MouseExit(unitData);
     }
     public void ButtonDown()
     {
-        UnitArrangeManager.inst.MouseDown(unitData);
+        ArrangeManager.inst.MouseDown(unitData);
     }
     public void ButtonUp()
     {
-        UnitArrangeManager.inst.MouseUp(unitData);
+        ArrangeManager.inst.MouseUp(unitData);
     }
 
 }

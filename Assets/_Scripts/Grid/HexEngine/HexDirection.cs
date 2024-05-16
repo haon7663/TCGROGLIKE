@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 public enum HexDirection
@@ -105,7 +106,7 @@ public static class HexDirectionExtension
 
     public static List<HexNode> ReachArea(HexCoords coords, int range, bool onSelf = false)
     {
-        var startNode = GridManager.inst.GetTile(coords.Pos);
+        var startNode = GridManager.inst.GetTile(coords);
         List<HexNode> visited = new List<HexNode>() { startNode };
         List<HexNode> fringes = new List<HexNode>() { startNode };
 
