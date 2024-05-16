@@ -57,7 +57,7 @@ public class Unit : MonoBehaviour
         _animator.runtimeAnimatorController = this.data.animatorController;
 
         hp = data.hp;
-        HealthManager.Inst.GenerateHealthBar(this);
+        HealthManager.inst.GenerateHealthBar(this);
 
         this.coords = coords;
         transform.position = coords.Pos - Vector3.forward;
@@ -81,10 +81,11 @@ public class Unit : MonoBehaviour
                 var overValue = defence - value;
                 hp += overValue;
                 defence = 0;
-                StartCoroutine(HealthManager.Inst.WhiteMaterial(this));
+                StartCoroutine(HealthManager.inst.WhiteMaterial(this));
                 Anim_SetTrigger("hit");
             }
-            HealthManager.Inst.SetHealthBar(this);
+            HealthManager.inst.SetHealthBar(this);
+            UIManager.inst.ShowDamageTMP(this, value);
 
             if (hp <= 0)
             {
@@ -101,7 +102,7 @@ public class Unit : MonoBehaviour
             hp += value;
             if (hp >= data.hp)
                 hp = data.hp;
-            HealthManager.Inst.SetHealthBar(this);
+            HealthManager.inst.SetHealthBar(this);
             return true;
         }
     }
@@ -111,7 +112,7 @@ public class Unit : MonoBehaviour
         {
             print("Defence");
             defence += value;
-            HealthManager.Inst.SetHealthBar(this);
+            HealthManager.inst.SetHealthBar(this);
             return true;
         }
     }

@@ -24,8 +24,8 @@ public class HealthBar
 
 public class HealthManager : MonoBehaviour
 {
-    public static HealthManager Inst;
-    void Awake() => Inst = this;
+    public static HealthManager inst;
+    void Awake() => inst = this;
 
     Dictionary<Unit, HealthBar> healthBars = new Dictionary<Unit, HealthBar>();
 

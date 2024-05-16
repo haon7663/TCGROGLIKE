@@ -114,7 +114,7 @@ public class UnitManager : MonoBehaviour
         }
 
         units.Remove(unit);
-        HealthManager.Inst.DestroyHealthBar(unit);
+        HealthManager.inst.DestroyHealthBar(unit);
         GridManager.inst.SetTileUnitRemove(unit);
         GridManager.inst.RevertTiles(unit);
         DestroyImmediate(unit.gameObject);

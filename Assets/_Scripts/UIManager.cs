@@ -17,6 +17,7 @@ public class UIManager : MonoBehaviour
 
     [Header("프리팹")]
     [SerializeField] private StatusTMP statusTextPrefab;
+    [SerializeField] private DamageTMP damageTextPrefab;
     
     [Header("표시")]
     [SerializeField] private GameObject unitInfoPanel;
@@ -25,6 +26,12 @@ public class UIManager : MonoBehaviour
     {
         var statusTMP = Instantiate(statusTextPrefab, canvasWorld);
         statusTMP.Setup(unit, statusData.displayExplain);
+    }
+    
+    public void ShowDamageTMP(Unit unit, int value)
+    {
+        var damageTMP = Instantiate(damageTextPrefab, canvasWorld);
+        damageTMP.Setup(unit, value);
     }
 
     public void OpenInfoPanel()
