@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public enum CardType { Attack, Buff, }
 public enum ActiveType { Attack, Defence, Recovery, }

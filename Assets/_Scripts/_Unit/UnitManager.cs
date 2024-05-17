@@ -217,7 +217,7 @@ public class UnitManager : MonoBehaviour
             
             switch (TurnManager.Inst.paze)
             {
-                case Paze.Commander:
+                case Paze.Card:
                     _sUnitMove.DrawArea();
                     break;
                 default:

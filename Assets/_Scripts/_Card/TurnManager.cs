@@ -5,7 +5,7 @@ using System.Linq;
 using System;
 using Random = UnityEngine.Random;
 
-public enum Paze { Draw, Commander, Card, End, Enemy }
+public enum Paze { Draw, Card, End, Enemy }
 public class TurnManager : MonoBehaviour
 {
     public static TurnManager Inst { get; private set; }
@@ -22,7 +22,7 @@ public class TurnManager : MonoBehaviour
     [Header("Resources")]
     public int maxMoveCost;
     public int maxEnergy;
-    public int MoveCost { get; private set; }
+    public int CommanderCost { get; private set; }
     public int Energy { get; private set; }
 
     enum ETurnMode { My, Other }
@@ -50,7 +50,7 @@ public class TurnManager : MonoBehaviour
     {
         yield return delay05;
 
-        MoveCost = maxMoveCost;
+        CommanderCost = maxMoveCost;
         Energy = maxEnergy;
 
         for (int i = UnitManager.inst.enemies.Count - 1; i >= 0; i--)
@@ -65,9 +65,6 @@ public class TurnManager : MonoBehaviour
             OnAddCard?.Invoke();
         }
         yield return delay7;
-
-        paze = Paze.Commander;
-        yield return new WaitUntil(() => MoveCost <= 0);
 
         paze = Paze.Card;
         yield return new WaitUntil(() => Energy <= 0);
@@ -103,7 +100,7 @@ public class TurnManager : MonoBehaviour
         StartCoroutine(StartTurnCo());
     }
 
-    public static void UseMoveCost(int value) => Inst.MoveCost = Inst.MoveCost >= value ? Inst.MoveCost - value : 0;
+    public static void UseMoveCost(int value) => Inst.CommanderCost = Inst.CommanderCost >= value ? Inst.CommanderCost - value : 0;
     public static void UseEnergy(int value) => Inst.Energy = Inst.Energy >= value ? Inst.Energy - value : 0;
 
     public void EndTurn()

@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
     {
         pazeText.text = "Paze: " + TurnManager.Inst.paze.ToString();
         energyText.text = TurnManager.Inst.Energy + " / " + TurnManager.Inst.maxEnergy;
-        moveCostText.text = TurnManager.Inst.MoveCost + " / " + TurnManager.Inst.maxMoveCost;
+        moveCostText.text = TurnManager.Inst.CommanderCost + " / " + TurnManager.Inst.maxMoveCost;
 
         if(Input.GetKeyDown(KeyCode.Q))
         {
@@ -76,12 +76,12 @@ public class GameManager : MonoBehaviour
             TurnManager.UseEnergy(TurnManager.Inst.Energy);
 
         if (Input.GetKeyDown(KeyCode.X))
-            TurnManager.UseMoveCost(TurnManager.Inst.MoveCost);
+            TurnManager.UseMoveCost(TurnManager.Inst.CommanderCost);
 
         if (Input.GetKeyDown(KeyCode.C))
         {
             TurnManager.UseEnergy(TurnManager.Inst.Energy);
-            TurnManager.UseMoveCost(TurnManager.Inst.MoveCost);
+            TurnManager.UseMoveCost(TurnManager.Inst.CommanderCost);
         }
     }
 

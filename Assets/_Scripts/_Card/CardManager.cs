@@ -330,10 +330,10 @@ public class CardManager : MonoBehaviour
     {
         switch (TurnManager.Inst.paze)
         {
-            case Paze.Draw or Paze.End or Paze.Enemy:
+            case Paze.Draw or Paze.End:
                 eCardState = ECardState.Noting;
                 break;
-            case Paze.Commander:
+            case Paze.Enemy:
                 eCardState = ECardState.CanMouseOver;
                 break;
             case Paze.Card:
