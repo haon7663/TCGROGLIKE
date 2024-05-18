@@ -53,13 +53,13 @@ public class TurnManager : MonoBehaviour
         CommanderCost = maxMoveCost;
         Energy = maxEnergy;
 
-        for (int i = UnitManager.inst.enemies.Count - 1; i >= 0; i--)
+        for (var i = UnitManager.inst.enemies.Count - 1; i >= 0; i--)
         {
-            yield return StartCoroutine(UnitManager.inst.AutoSelectCard(UnitManager.inst.enemies[i]));
+            yield return StartCoroutine(UnitManager.inst.EnemySelectCard(UnitManager.inst.enemies[i]));
         }
 
         paze = Paze.Draw;
-        for (int i = 0; i < startCardCount; i++)
+        for (var i = 0; i < startCardCount; i++)
         {
             yield return delay05;
             OnAddCard?.Invoke();
@@ -74,25 +74,19 @@ public class TurnManager : MonoBehaviour
         yield return delay7;
 
         GridManager.inst.StatusNode();
-
-        for (int i = UnitManager.inst.units.Count - 1; i >= 0; i--)
-        {
-            StatusManager.Inst.StatusActive(UnitManager.inst.units[i]);
-            yield return delay05;
-        }
-
+        
         paze = Paze.Enemy;
 
         var enemies = UnitManager.inst.enemies.OrderByDescending(x => x.coords.GetPathDistance(UnitManager.inst.GetNearestUnit(x).coords)).ToList();
         var ableEnemies = enemies.FindAll(x => x.card.CardData.useType == UseType.Able);
         var shouldEnemies = enemies.FindAll(x => x.card.CardData.useType == UseType.Should);
-        for (int i = shouldEnemies.Count - 1; i >= 0; i--)
+        for (var i = shouldEnemies.Count - 1; i >= 0; i--)
         {
-            yield return StartCoroutine(UnitManager.inst.Action(shouldEnemies[i], false));
+            yield return StartCoroutine(UnitManager.inst.EnemyAction(shouldEnemies[i], false));
         }
-        for (int i = ableEnemies.Count - 1; i >= 0; i--)
+        for (var i = ableEnemies.Count - 1; i >= 0; i--)
         {
-            yield return StartCoroutine(UnitManager.inst.Action(ableEnemies[i], true));
+            yield return StartCoroutine(UnitManager.inst.EnemyAction(ableEnemies[i], true));
             yield return delay7;
         }
 

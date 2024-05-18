@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Commander
   m_EditorClassIdentifier: 
   type: 2
-  sprite: {fileID: 21300000, guid: 71c9ca15d43751e419ccec15a10db708, type: 3}
+  sprite: {fileID: 21300000, guid: 3ab2d4c4f6fdebe4cba87890b309f89b, type: 3}
   animatorController: {fileID: 22100000, guid: 9effe3dec0b017a4b988dd71586de52c, type: 2}
   hp: 99
   rangeType: 1
@@ -39,5 +39,10 @@ MonoBehaviour:
   - unit: {fileID: 0}
     data: {fileID: 11400000, guid: 6ed21fa72e9da5548bcb8ac6ec9049fb, type: 2}
     count: 2
+    priority: 0
+    turnCount: 0
+  - unit: {fileID: 0}
+    data: {fileID: 11400000, guid: 4eacc02dc57ec594e9a2f65a4689a13f, type: 2}
+    count: 3
     priority: 0
     turnCount: 0

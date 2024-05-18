@@ -36,12 +36,9 @@ public class HexNode : MonoBehaviour
         coordsText.text = "q: " + coords._q + ", r: " + coords._r + "  s: " + coords._s;
         transform.position = this.Coords.Pos;
     }
-    
-    private void OnMouseUp()
-    {
-        print("de");
-        if (!CanWalk()) return;
 
+    public void Use()
+    {
         var canMove = CanMove();
         var canCard = CanCard();
         var canArrange = CanArrange();
@@ -52,26 +49,15 @@ public class HexNode : MonoBehaviour
         }
         else if (canCard.Item1)
         {
-            print("ca");
             canCard.Item2.card.UseCard(this);
         }
     }
+    
     private void OnMouseDown()
     {
         if (!CanWalk()) return;
 
-        var canMove = CanMove();
-        var canCard = CanCard();
-        var canArrange = CanArrange();
-
-        if (canMove.Item1)
-        {
-            canMove.Item2.move.OnMove(Coords);
-        }
-        else if (canCard.Item1)
-        {
-            canCard.Item2.card.UseCard(this);
-        }
+        Use();
     }
     private void OnMouseOver()
     {

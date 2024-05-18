@@ -137,18 +137,22 @@ public class UnitManager : MonoBehaviour
     {
         unit.SetMaterial(outlineMaterial);
 
-        if (GameManager.Inst.moveAble && unit.data.type == UnitType.Ally)
-        {
-            GridManager.inst.RevertTiles(unit);
-            LightManager.inst.ChangeLight(true);
-            unit.move.DrawArea();
-        }
+        if (!(GameManager.Inst.moveAble && unit.data.type == UnitType.Ally))
+            return;
+        
+        GridManager.inst.RevertTiles(unit);
+        LightManager.inst.ChangeLight(true);
+        unit.move.DrawArea();
     }
     public void UnitMouseExit(Unit unit)
     {
         if (GameManager.Inst.moveAble && unit.data.type == UnitType.Ally)
         {
-            if (!isDrag)
+            if (isDrag)
+            {
+                
+            }
+            else
             {
                 GridManager.inst.RevertTiles(unit);
                 LightManager.inst.ChangeLight(false);
@@ -177,12 +181,10 @@ public class UnitManager : MonoBehaviour
     }
     public void UnitMouseUp(Unit unit)
     {
-        if (GameManager.Inst.moveAble && unit.data.type == UnitType.Ally)
+        print("Up");
+        if (isDrag)
         {
-            if(GridManager.inst.selectedNode)
-            {
-                
-            }
+            GridManager.inst.selectedNode?.Use();
 
             isDrag = false;
             GridManager.inst.RevertTiles(unit);
@@ -205,7 +207,7 @@ public class UnitManager : MonoBehaviour
         if (enemies.Contains(unit))
         {
             CameraManager.inst.SetOrthographicSize(true);
-            CameraManager.inst.SetViewPoint(sUnit.transform.position + new Vector3(0, 1.5f));
+            CameraManager.inst.SetViewPoint(sUnit.transform.position + new Vector3(0, 0.5f));
         }
         else
         {
@@ -260,7 +262,7 @@ public class UnitManager : MonoBehaviour
 
     #region UnitAlgorithm
 
-    public IEnumerator AutoSelectCard(Unit unit)
+    public IEnumerator EnemySelectCard(Unit unit)
     {
         List<CardInfo> cardInfos = new();
         foreach (CardInfo cardInfo in unit.data.cardInfo)
@@ -354,7 +356,7 @@ public class UnitManager : MonoBehaviour
 
         unit.ShowAction(sprite, value);
     }
-    public IEnumerator Action(Unit unit, bool isAble)
+    public IEnumerator EnemyAction(Unit unit, bool isAble)
     {
         if (isAble)
         {
@@ -380,49 +382,49 @@ public class UnitManager : MonoBehaviour
     }
     private IEnumerator MoveUnit(Unit unit, Unit targetUnit)
     {
-        if (StatusManager.CanMove(unit))
+        if (!StatusManager.CanMove(unit))
+            yield break;
+
+        unit.SetFlipX(unit.transform.position.x < targetUnit.transform.position.x);
+
+        var targetDistance = 1;
+        switch (unit.card.CardData.recommendedDistanceType)
         {
-            unit.SetFlipX(unit.transform.position.x < targetUnit.transform.position.x);
-
-            var targetDistance = 1;
-            switch (unit.card.CardData.recommendedDistanceType)
-            {
-                case RecommendedDistanceType.Far:
-                    targetDistance = unit.card.CardData.range;
-                    break;
-                case RecommendedDistanceType.Close:
-                    targetDistance = 1;
-                    break;
-                case RecommendedDistanceType.Custom:
-                    targetDistance = unit.card.CardData.recommendedDistance;
-                    break;
-            }
-
-            List<HexCoords> targetArea = unit.card.CardData.rangeType == RangeType.Self ? unit.move.GetArea(true) : targetUnit.card.GetArea(unit.card.CardData, unit);
-            targetArea = targetArea.FindAll(x => GridManager.inst.GetTile(x).CanWalk() || x == unit.coords);
-            List<HexCoords> targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance && unit.move.GetArea(true).Contains(x));
-            for (int i = targetDistance - 1; i > 0 && targetCoordses.Count == 0; i--)
-            {
-                targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == i && unit.move.GetArea(true).Contains(x));
-            }
-
-
-            HexCoords targetCoords;
-            if (targetCoordses.Count == 0)
-            {
-                targetArea = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance).OrderBy(x => x.GetPathDistance(unit.coords)).ToList(); //수정필요
-                if (targetArea.Count == 0)
-                    targetCoords = targetUnit.coords;
-                else
-                    targetCoords = targetArea[0]; //수정필요
-            }
-            else
-            {
-                targetCoords = targetCoordses[Random.Range(0, targetCoordses.Count)];
-            }
-
-            yield return StartCoroutine(unit.move.OnMoveInRange(targetCoords, unit.data.range));
+            case RecommendedDistanceType.Far:
+                targetDistance = unit.card.CardData.range;
+                break;
+            case RecommendedDistanceType.Close:
+                targetDistance = 1;
+                break;
+            case RecommendedDistanceType.Custom:
+                targetDistance = unit.card.CardData.recommendedDistance;
+                break;
         }
+
+        List<HexCoords> targetArea = unit.card.CardData.rangeType == RangeType.Self ? unit.move.GetArea(true) : targetUnit.card.GetArea(unit.card.CardData, unit);
+        targetArea = targetArea.FindAll(x => GridManager.inst.GetTile(x).CanWalk() || x == unit.coords);
+        List<HexCoords> targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance && unit.move.GetArea(true).Contains(x));
+        for (int i = targetDistance - 1; i > 0 && targetCoordses.Count == 0; i--)
+        {
+            targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == i && unit.move.GetArea(true).Contains(x));
+        }
+
+
+        HexCoords targetCoords;
+        if (targetCoordses.Count == 0)
+        {
+            targetArea = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance).OrderBy(x => x.GetPathDistance(unit.coords)).ToList(); //수정필요
+            if (targetArea.Count == 0)
+                targetCoords = targetUnit.coords;
+            else
+                targetCoords = targetArea[0]; //수정필요
+        }
+        else
+        {
+            targetCoords = targetCoordses[Random.Range(0, targetCoordses.Count)];
+        }
+
+        yield return StartCoroutine(unit.move.OnMoveInRange(targetCoords, unit.data.range));
     }
     public Unit GetNearestUnit(Unit unit) //가까운 유닛 탐색, 거리가 같으면 원래 유닛 타겟 고정
     {

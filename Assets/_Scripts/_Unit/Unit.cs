@@ -84,7 +84,7 @@ public class Unit : MonoBehaviour
                 StartCoroutine(HealthManager.inst.WhiteMaterial(this));
                 Anim_SetTrigger("hit");
             }
-            HealthManager.inst.SetHealthBar(this);
+            HealthManager.inst.UpdateHealthBar(this);
             UIManager.inst.ShowDamageTMP(this, value);
 
             if (hp <= 0)
@@ -102,7 +102,9 @@ public class Unit : MonoBehaviour
             hp += value;
             if (hp >= data.hp)
                 hp = data.hp;
-            HealthManager.inst.SetHealthBar(this);
+            
+            HealthManager.inst.UpdateHealthBar(this);
+            UIManager.inst.ShowRecoveryTMP(this, value);
             return true;
         }
     }
@@ -112,7 +114,7 @@ public class Unit : MonoBehaviour
         {
             print("Defence");
             defence += value;
-            HealthManager.inst.SetHealthBar(this);
+            HealthManager.inst.UpdateHealthBar(this);
             return true;
         }
     }
@@ -132,8 +134,7 @@ public class Unit : MonoBehaviour
     }
     private void OnMouseUp()
     {
-        //if(UnitManager.inst.downedUnit == this)
-            //UnitManager.inst.UnitMouseUp(this);
+        UnitManager.inst.UnitMouseUp(this);
     }
 
     #region Animations

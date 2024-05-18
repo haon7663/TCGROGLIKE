@@ -34,7 +34,7 @@ public class ArrangeManager : MonoBehaviour
         if (!isArrange)
             return;
 
-        spriteRenderer.transform.position = _gridManager.selectedNode ? _gridManager.selectedNode.Coords.Pos : Utils.MousePos;
+        spriteRenderer.transform.position = _gridManager.selectedNode ? _gridManager.selectedNode.Coords.Pos + new Vector3(0, 1.25f) : Utils.MousePos;
     }
     public void MouseExit(UnitData unitData)
     {

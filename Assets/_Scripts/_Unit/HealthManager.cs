@@ -15,7 +15,7 @@ public class HealthBar
     public HealthBar(GameObject prefab, float hitTime = 0)
     {
         this.prefab = prefab;
-        healthFilled = prefab.transform.GetChild(0).GetComponent<Image>();
+        healthFilled = prefab.transform.GetChild(0).GetChild(0).GetComponent<Image>();
         healthText = prefab.transform.GetChild(1).GetComponent<TMP_Text>();
         defenceText = prefab.transform.GetChild(2).GetComponentInChildren<TMP_Text>();
         hitTimer = hitTime;
@@ -37,7 +37,7 @@ public class HealthManager : MonoBehaviour
 
     Vector3 addPos = new Vector2(0.1875f, 0);
 
-    void Update()
+    private void Update()
     {
         foreach (KeyValuePair<Unit, HealthBar> healthBar in healthBars)
         {
@@ -56,10 +56,10 @@ public class HealthManager : MonoBehaviour
     public void GenerateHealthBar(Unit unit)
     {
         healthBars.Add(unit, new HealthBar(Instantiate(healthBarPrefab, canvas)));
-        SetHealthBar(unit);
+        UpdateHealthBar(unit);
     }
 
-    public void SetHealthBar(Unit unit)
+    public void UpdateHealthBar(Unit unit)
     {
         healthBars[unit].healthFilled.fillAmount = (float)unit.hp / unit.data.hp;
         healthBars[unit].healthText.text = unit.hp.ToString();
