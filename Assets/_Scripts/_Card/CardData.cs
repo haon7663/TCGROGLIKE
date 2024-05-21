@@ -51,6 +51,7 @@ public class CardData : ScriptableObject
 
     [Header("인공지능")]
     public UseType useType;
+    public bool compareByMove;
     public RecommendedDistanceType recommendedDistanceType = RecommendedDistanceType.Close;
     [DrawIf("recommendedDistanceType", RecommendedDistanceType.Custom)] public int recommendedDistance = 1;
     [DrawIf("useType", UseType.Should)] public bool isBeforeMove;

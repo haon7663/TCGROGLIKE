@@ -87,13 +87,13 @@ public class CardManager : MonoBehaviour
 
         //OpenDeck(cardBuffer);
     }
-    void OnDestroy()
+    private void OnDestroy()
     {
         TurnManager.OnAddCard -= AddCard;
         TurnManager.OnTurnStarted -= OnTurnStarted;
     }
 
-    void OnTurnStarted(bool myTurn)
+    void OnTurnStarted(bool playerTurn)
     {
     }
 

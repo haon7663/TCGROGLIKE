@@ -52,11 +52,8 @@ public class TurnManager : MonoBehaviour
 
         CommanderCost = maxMoveCost;
         Energy = maxEnergy;
-
-        for (var i = UnitManager.inst.enemies.Count - 1; i >= 0; i--)
-        {
-            yield return StartCoroutine(UnitManager.inst.EnemySelectCard(UnitManager.inst.enemies[i]));
-        }
+        
+        OnTurnStarted?.Invoke(true);
 
         paze = Paze.Draw;
         for (var i = 0; i < startCardCount; i++)
@@ -76,16 +73,18 @@ public class TurnManager : MonoBehaviour
         GridManager.inst.StatusNode();
         
         paze = Paze.Enemy;
-
-        var enemies = UnitManager.inst.enemies.OrderByDescending(x => x.coords.GetPathDistance(UnitManager.inst.GetNearestUnit(x).coords)).ToList();
+        
+        var enemies = UnitManager.inst.enemies;
         var ableEnemies = enemies.FindAll(x => x.card.CardData.useType == UseType.Able);
         var shouldEnemies = enemies.FindAll(x => x.card.CardData.useType == UseType.Should);
         for (var i = shouldEnemies.Count - 1; i >= 0; i--)
         {
+            print("Should");
             yield return StartCoroutine(UnitManager.inst.EnemyAction(shouldEnemies[i], false));
         }
         for (var i = ableEnemies.Count - 1; i >= 0; i--)
         {
+            print("Able");
             yield return StartCoroutine(UnitManager.inst.EnemyAction(ableEnemies[i], true));
             yield return delay7;
         }

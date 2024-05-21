@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "UnitData", menuName = "Scriptable Object/UnitData")]
 public class UnitData : ScriptableObject
@@ -14,6 +13,9 @@ public class UnitData : ScriptableObject
     
     [Header("체력")]
     public int hp;
+
+    [Header("타겟")]
+    public bool onTargetToEnemy = true;
     
     [Header("이동")]
     public RangeType rangeType;

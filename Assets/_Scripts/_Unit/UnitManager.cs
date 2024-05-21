@@ -13,7 +13,7 @@ public class UnitManager : MonoBehaviour
     public static UnitManager inst;
     private void Awake() => inst = this;
 
-    [HideInInspector]
+
     public List<Unit> units;
 
     public Unit commander;
@@ -120,9 +120,22 @@ public class UnitManager : MonoBehaviour
         DestroyImmediate(unit.gameObject);
     }
 
-    private void OnTurnStarted(bool myTurn)
+    private void OnTurnStarted(bool playerTurn)
     {
-
+        if (playerTurn)
+        {
+            for (var i = enemies.Count - 1; i >= 0; i--)
+            {
+                var enemy = enemies[i];
+                EnemySelectCard(enemy);
+                enemy.targetUnit = GetNearestUnit(enemy);
+            }
+            
+            enemies = enemies.OrderByDescending(x => x.coords.GetPathDistance(x.targetUnit.coords)).ToList();
+        }
+        else
+        {
+        }
     }
 
     public void SetOrderUnits(bool isFront)
@@ -181,15 +194,13 @@ public class UnitManager : MonoBehaviour
     }
     public void UnitMouseUp(Unit unit)
     {
-        print("Up");
-        if (isDrag)
-        {
-            GridManager.inst.selectedNode?.Use();
-
-            isDrag = false;
-            GridManager.inst.RevertTiles(unit);
-            LightManager.inst.ChangeLight(false);
-        }
+        if (!isDrag)
+            return;
+        
+        GridManager.inst.selectedNode?.Use();
+        isDrag = false;
+        GridManager.inst.RevertTiles(unit);
+        LightManager.inst.ChangeLight(false);
     }
 
     public void SelectUnit(Unit unit, bool isCard = false)
@@ -262,20 +273,20 @@ public class UnitManager : MonoBehaviour
 
     #region UnitAlgorithm
 
-    public IEnumerator EnemySelectCard(Unit unit)
+    private void EnemySelectCard(Unit unit)
     {
         List<CardInfo> cardInfos = new();
-        foreach (CardInfo cardInfo in unit.data.cardInfo)
+        foreach (var cardInfo in unit.data.cardInfo)
         {
             if (cardInfo.data.conditions.Count == 0)
             {
-                for (int i = 0; i < cardInfo.count; i++)
+                for (var i = 0; i < cardInfo.count; i++)
                     cardInfos.Add(cardInfo);
             }
             else
             {
-                bool contentCondition = true;
-                foreach (Condition condition in cardInfo.data.conditions)
+                var contentCondition = true;
+                foreach (var condition in cardInfo.data.conditions)
                 {
                     switch (condition.activatedType)
                     {
@@ -300,7 +311,7 @@ public class UnitManager : MonoBehaviour
                             break;
                         case ActivatedType.Range:
                             List<HexCoords> targetArea = new();
-                            foreach (Unit ally in allies)
+                            foreach (var ally in allies)
                                 targetArea.AddRange(ally.card.GetArea(cardInfo.data));
                             if (!(cardInfo.data.isBeforeMove ? targetArea.Exists(x => unit.move.GetArea(true).Contains(x)) : targetArea.Contains(unit.coords)))
                                 contentCondition = false;
@@ -313,8 +324,8 @@ public class UnitManager : MonoBehaviour
                             break;
                     }
                 }
-                if(contentCondition)
-                    for (int i = 0; i < cardInfo.count; i++)
+                if (contentCondition)
+                    for (var i = 0; i < cardInfo.count; i++)
                         cardInfos.Add(cardInfo);
             }
         }
@@ -331,45 +342,50 @@ public class UnitManager : MonoBehaviour
         }
 
         cardInfos = highCardInfos.FindAll(x => x.priority == maxPriority);
-        int rand = Random.Range(0, cardInfos.Count);
+        var rand = Random.Range(0, cardInfos.Count);
 
-        CardInfo info = cardInfos[rand];
+        var info = cardInfos[rand];
         if (info.data.conditions.Exists(x => x.activatedType == ActivatedType.Count))
             info.turnCount = info.data.conditions.Find(x => x.activatedType == ActivatedType.Count).turnCount;
-        int value = info.data.value + Mathf.CeilToInt(info.data.value * 0.1f) * Random.Range(-1, 2);
+        var value = info.data.value + Mathf.CeilToInt(info.data.value * 0.1f) * Random.Range(-1, 2);
         unit.card.SetUp(info, value);
         if (info.data.useType == UseType.Should)
         {
             var targetUnit = GetNearestUnit(unit);
+            
             unit.card.canDisplay = true;
             unit.targetCoords = targetUnit.coords;
-            unit.SetFlipX(unit.transform.position.x < unit.targetCoords.Pos.x);
             if(info.data.isBeforeMove)
-                yield return StartCoroutine(MoveUnit(unit, targetUnit));
+                StartCoroutine(MoveUnit(unit, targetUnit));
 
             unit.card.directionCoords = targetUnit.coords - unit.coords;
         }
 
-        Sprite sprite = attackSprite;
+        var sprite = attackSprite;
         if (info.data.activeType == ActiveType.Attack)
             sprite = attackSprite;
+        unit.Repeat(unit.targetCoords.Pos.x);
 
         unit.ShowAction(sprite, value);
     }
     public IEnumerator EnemyAction(Unit unit, bool isAble)
     {
+        print("0");
         if (isAble)
         {
-            if (unit.targetUnit)
-            {
-                yield return StartCoroutine(MoveUnit(unit, unit.targetUnit));
+            print("1");
+            if (!unit.targetUnit)
+                yield break;
+            
+            print("2");
+            yield return StartCoroutine(MoveUnit(unit, unit.targetUnit));
 
-                if (unit.targetUnit.card.GetArea(unit.card.CardData).Contains(unit.coords))
-                {
-                    yield return YieldInstructionCache.WaitForSeconds(0.7f);
-                    yield return StartCoroutine(unit.card.UseCard(GridManager.inst.GetTile(unit.targetUnit)));
-                }
-            }
+            if (!unit.targetUnit.card.GetArea(unit.card.CardData).Contains(unit.coords))
+                yield break;
+            
+            yield return YieldInstructionCache.WaitForSeconds(0.7f);
+            print("3");
+            yield return StartCoroutine(unit.card.UseCard(GridManager.inst.GetTile(unit.targetUnit)));
         }
         else
         {
@@ -385,7 +401,9 @@ public class UnitManager : MonoBehaviour
         if (!StatusManager.CanMove(unit))
             yield break;
 
-        unit.SetFlipX(unit.transform.position.x < targetUnit.transform.position.x);
+        var cardData = unit.card.CardData;
+
+        unit.Repeat(targetUnit.transform.position.x);
 
         var targetDistance = 1;
         switch (unit.card.CardData.recommendedDistanceType)
@@ -401,9 +419,9 @@ public class UnitManager : MonoBehaviour
                 break;
         }
 
-        List<HexCoords> targetArea = unit.card.CardData.rangeType == RangeType.Self ? unit.move.GetArea(true) : targetUnit.card.GetArea(unit.card.CardData, unit);
+        var targetArea = cardData.compareByMove ? unit.move.GetArea(true) : targetUnit.card.GetArea(unit.card.CardData, unit);
         targetArea = targetArea.FindAll(x => GridManager.inst.GetTile(x).CanWalk() || x == unit.coords);
-        List<HexCoords> targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance && unit.move.GetArea(true).Contains(x));
+        var targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance && unit.move.GetArea(true).Contains(x));
         for (int i = targetDistance - 1; i > 0 && targetCoordses.Count == 0; i--)
         {
             targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == i && unit.move.GetArea(true).Contains(x));
@@ -426,25 +444,17 @@ public class UnitManager : MonoBehaviour
 
         yield return StartCoroutine(unit.move.OnMoveInRange(targetCoords, unit.data.range));
     }
-    public Unit GetNearestUnit(Unit unit) //가까운 유닛 탐색, 거리가 같으면 원래 유닛 타겟 고정
+    private Unit GetNearestUnit(Unit unit) //가까운 유닛 탐색, 거리가 같으면 원래 유닛 타겟 고정
     {
         if (unit.card.CardData.rangeType == RangeType.Self)
             return unit;
 
-        Unit targetUnit = null;
-        var minDistance = 10000f;
-        foreach (Unit target in unit.card.CardData.cardType == CardType.Attack ? allies : enemies)
-        {
-            var distance = unit.coords.GetPathDistance(target.coords);
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-                targetUnit = target;
-            }
-        }
-        targetUnit = unit.targetUnit?.coords.GetPathDistance(unit.coords) == minDistance ? unit.targetUnit : targetUnit;
-        unit.targetUnit = targetUnit;
-        return targetUnit;
+        var targetUnits = unit.data.onTargetToEnemy ? allies : enemies;
+        
+        var minDistance = targetUnits.Where(x => x != unit).Min(x => x.coords.GetPathDistance(unit.coords));
+        var targetUnit = targetUnits.Where(x => x != unit).OrderBy(x => x.coords.GetPathDistance(unit.coords)).First();
+        
+        return unit.targetUnit?.coords.GetPathDistance(unit.coords) == minDistance ? unit.targetUnit : targetUnit;
     }
     
     #endregion

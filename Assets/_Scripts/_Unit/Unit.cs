@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using TMPro;
-using Random = UnityEngine.Random;
 
 public class Unit : MonoBehaviour
 {
@@ -62,11 +61,6 @@ public class Unit : MonoBehaviour
         this.coords = coords;
         transform.position = coords.Pos - Vector3.forward;
         GridManager.inst.SetTileUnit(coords, this);
-    }
-
-    public void Repeat(HexNode hexNode)
-    {
-        _spriteRenderer.flipX = hexNode.Coords.Pos.x > transform.position.x;
     }
 
     #region OnReceive
@@ -144,6 +138,7 @@ public class Unit : MonoBehaviour
 
     public void SetMaterial(Material material) => _spriteRenderer.material = material;
     public void SetFlipX(bool value) => _spriteRenderer.flipX = value;
+    public void Repeat(float x) => SetFlipX(coords.Pos.x < x);
 
     public void ShowAction(Sprite sprite, int value)
     {

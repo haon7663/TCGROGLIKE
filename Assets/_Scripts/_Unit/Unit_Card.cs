@@ -15,8 +15,8 @@ public class Unit_Card : MonoBehaviour
     
     [HideInInspector] public HexCoords directionCoords; 
     [HideInInspector] public bool canDisplay = false;
-    bool isDisplay = false;
-    int value = -999;
+    private bool isDisplay = false;
+    private int value = -999;
 
     public void SetUp(CardInfo cardInfo, int value)
     {
@@ -117,7 +117,7 @@ public class Unit_Card : MonoBehaviour
     public List<HexNode> SelectedArea => GetSelectedArea(GridManager.inst.GetTile(_unit.coords + directionCoords));
     public List<HexNode> GetSelectedArea(HexNode node)
     {
-        _unit.Anim_SetTrigger("attackReady");
+        //_unit.Anim_SetTrigger("attackReady");
 
         var targetCoords = node.Coords - _unit.coords;
         var direction = targetCoords.GetSignDirection();
@@ -142,7 +142,7 @@ public class Unit_Card : MonoBehaviour
                 hexNodes.AddRange(HexDirectionExtension.Diagonal(_unit.coords, direction, CardData.range));
                 break;
             case SelectType.Liner:
-                for (int i = -CardData.bulletNumber/2; i <= CardData.bulletNumber/2; i++)
+                for (var i = -CardData.bulletNumber/2; i <= CardData.bulletNumber/2; i++)
                     hexNodes.AddRange(HexDirectionExtension.Liner(_unit.coords, direction.Rotate(i), CardData.realRange, CardData.lineWidth, CardData.isPenetrate));
                 break;
             case SelectType.Splash:
@@ -163,45 +163,44 @@ public class Unit_Card : MonoBehaviour
             CardData = data;
         if (!node && CardData.rangeType != RangeType.Self)
             yield break;
-        else if (CardData.rangeType == RangeType.Self)
+        if (CardData.rangeType == RangeType.Self)
             node = GridManager.inst.GetTile(_unit);
-
-
+        
         _unit.Anim_SetTrigger("attack");
 
-        TurnManager.UseEnergy(this.CardData.energy);
-        _unit.SetFlipX(_unit.transform.position.x < node.Coords.Pos.x);
+        TurnManager.UseEnergy(CardData.energy);
+        _unit.Repeat(node.Coords.Pos.x);
 
-        if(this.CardData.actionTriggerType == ActionTriggerType.Custom)
-            yield return YieldInstructionCache.WaitForSeconds(this.CardData.actionTriggerTime);
-        switch (this.CardData.selectType)
+        if(CardData.actionTriggerType == ActionTriggerType.Custom)
+            yield return YieldInstructionCache.WaitForSeconds(CardData.actionTriggerTime);
+        switch (CardData.selectType)
         {
             case SelectType.Single:
-                for (int i = 0; i < this.CardData.multiShot; i++)
+                for (var i = 0; i < CardData.multiShot; i++)
                 {
                     yield return YieldInstructionCache.WaitForSeconds(0.05f);
-                    Instantiate(this.CardData.prefab).GetComponent<Action>().Init(_unit, node, this.CardData, value);
+                    Instantiate(CardData.prefab).GetComponent<Action>().Init(_unit, node, CardData, value);
                 }
                 break;
             case SelectType.Liner:
                 var direction = (node.Coords - _unit.coords).GetSignDirection();
-                for (int i = 0; i < this.CardData.multiShot; i++)
+                for (var i = 0; i < CardData.multiShot; i++)
                 {
                     yield return YieldInstructionCache.WaitForSeconds(0.05f);
-                    for (int j = -this.CardData.bulletNumber / 2; j <= this.CardData.bulletNumber / 2; j++)
-                        Instantiate(this.CardData.prefab).GetComponent<Action>().Init(_unit, direction.Rotate(j), this.CardData, value);
+                    for (int j = -CardData.bulletNumber / 2; j <= this.CardData.bulletNumber / 2; j++)
+                        Instantiate(CardData.prefab).GetComponent<Action>().Init(_unit, direction.Rotate(j), CardData, value);
                 }
                 break;
             default:
-                for (int i = 0; i < this.CardData.multiShot; i++)
+                for (var i = 0; i < CardData.multiShot; i++)
                 {
                     yield return YieldInstructionCache.WaitForSeconds(0.05f);
-                    Instantiate(this.CardData.prefab).GetComponent<Action>().Init(_unit, node, GetSelectedArea(node), this.CardData, value);
+                    Instantiate(CardData.prefab).GetComponent<Action>().Init(_unit, node, GetSelectedArea(node), CardData, value);
                 }
                 break;
         }
-        if (this.CardData.isMove)
-            _unit.move.OnMove(node.Coords, this.CardData.isJump);
+        if (CardData.isMove)
+            _unit.move.OnMove(node.Coords, CardData.isJump);
 
         canDisplay = false;
         GridManager.inst.RevertTiles(_unit);

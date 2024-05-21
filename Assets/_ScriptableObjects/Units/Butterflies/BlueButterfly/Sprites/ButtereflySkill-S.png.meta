@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: ed8aa15afb9cb92408d8b5f251a9776a
+guid: 28a050a6cc346d4479d57dc4190c27f2
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -97,7 +97,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Butterefly2-S_0
+      name: ButtereflySkill-S_0
       rect:
         serializedVersion: 2
         x: 0
@@ -111,14 +111,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 986483674f19e0e45abee4af76004156
-      internalID: -1013520145
+      spriteID: e046a42b32c3e1245b62e976ee8f4449
+      internalID: -1586217798
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Butterefly2-S_1
+      name: ButtereflySkill-S_1
       rect:
         serializedVersion: 2
         x: 64
@@ -132,14 +132,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 49c42d860b70b074b87edaa4899715ba
-      internalID: 787698811
+      spriteID: f9498c828e06e614e9e68b43702e0f9c
+      internalID: -542082262
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Butterefly2-S_2
+      name: ButtereflySkill-S_2
       rect:
         serializedVersion: 2
         x: 128
@@ -153,14 +153,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6a28ac58dd087294a964f9fd020609a0
-      internalID: -298680823
+      spriteID: 6a180c0a6b336fb46aa4d37f52b65d81
+      internalID: -1761955357
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Butterefly2-S_3
+      name: ButtereflySkill-S_3
       rect:
         serializedVersion: 2
         x: 192
@@ -174,8 +174,29 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cf1da48f3d0ad5f478c69faff89d6035
-      internalID: -968671989
+      spriteID: 6ab8029423c182c4bb763521619b2079
+      internalID: 296924605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ButtereflySkill-S_4
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5ce4301852c280e42806d6c5ecf04da1
+      internalID: 507009808
       vertices: []
       indices: 
       edges: []
@@ -191,10 +212,11 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Butterefly2-S_0: -1013520145
-      Butterefly2-S_1: 787698811
-      Butterefly2-S_2: -298680823
-      Butterefly2-S_3: -968671989
+      ButtereflySkill-S_0: -1586217798
+      ButtereflySkill-S_1: -542082262
+      ButtereflySkill-S_2: -1761955357
+      ButtereflySkill-S_3: 296924605
+      ButtereflySkill-S_4: 507009808
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

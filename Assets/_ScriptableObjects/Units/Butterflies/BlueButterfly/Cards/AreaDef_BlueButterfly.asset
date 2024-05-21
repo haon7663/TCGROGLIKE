@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 571a3b3281273754496295c19ac7a978, type: 3}
-  m_Name: SelfDef_BlueButterfly
+  m_Name: AreaDef_BlueButterfly
   m_EditorClassIdentifier: 
   sprite: {fileID: 0}
   prefab: {fileID: 6037482832087054386, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
@@ -18,9 +18,9 @@ MonoBehaviour:
   value: 5
   cardType: 1
   activeType: 1
-  rangeType: 6
+  rangeType: 1
   onSelf: 1
-  range: 11
+  range: 1
   canSelectAll: 1
   lineWidth: 1
   selectType: 5
@@ -35,10 +35,11 @@ MonoBehaviour:
   isKnockback: 0
   knockbackType: 0
   knockbackPower: 0
-  useType: 1
+  useType: 0
+  compareByMove: 1
   recommendedDistanceType: 1
   recommendedDistance: 1
-  isBeforeMove: 0
+  isBeforeMove: 1
   isAfterMove: 0
   conditions: []
   actionTriggerType: 0

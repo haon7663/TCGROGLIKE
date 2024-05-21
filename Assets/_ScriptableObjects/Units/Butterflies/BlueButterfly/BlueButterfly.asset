@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: BlueButterfly
   m_EditorClassIdentifier: 
   type: 1
-  sprite: {fileID: 1974465041, guid: ed8aa15afb9cb92408d8b5f251a9776a, type: 3}
+  sprite: {fileID: -1013520145, guid: ed8aa15afb9cb92408d8b5f251a9776a, type: 3}
   animatorController: {fileID: 22100000, guid: 4d0859ceee32a8a4b9fb213bb1426c85, type: 2}
-  hp: 8
+  hp: 16
+  onTargetToEnemy: 0
   rangeType: 1
-  range: 0
-  cost: 0
+  range: 2
+  cost: 1
   isJump: 0
   cardInfo:
   - unit: {fileID: 0}

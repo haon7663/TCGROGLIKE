@@ -70,7 +70,7 @@ public class HexNode : MonoBehaviour
         GridManager.inst.SelectNode(this, canMove.Item1 || canCard.Item1 || canArrange.Item1);
 
         if ((canMove.Item1 || canCard.Item1 || canArrange.Item1) && UnitManager.sUnit)
-            UnitManager.sUnit.Repeat(this);
+            UnitManager.sUnit.Repeat(Utils.MousePos.x);
 
         if (canMove.Item1)
         {
