@@ -11,6 +11,9 @@ public class Unit_Move : MonoBehaviour
 
     public void DrawArea(bool canSelect = true)
     {
+        if (!StatusManager.CanMove(_unit))
+            canSelect = false;
+
         var selectCoords = GetArea();
         GridManager.inst.AreaDisplay(AreaType.Move, canSelect, GridManager.inst.GetTiles(selectCoords), _unit);
     }

@@ -116,7 +116,7 @@ public class HexNode : MonoBehaviour
     {
         foreach (var displayNode in transform.GetChild(0).GetComponentsInChildren<RangeDisplayer>())
         {
-            if (displayNode.gameObject.activeSelf && displayNode.canSelect)
+            if (displayNode.gameObject.activeSelf && (displayNode.areaType == AreaType.Attack || displayNode.areaType == AreaType.Buff) && displayNode.canSelect)
                 return (true, displayNode.unit);
         }
         return (false, null);

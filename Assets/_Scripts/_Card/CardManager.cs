@@ -95,6 +95,7 @@ public class CardManager : MonoBehaviour
 
     void OnTurnStarted(bool playerTurn)
     {
+
     }
 
     private void Update()

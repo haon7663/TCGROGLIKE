@@ -27,7 +27,10 @@ public class Unit_Card : MonoBehaviour
 
     public void DrawRange(CardData data = null, bool canSelect = true)
     {
-        if(data)
+        if (!StatusManager.CanAction(_unit))
+            canSelect = false;
+
+        if (data)
             CardData = data;
         
         var selectCoords = GetArea(CardData);

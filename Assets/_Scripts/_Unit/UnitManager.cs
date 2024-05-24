@@ -449,7 +449,7 @@ public class UnitManager : MonoBehaviour
 
         yield return StartCoroutine(unit.move.OnMoveInRange(targetCoords, unit.data.range));
     }
-    private Unit GetNearestUnit(Unit unit) //가까운 유닛 탐색, 거리가 같으면 원래 유닛 타겟 고정
+    public Unit GetNearestUnit(Unit unit) //가까운 유닛 탐색, 거리가 같으면 원래 유닛 타겟 고정
     {
         if (unit.card.CardData.rangeType == RangeType.Self)
             return unit;

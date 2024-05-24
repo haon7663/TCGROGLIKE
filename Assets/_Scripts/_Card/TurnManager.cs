@@ -71,13 +71,25 @@ public class TurnManager : MonoBehaviour
         yield return delay7;
 
         GridManager.inst.StatusNode();
-        
+
+        var allies = UnitManager.inst.allies;
+        for (var i = allies.Count - 1; i >= 0; i--)
+        {
+            StatusManager.Inst.StatusActive(allies[i]);
+        }
+
         paze = Paze.Enemy;
 
         LightManager.inst.ChangeLight(true);
         yield return delay7;
 
         var enemies = UnitManager.inst.enemies;
+        foreach(var enemy in enemies.FindAll(x => !x.targetUnit))
+        {
+            print("nonTarget");
+            enemy.targetUnit = UnitManager.inst.GetNearestUnit(enemy);
+        }
+
         var ableEnemies = enemies.FindAll(x => x.card.CardData.useType == UseType.Able);
         var shouldEnemies = enemies.FindAll(x => x.card.CardData.useType == UseType.Should);
         for (var i = shouldEnemies.Count - 1; i >= 0; i--)
@@ -91,7 +103,9 @@ public class TurnManager : MonoBehaviour
 
             print(unit.name + "/ act: " + canAction + "/ move: " + canMove);
 
-            if(canMove)
+            StatusManager.Inst.StatusActive(unit);
+
+            if (canMove)
             {
                 yield return StartCoroutine(UnitManager.inst.EnemyMove(unit, false));
             }

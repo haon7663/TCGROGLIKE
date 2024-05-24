@@ -35,7 +35,7 @@ public class HealthManager : MonoBehaviour
     [SerializeField] Material defaultMaterial;
     [SerializeField] Material whiteMaterial;
 
-    Vector3 addPos = new Vector2(0.1875f, 0);
+    Vector3 addPos = new Vector2(0, 0);
 
     private void Update()
     {
