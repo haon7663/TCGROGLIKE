@@ -73,22 +73,55 @@ public class TurnManager : MonoBehaviour
         GridManager.inst.StatusNode();
         
         paze = Paze.Enemy;
-        
+
+        LightManager.inst.ChangeLight(true);
+        yield return delay7;
+
         var enemies = UnitManager.inst.enemies;
         var ableEnemies = enemies.FindAll(x => x.card.CardData.useType == UseType.Able);
         var shouldEnemies = enemies.FindAll(x => x.card.CardData.useType == UseType.Should);
         for (var i = shouldEnemies.Count - 1; i >= 0; i--)
         {
-            print("Should");
-            yield return StartCoroutine(UnitManager.inst.EnemyAction(shouldEnemies[i], false));
+            var unit = shouldEnemies[i];
+
+            UnitManager.inst.SelectUnit(unit);
+
+            bool canAction = StatusManager.CanAction(unit);
+            bool canMove = StatusManager.CanMove(unit);
+
+            print(unit.name + "/ act: " + canAction + "/ move: " + canMove);
+
+            if(canMove)
+            {
+                yield return StartCoroutine(UnitManager.inst.EnemyMove(unit, false));
+            }
+            if(canAction)
+            {
+                yield return StartCoroutine(UnitManager.inst.EnemyAct(unit, false));
+            }
         }
         for (var i = ableEnemies.Count - 1; i >= 0; i--)
         {
-            print("Able");
-            yield return StartCoroutine(UnitManager.inst.EnemyAction(ableEnemies[i], true));
+            var unit = ableEnemies[i];
+
+            bool canAction = StatusManager.CanAction(unit);
+            bool canMove = StatusManager.CanMove(unit);
+
+            print(unit.name + "/ act: " + canAction + "/ move: " + canMove);
+
+            StatusManager.Inst.StatusActive(unit);
+
+            if (canMove)
+            {
+                yield return StartCoroutine(UnitManager.inst.EnemyMove(unit, true));
+            }
+            if (canAction)
+            {
+                yield return StartCoroutine(UnitManager.inst.EnemyAct(unit, true));
+            }
             yield return delay7;
         }
-
+        LightManager.inst.ChangeLight(false);
         yield return delay7;
         StartCoroutine(StartTurnCo());
     }

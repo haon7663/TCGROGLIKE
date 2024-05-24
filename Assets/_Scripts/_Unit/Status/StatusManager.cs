@@ -82,7 +82,7 @@ public class StatusManager : MonoBehaviour
     {
         var stun = unit.statuses.Exists(item => item.data.name.Equals("Stun"));
 
-        return stun;
+        return !stun;
     }
 
     #region Calculate

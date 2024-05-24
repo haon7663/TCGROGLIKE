@@ -368,39 +368,44 @@ public class UnitManager : MonoBehaviour
 
         unit.ShowAction(sprite, value);
     }
-    public IEnumerator EnemyAction(Unit unit, bool isAble)
+    public IEnumerator EnemyMove(Unit unit, bool ableAction)
     {
-        print("0");
-        if (isAble)
+        if (ableAction)
         {
-            print("1");
             if (!unit.targetUnit)
                 yield break;
             
-            print("2");
             yield return StartCoroutine(MoveUnit(unit, unit.targetUnit));
+
+            yield return YieldInstructionCache.WaitForSeconds(1f);
+        }
+        else
+        {
+
+        }
+    }
+    public IEnumerator EnemyAct(Unit unit, bool ableAction)
+    {
+        if (ableAction)
+        {
+            if (!unit.targetUnit)
+                yield break;
 
             if (!unit.targetUnit.card.GetArea(unit.card.CardData).Contains(unit.coords))
                 yield break;
-            
-            yield return YieldInstructionCache.WaitForSeconds(0.7f);
-            print("3");
+
             yield return StartCoroutine(unit.card.UseCard(GridManager.inst.GetTile(unit.targetUnit)));
+            yield return YieldInstructionCache.WaitForSeconds(1f);
         }
         else
         {
             yield return StartCoroutine(unit.card.UseCard(GridManager.inst.GetTile(unit.targetCoords)));
-            /*foreach(var displayObject in unit.card.selectedTiles)
-            {
-                Destroy(displayObject);
-            }*/
+            yield return YieldInstructionCache.WaitForSeconds(1f);
         }
     }
+
     private IEnumerator MoveUnit(Unit unit, Unit targetUnit)
     {
-        if (!StatusManager.CanMove(unit))
-            yield break;
-
         var cardData = unit.card.CardData;
 
         unit.Repeat(targetUnit.transform.position.x);

@@ -262,8 +262,6 @@ public class CardManager : MonoBehaviour
 
         PutCard(card);
         //StartCoroutine(UnitManager.sUnit.card.UseCard(GridManager.inst.selectedNode, card.cardInfo.data));
-        
-        print("ASE");
     }
 
     private void CardDrag()

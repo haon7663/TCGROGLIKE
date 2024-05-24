@@ -45,7 +45,6 @@ public class Card : MonoBehaviour
     private void OnMouseUp()
     {
         CardManager.Inst.CardMouseUp(this);
-        print("WQEEQEWQ");
     }
 
     public void MoveTransform(PRS prs, bool useDotween, float dotweenTime = 0, bool isLocal = true)
