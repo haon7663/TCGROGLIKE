@@ -21,8 +21,8 @@ public class UnitManager : MonoBehaviour
     public List<Unit> enemies;
 
     public static Unit sUnit;
-    private Unit_Move _sUnitMove;
-    private Unit_Card _sUnitCard;
+    private UnitMove _sUnitMove;
+    private UnitCard _sUnitCard;
 
     [SerializeField] private Unit unitPrefab;
     [SerializeField] private Transform allyBundle;
@@ -228,9 +228,9 @@ public class UnitManager : MonoBehaviour
             GridManager.inst.RevertTiles(unit);
             if (isCard) return;
             
-            switch (TurnManager.Inst.paze)
+            switch (TurnManager.Inst.phase)
             {
-                case Paze.Card:
+                case Phase.Card:
                     _sUnitMove.DrawArea();
                     break;
                 default:
@@ -394,12 +394,12 @@ public class UnitManager : MonoBehaviour
             if (!unit.targetUnit.card.GetArea(unit.card.CardData).Contains(unit.coords))
                 yield break;
 
-            yield return StartCoroutine(unit.card.UseCard(GridManager.inst.GetTile(unit.targetUnit)));
+            yield return StartCoroutine(unit.card.UseCard(GridManager.inst.GetNode(unit.targetUnit)));
             yield return YieldInstructionCache.WaitForSeconds(1f);
         }
         else
         {
-            yield return StartCoroutine(unit.card.UseCard(GridManager.inst.GetTile(unit.targetCoords)));
+            yield return StartCoroutine(unit.card.UseCard(GridManager.inst.GetNode(unit.targetCoords)));
             yield return YieldInstructionCache.WaitForSeconds(1f);
         }
     }
@@ -425,7 +425,7 @@ public class UnitManager : MonoBehaviour
         }
 
         var targetArea = cardData.compareByMove ? unit.move.GetArea(true) : targetUnit.card.GetArea(unit.card.CardData, unit);
-        targetArea = targetArea.FindAll(x => GridManager.inst.GetTile(x).CanWalk() || x == unit.coords);
+        targetArea = targetArea.FindAll(x => GridManager.inst.GetNode(x).CanWalk() || x == unit.coords);
         var targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance && unit.move.GetArea(true).Contains(x));
         for (int i = targetDistance - 1; i > 0 && targetCoordses.Count == 0; i--)
         {
@@ -447,7 +447,7 @@ public class UnitManager : MonoBehaviour
             targetCoords = targetCoordses[Random.Range(0, targetCoordses.Count)];
         }
 
-        yield return StartCoroutine(unit.move.OnMoveInRange(targetCoords, unit.data.range));
+        yield return StartCoroutine(unit.move.OnMoveInRange(targetCoords, 1));
     }
     public Unit GetNearestUnit(Unit unit) //가까운 유닛 탐색, 거리가 같으면 원래 유닛 타겟 고정
     {

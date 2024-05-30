@@ -26,6 +26,8 @@ public class HexNode : MonoBehaviour
     [Header("디버그")]
     [SerializeField] private TMP_Text coordsText;
 
+    public List<RangeDisplay> RangeDisplays { get; private set; }
+
     public float GetDistance(HexNode other) => Coords.GetDistance(other.Coords); // Helper to reduce noise in pathfinding
 
     public virtual void Init(bool onObstacle, HexCoords coords)
@@ -45,7 +47,7 @@ public class HexNode : MonoBehaviour
 
         if (canMove.Item1)
         {
-            canMove.Item2.move.OnMove(Coords);
+            canMove.Item2.move.Move(Coords);
         }
         else if (canCard.Item1)
         {
@@ -56,7 +58,6 @@ public class HexNode : MonoBehaviour
     private void OnMouseDown()
     {
         if (!CanWalk()) return;
-
         Use();
     }
     private void OnMouseOver()
@@ -105,40 +106,31 @@ public class HexNode : MonoBehaviour
     
     private (bool, Unit) CanMove()
     {
-        foreach (var displayNode in transform.GetChild(0).GetComponentsInChildren<RangeDisplayer>())
-        {
-            if (displayNode.gameObject.activeSelf && displayNode.areaType == AreaType.Move && displayNode.canSelect)
-                return (true, displayNode.unit);
-        }
+        foreach (var rangeDisplay in RangeDisplays.Where(display => display.gameObject.activeSelf && display.AreaType == AreaType.Move && display.CanSelect))
+            return (true, rangeDisplay.Unit);
         return (false, null);
     }
     private (bool, Unit) CanCard()
     {
-        foreach (var displayNode in transform.GetChild(0).GetComponentsInChildren<RangeDisplayer>())
-        {
-            if (displayNode.gameObject.activeSelf && (displayNode.areaType == AreaType.Attack || displayNode.areaType == AreaType.Buff) && displayNode.canSelect)
-                return (true, displayNode.unit);
-        }
+        foreach (var rangeDisplay in RangeDisplays.Where(display => display.gameObject.activeSelf && display.AreaType != AreaType.Attack && display.AreaType != AreaType.Buff && display.CanSelect))
+            return (true, rangeDisplay.Unit);
         return (false, null);
     }
     private (bool, Unit) CanArrange()
     {
-        foreach (var displayNode in transform.GetChild(0).GetComponentsInChildren<RangeDisplayer>())
-        {
-            if (displayNode.gameObject.activeSelf && displayNode.areaType == AreaType.Arrange && displayNode.canSelect)
-                return (true, displayNode.unit);
-        }
+        foreach (var rangeDisplay in RangeDisplays.Where(display => display.gameObject.activeSelf && display.AreaType == AreaType.Arrange && display.CanSelect))
+            return (true, rangeDisplay.Unit);
         return (false, null);
     }
 
-    public bool OnSelect()
+    private bool OnSelect()
     {
-        return transform.GetChild(0).GetComponentsInChildren<RangeDisplayer>().ToList().Exists(x => x.gameObject.activeSelf && x.areaType == AreaType.Select);
+        return RangeDisplays.ToList().Exists(x => x.gameObject.activeSelf && x.AreaType == AreaType.Select);
     }
 
     public void RevertTile(Unit unit = null)
     {
-        foreach(var displayNode in transform.GetChild(0).GetComponentsInChildren<RangeDisplayer>())
+        foreach(var displayNode in RangeDisplays)
         {
             displayNode.Release(unit);
         }
@@ -146,10 +138,9 @@ public class HexNode : MonoBehaviour
 
     public void RevertAble(Unit unit = null)
     {
-        foreach (var displayNode in transform.GetChild(0).GetComponentsInChildren<RangeDisplayer>())
+        foreach (var displayNode in RangeDisplays.Where(displayNode => displayNode.AreaType == AreaType.Select))
         {
-            if(displayNode.areaType == AreaType.Select)
-                displayNode.Release(unit);
+            displayNode.Release(unit);
         }
         damageText.gameObject.SetActive(false);
     }
@@ -243,7 +234,7 @@ public struct HexCoords
 
     public float GetDistance(HexCoords other) => (this - other).AxialLength();
 
-    public int GetPathDistance(HexCoords other) => Pathfinding.FindPathDistance(GridManager.inst.GetTile(this), GridManager.inst.GetTile(other));
+    public int GetPathDistance(HexCoords other) => Pathfinding.FindPathDistance(GridManager.inst.GetNode(this), GridManager.inst.GetNode(other));
 
     private static readonly float Sqrt3 = Mathf.Sqrt(3);
 

@@ -22,7 +22,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private ScriptableGrid scriptableGrid;
     public HexNode selectedNode;
 
-    [SerializeField] private GameObject areaPrefab;
+    [SerializeField] private RangeDisplay rangeDisplayPrefab;
     [SerializeField] private Sprite areaSprite;
     [SerializeField] private Color selectAreaColor;
     [SerializeField] private Color moveAreaColor;
@@ -35,57 +35,37 @@ public class GridManager : MonoBehaviour
     {
         foreach (var t in tiles)
         {
-            var color = Color.white;
-            switch (areaType)
+            var color = areaType switch
             {
-                case AreaType.Select:
-                    color = selectAreaColor;
-                    break;
-                case AreaType.Move:
-                    color = moveAreaColor;
-                    break;
-                case AreaType.Attack:
-                    color = attackAreaColor;
-                    break;
-                case AreaType.Buff:
-                    color = buffAreaColor;
-                    break;
-                case AreaType.Arrange:
-                    color = arrangeAreaColor;
-                    break;
-            }
+                AreaType.Select => selectAreaColor,
+                AreaType.Move => moveAreaColor,
+                AreaType.Attack => attackAreaColor,
+                AreaType.Buff => buffAreaColor,
+                AreaType.Arrange => arrangeAreaColor,
+                _ => Color.white
+            };
 
-            GameObject displayArea = null;
-            var tileSprite = t.transform.GetChild(0);
-            for (int i = 0; i < tileSprite.childCount; i++)
+            RangeDisplay rangeDisplay = null;
+            if (t.RangeDisplays.Count > 0)
             {
-                if (!tileSprite.GetChild(i).gameObject.activeSelf)
-                {
-                    displayArea = tileSprite.GetChild(i).gameObject;
-                    break;
-                }
+                rangeDisplay = t.RangeDisplays.Find(display => !display.Active);
             }
-            if (!displayArea)
+            else
             {
-                displayArea = Instantiate(areaPrefab, t.transform.GetChild(0).transform);
-                displayArea.transform.localPosition = Vector2.zero;
+                rangeDisplay = Instantiate(rangeDisplayPrefab, t.transform.GetChild(0));
+                rangeDisplay.transform.localPosition = Vector2.zero;
             }
             
-            displayArea.SetActive(true);
-            displayArea.GetComponent<Animator>().enabled = !canSelect;
-            
-            var displaySpriteRenderer = displayArea.GetComponent<SpriteRenderer>();
+            var displaySpriteRenderer = rangeDisplay.GetComponent<SpriteRenderer>();
             displaySpriteRenderer.color = canSelect ? new Color(color.r, color.g, color.b, 0.2f) : new Color(color.r, color.g, color.b, 0.5f);
-            displaySpriteRenderer.sprite = areaSprite;
-
-            foreach (var direction in HexDirectionExtension.Loop(HexDirection.EN))
+            foreach (var direction in HexDirectionExtension.Loop())
             {
-                var isContain = !tiles.Contains(GetTile(t.Coords + direction.Coords()));
-                displayArea.transform.GetChild((int)direction).gameObject.SetActive(isContain);
+                var isContain = !tiles.Contains(GetNode(t.Coords + direction.Coords()));
+                rangeDisplay.transform.GetChild((int)direction).gameObject.SetActive(isContain);
                 if (isContain)
-                    displayArea.transform.GetChild((int)direction).GetComponent<SpriteRenderer>().color = color;
+                    rangeDisplay.transform.GetChild((int)direction).GetComponent<SpriteRenderer>().color = color;
             }
-            displayArea.GetComponent<RangeDisplayer>().Get(areaType, canSelect, unit);
+            rangeDisplay.Setup(areaType, canSelect, unit);
         }
     }
 
@@ -120,31 +100,32 @@ public class GridManager : MonoBehaviour
             selectedNode = node;
     }
 
+    public bool ContainNode(Vector2 pos) => Tiles.ContainsKey(pos);
     #region SetTileUnit
     public void SetTileUnit(HexCoords hexCoords, Unit unit)
     {
-        GetTile(hexCoords).PutUnit(unit);
+        GetNode(hexCoords).PutUnit(unit);
     }
     public bool SetTileUnit(HexCoords prevCoords, HexCoords nextCoords, Unit unit)
     {
         if (prevCoords == nextCoords)
             return false;
-        if (GetTile(nextCoords)?.CanWalk() != true)
+        if (GetNode(nextCoords)?.CanWalk() != true)
             return false;
 
-        GetTile(nextCoords).PutUnit(unit);
-        GetTile(prevCoords).RemoveUnit(unit);
+        GetNode(nextCoords).PutUnit(unit);
+        GetNode(prevCoords).RemoveUnit(unit);
         return true;
     }
     public void SetTileUnitRemove(Unit unit)
     {
-        GetTile(unit).RemoveUnit(unit);
+        GetNode(unit).RemoveUnit(unit);
     }
     #endregion    
     #region GetTile
-    public HexNode GetTile(Unit unit) => Tiles.ContainsKey(unit.coords.Pos) ? Tiles.TryGetValue(unit.coords.Pos, out var tile) ? tile : null : null;
-    public HexNode GetTile(HexCoords coords) => Tiles.ContainsKey(coords.Pos) ? Tiles.TryGetValue(coords.Pos, out var tile) ? tile : null : null;
-    public HexNode GetTile(Vector2 pos) => Tiles.ContainsKey(pos) ? Tiles.TryGetValue(pos, out var tile) ? tile : null : null;
+    public HexNode GetNode(Unit unit) => Tiles.ContainsKey(unit.coords.Pos) ? Tiles.TryGetValue(unit.coords.Pos, out var tile) ? tile : null : null;
+    public HexNode GetNode(HexCoords coords) => Tiles.ContainsKey(coords.Pos) ? Tiles.TryGetValue(coords.Pos, out var tile) ? tile : null : null;
+    public HexNode GetNode(Vector2 pos) => Tiles.ContainsKey(pos) ? Tiles.TryGetValue(pos, out var tile) ? tile : null : null;
     public List<HexNode> GetTiles(List<HexCoords> coordses)
     {
         List<HexNode> tiles = new();
@@ -160,12 +141,12 @@ public class GridManager : MonoBehaviour
     public Unit GetUnit(HexNode hexNode) => hexNode.OnUnit ? hexNode.Unit : null;
     public Unit GetUnit(HexCoords hexCoords)
     {
-        var hexNode = GetTile(hexCoords);
+        var hexNode = GetNode(hexCoords);
         return hexNode.OnUnit ? hexNode.Unit : null;
     }
     public Unit GetUnit(Vector2 pos)
     {
-        var hexNode = GetTile(pos);
+        var hexNode = GetNode(pos);
         return hexNode.OnUnit ? hexNode.Unit : null;
     }
     #endregion

@@ -5,7 +5,7 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Serialization;
 
-public class Unit_Card : MonoBehaviour
+public class UnitCard : MonoBehaviour
 {
     private Unit _unit;
     private void Awake() => _unit = GetComponent<Unit>();
@@ -54,7 +54,7 @@ public class Unit_Card : MonoBehaviour
         switch (data.rangeType)
         {
             case RangeType.Liner:
-                foreach (var hexDirection in HexDirectionExtension.Loop(HexDirection.E))
+                foreach (var hexDirection in HexDirectionExtension.Loop())
                 {
                     var floorWide = Mathf.FloorToInt((float)data.lineWidth / 2);
                     for (var j = -floorWide; j <= floorWide; j++)
@@ -62,7 +62,7 @@ public class Unit_Card : MonoBehaviour
                         for (var i = 0; i < data.range; i++)
                         {
                             var coords = _unit.coords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i;
-                            var node = GridManager.inst.GetTile(coords);
+                            var node = GridManager.inst.GetNode(coords);
                             if (node)
                             {
                                 if (node.CanWalk() || node.Coords == otherUnit?.coords || data.isPenetrate && !node.OnObstacle)
@@ -87,7 +87,7 @@ public class Unit_Card : MonoBehaviour
                     }
                 else
                 {
-                    foreach (var hexDirection in HexDirectionExtension.Loop(HexDirection.E))
+                    foreach (var hexDirection in HexDirectionExtension.Loop())
                     {
                         selectCoords.Add(_unit.coords + hexDirection.Coords());
                     }
@@ -99,9 +99,9 @@ public class Unit_Card : MonoBehaviour
                 break;
             case RangeType.OurArea:
                 var tiles = HexDirectionExtension.Area(_unit.coords, data.range, data.onSelf);
-                foreach (var unit in UnitManager.inst.allies.FindAll(x => tiles.Contains(GridManager.inst.GetTile(x))))
+                foreach (var unit in UnitManager.inst.allies.FindAll(x => tiles.Contains(GridManager.inst.GetNode(x))))
                 {
-                    var tile = GridManager.inst.GetTile(unit);
+                    var tile = GridManager.inst.GetNode(unit);
                     selectCoords.Add(tile.Coords);
                     tiles.Remove(tile);
                 }
@@ -114,7 +114,7 @@ public class Unit_Card : MonoBehaviour
         return selectCoords;
     }
 
-    public List<HexNode> SelectedArea => GetSelectedArea(GridManager.inst.GetTile(_unit.coords + directionCoords));
+    public List<HexNode> SelectedArea => GetSelectedArea(GridManager.inst.GetNode(_unit.coords + directionCoords));
     public List<HexNode> GetSelectedArea(HexNode node)
     {
         //_unit.Anim_SetTrigger("attackReady");
@@ -164,7 +164,7 @@ public class Unit_Card : MonoBehaviour
         if (!node && CardData.rangeType != RangeType.Self)
             yield break;
         if (CardData.rangeType == RangeType.Self)
-            node = GridManager.inst.GetTile(_unit);
+            node = GridManager.inst.GetNode(_unit);
         
         _unit.Anim_SetTrigger("attack");
 
@@ -199,8 +199,14 @@ public class Unit_Card : MonoBehaviour
                 }
                 break;
         }
+
         if (CardData.isMove)
-            _unit.move.OnMove(node.Coords, CardData.isJump);
+        {
+            if (CardData.isJump)
+                _unit.move.PassMove(node.Coords);
+            else
+                _unit.move.Move(node.Coords);
+        }
 
         canDisplay = false;
         GridManager.inst.RevertTiles(_unit);

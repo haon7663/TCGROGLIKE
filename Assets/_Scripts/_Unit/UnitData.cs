@@ -18,8 +18,6 @@ public class UnitData : ScriptableObject
     public bool onTargetToEnemy = true;
     
     [Header("이동")]
-    public RangeType rangeType;
-    public int range;
     public int cost;
     public bool isJump = false;
 

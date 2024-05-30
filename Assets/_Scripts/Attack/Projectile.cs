@@ -17,7 +17,7 @@ public class Projectile : Action
         for (int i = 1; i <= data.realRange; i++)
         {
             coords += direction.Coords();
-            if (GridManager.inst.GetTile(coords)?.OnObstacle != false)
+            if (GridManager.inst.GetNode(coords)?.OnObstacle != false)
                 break;
 
             transform.DOMove(coords.Pos, 0.05f).SetEase(Ease.Linear);

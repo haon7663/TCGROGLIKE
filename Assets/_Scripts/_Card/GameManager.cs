@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        pazeText.text = "Paze: " + TurnManager.Inst.paze.ToString();
+        pazeText.text = "Paze: " + TurnManager.Inst.phase.ToString();
         energyText.text = TurnManager.Inst.Energy + " / " + TurnManager.Inst.maxEnergy;
         moveCostText.text = TurnManager.Inst.CommanderCost + " / " + TurnManager.Inst.maxMoveCost;
 

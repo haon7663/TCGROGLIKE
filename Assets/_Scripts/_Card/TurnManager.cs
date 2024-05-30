@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
-public enum Paze { Draw, Card, End, Enemy }
+public enum Phase { Draw, Card, End, Enemy }
 public class TurnManager : MonoBehaviour
 {
     public static TurnManager Inst { get; private set; }
@@ -16,7 +17,7 @@ public class TurnManager : MonoBehaviour
     [SerializeField][Tooltip("시작 카드 개수를 정합니다")] int startCardCount;
 
     [Header("Properties")]
-    public Paze paze = Paze.Draw;
+    public Phase phase = Phase.Draw;
     public bool myTurn;
 
     [Header("Resources")]
@@ -55,7 +56,7 @@ public class TurnManager : MonoBehaviour
         
         OnTurnStarted?.Invoke(true);
 
-        paze = Paze.Draw;
+        phase = Phase.Draw;
         for (var i = 0; i < startCardCount; i++)
         {
             yield return delay05;
@@ -63,10 +64,10 @@ public class TurnManager : MonoBehaviour
         }
         yield return delay7;
 
-        paze = Paze.Card;
+        phase = Phase.Card;
         yield return new WaitUntil(() => Energy <= 0);
 
-        paze = Paze.End;
+        phase = Phase.End;
         CardManager.Inst.RemoveCards();
         yield return delay7;
 
@@ -78,7 +79,7 @@ public class TurnManager : MonoBehaviour
             StatusManager.Inst.StatusActive(allies[i]);
         }
 
-        paze = Paze.Enemy;
+        phase = Phase.Enemy;
 
         LightManager.inst.ChangeLight(true);
         yield return delay7;

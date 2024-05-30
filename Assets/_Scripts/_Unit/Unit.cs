@@ -7,8 +7,8 @@ using TMPro;
 
 public class Unit : MonoBehaviour
 {
-    [HideInInspector] public Unit_Move move;
-    [HideInInspector] public Unit_Card card;
+    [HideInInspector] public UnitMove move;
+    [HideInInspector] public UnitCard card;
 
     private SpriteRenderer _spriteRenderer;
     private Animator _animator;
@@ -32,9 +32,9 @@ public class Unit : MonoBehaviour
 
     private void Awake()
     {
-        if (transform.TryGetComponent(out Unit_Move unitMove))
+        if (transform.TryGetComponent(out UnitMove unitMove))
             move = unitMove;
-        if (transform.TryGetComponent(out Unit_Card unitCard))
+        if (transform.TryGetComponent(out UnitCard unitCard))
             card = unitCard;
 
         if (transform.GetChild(0).TryGetComponent(out SpriteRenderer spriteRenderer))

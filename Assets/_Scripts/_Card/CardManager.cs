@@ -185,12 +185,17 @@ public class CardManager : MonoBehaviour
 
     public void PutCard(Card card)
     {
-        StartCoroutine(card.unit.card.UseCard(GridManager.inst.selectedNode));
+        var selectedNode = GridManager.inst.selectedNode;
+
+        if (selectedNode)
+        {
+            StartCoroutine(card.unit.card.UseCard(selectedNode));
         
-        cards.Remove(card);
-        trashCards.Add(card.cardInfo);
-        card.transform.DOKill();
-        DestroyImmediate(card.gameObject);
+            cards.Remove(card);
+            trashCards.Add(card.cardInfo);
+            card.transform.DOKill();
+            DestroyImmediate(card.gameObject);
+        }
 
         hoveredCard = null;
         _selectedCard = null;
@@ -281,7 +286,7 @@ public class CardManager : MonoBehaviour
             _selectedCard.ShowLiner();
             if(_selectedCard.cardInfo.data.rangeType == RangeType.Self)
             {
-                var tile = GridManager.inst.GetTile(_selectedCard.unit);
+                var tile = GridManager.inst.GetNode(_selectedCard.unit);
                 //tile.OnDisplay(AreaType.Select);
             }
         }
@@ -327,15 +332,15 @@ public class CardManager : MonoBehaviour
 
     void SetECardState()
     {
-        switch (TurnManager.Inst.paze)
+        switch (TurnManager.Inst.phase)
         {
-            case Paze.Draw or Paze.End:
+            case Phase.Draw or Phase.End:
                 eCardState = ECardState.Noting;
                 break;
-            case Paze.Enemy:
+            case Phase.Enemy:
                 eCardState = ECardState.CanMouseOver;
                 break;
-            case Paze.Card:
+            case Phase.Card:
                 eCardState = ECardState.CanMouseDrag;
                 break;
         }

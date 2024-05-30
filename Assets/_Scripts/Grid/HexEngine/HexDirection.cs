@@ -72,12 +72,11 @@ public static class HexDirectionExtension
     /// <summary>
     /// Iterates through all hex directions starting from this direction and going clockwise.
     /// </summary>
-    public static IEnumerable<HexDirection> Loop(this HexDirection direction)
+    public static IEnumerable<HexDirection> Loop()
     {
-        var startIndex = (int)direction;
-        for (int i = 0; i < 6; i++)
+        for (var i = 0; i < 6; i++)
         {
-            yield return (HexDirection)((startIndex + i) % 6);
+            yield return (HexDirection)i;
         }
     }
 
@@ -106,7 +105,7 @@ public static class HexDirectionExtension
 
     public static List<HexNode> ReachArea(HexCoords coords, int range, bool onSelf = false)
     {
-        var startNode = GridManager.inst.GetTile(coords);
+        var startNode = GridManager.inst.GetNode(coords);
         List<HexNode> visited = new List<HexNode>() { startNode };
         List<HexNode> fringes = new List<HexNode>() { startNode };
 
@@ -152,11 +151,11 @@ public static class HexDirectionExtension
             for (int j = -floorWide; j <= floorWide; j++)
             {
                 var SelectedCoords = coords + hexDirection.Rotate(j).Coords() + hexDirection.Coords() * i;
-                if (GridManager.inst.Tiles.ContainsKey(SelectedCoords.Pos) && (isPenetrate || GridManager.inst.GetTile(SelectedCoords).CanWalk()) && GridManager.inst.GetTile(SelectedCoords)?.OnObstacle == false)
-                    linerNode.Add(GridManager.inst.GetTile(SelectedCoords.Pos));
-                else if (GridManager.inst.Tiles.ContainsKey(SelectedCoords.Pos) && GridManager.inst.GetTile(SelectedCoords).OnUnit)
+                if (GridManager.inst.Tiles.ContainsKey(SelectedCoords.Pos) && (isPenetrate || GridManager.inst.GetNode(SelectedCoords).CanWalk()) && GridManager.inst.GetNode(SelectedCoords)?.OnObstacle == false)
+                    linerNode.Add(GridManager.inst.GetNode(SelectedCoords.Pos));
+                else if (GridManager.inst.Tiles.ContainsKey(SelectedCoords.Pos) && GridManager.inst.GetNode(SelectedCoords).OnUnit)
                 {
-                    linerNode.Add(GridManager.inst.GetTile(SelectedCoords.Pos));
+                    linerNode.Add(GridManager.inst.GetNode(SelectedCoords.Pos));
                     isBlocked = true;
                     break;
                 }
