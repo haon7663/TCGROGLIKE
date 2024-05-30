@@ -46,7 +46,7 @@ public class GridManager : MonoBehaviour
             };
 
             RangeDisplay rangeDisplay = null;
-            if (t.RangeDisplays.Count > 0)
+            if (t.RangeDisplays.Count > 0 && t.RangeDisplays.Exists(display => !display.Active))
             {
                 rangeDisplay = t.RangeDisplays.Find(display => !display.Active);
             }
@@ -54,18 +54,10 @@ public class GridManager : MonoBehaviour
             {
                 rangeDisplay = Instantiate(rangeDisplayPrefab, t.transform.GetChild(0));
                 rangeDisplay.transform.localPosition = Vector2.zero;
+                t.RangeDisplays.Add(rangeDisplay);
             }
-            
-            var displaySpriteRenderer = rangeDisplay.GetComponent<SpriteRenderer>();
-            displaySpriteRenderer.color = canSelect ? new Color(color.r, color.g, color.b, 0.2f) : new Color(color.r, color.g, color.b, 0.5f);
-            foreach (var direction in HexDirectionExtension.Loop())
-            {
-                var isContain = !tiles.Contains(GetNode(t.Coords + direction.Coords()));
-                rangeDisplay.transform.GetChild((int)direction).gameObject.SetActive(isContain);
-                if (isContain)
-                    rangeDisplay.transform.GetChild((int)direction).GetComponent<SpriteRenderer>().color = color;
-            }
-            rangeDisplay.Setup(areaType, canSelect, unit);
+            rangeDisplay.gameObject.SetActive(true);
+            rangeDisplay.Setup(areaType, unit, t, tiles, canSelect, color);
         }
     }
 

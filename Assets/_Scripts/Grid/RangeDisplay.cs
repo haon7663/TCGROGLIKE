@@ -13,16 +13,17 @@ public class RangeDisplay : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer[] directionSpriteRenderers;
 
-    public void Setup(AreaType areaType, Unit unit, HexNode node, bool canSelect, Color color)
+    private HexNode _node;
+
+    public void Setup(AreaType areaType, Unit unit, HexNode node, List<HexNode> nodes, bool canSelect, Color color)
     {
         spriteRenderer.color = canSelect ? new Color(color.r, color.g, color.b, 0.2f) : new Color(color.r, color.g, color.b, 0.5f);
 
         foreach (var direction in HexDirectionExtension.Loop())
         {
-            var isContain = !GridManager.inst.ContainNode((node.Coords + direction.Coords()).Pos);
+            var isContain = !nodes.Contains(GridManager.inst.GetNode(node.Coords + direction.Coords())) || !GridManager.inst.ContainNode((node.Coords + direction.Coords()).Pos);
             directionSpriteRenderers[(int)direction].gameObject.SetActive(isContain);
-            if (isContain)
-                directionSpriteRenderers[(int)direction].color = color;
+            directionSpriteRenderers[(int)direction].color = color;
         }
         animator.enabled = !canSelect;
         
@@ -30,6 +31,8 @@ public class RangeDisplay : MonoBehaviour
         CanSelect = canSelect;
         Unit = unit;
         Active = true;
+
+        _node = node;
     }
     public void Release(Unit unit = null)
     {

@@ -26,15 +26,16 @@ public class HexNode : MonoBehaviour
     [Header("디버그")]
     [SerializeField] private TMP_Text coordsText;
 
-    public List<RangeDisplay> RangeDisplays { get; private set; }
+    public List<RangeDisplay> RangeDisplays;
 
     public float GetDistance(HexNode other) => Coords.GetDistance(other.Coords); // Helper to reduce noise in pathfinding
 
     public virtual void Init(bool onObstacle, HexCoords coords)
     {
+        RangeDisplays = new List<RangeDisplay>();
         OnObstacle = onObstacle;
         
-        this.Coords = coords;
+        Coords = coords;
         coordsText.text = "q: " + coords._q + ", r: " + coords._r + "  s: " + coords._s;
         transform.position = this.Coords.Pos;
     }
@@ -130,17 +131,23 @@ public class HexNode : MonoBehaviour
 
     public void RevertTile(Unit unit = null)
     {
-        foreach(var displayNode in RangeDisplays)
+        foreach(var rangeDisplay in RangeDisplays.ToList())
         {
-            displayNode.Release(unit);
+            if (!rangeDisplay)
+                return;
+            
+            rangeDisplay.Release(unit);
         }
     }
 
     public void RevertAble(Unit unit = null)
     {
-        foreach (var displayNode in RangeDisplays.Where(displayNode => displayNode.AreaType == AreaType.Select))
+        foreach (var rangeDisplay in RangeDisplays.Where(displayNode => displayNode.AreaType == AreaType.Select).ToList())
         {
-            displayNode.Release(unit);
+            if (!rangeDisplay)
+                return;
+            
+            rangeDisplay.Release(unit);
         }
         damageText.gameObject.SetActive(false);
     }

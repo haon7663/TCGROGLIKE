@@ -608,9 +608,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf08a6cf2c725fd4898507d3b32b0f9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  areaType: 0
-  unit: {fileID: 0}
-  canSelect: 0
+  spriteRenderer: {fileID: 3923265462839812680}
+  animator: {fileID: 3629156543573047470}
+  directionSpriteRenderers:
+  - {fileID: 911245732023923374}
+  - {fileID: 4495796039815896992}
+  - {fileID: 3968376154633620566}
+  - {fileID: 5436466797279866152}
+  - {fileID: 4681629396172504596}
+  - {fileID: 8557976973634009670}
 --- !u!95 &3629156543573047470
 Animator:
   serializedVersion: 5
