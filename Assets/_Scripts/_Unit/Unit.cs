@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using TMPro;
+using UnityEngine.Serialization;
 
 public class Unit : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class Unit : MonoBehaviour
     private TMP_Text _actionTMP;
 
     public HexCoords coords;
-    public UnitData data;
+    [FormerlySerializedAs("data")] public UnitSO unitSO;
 
     [Header("Stats")]
     public int hp;
@@ -49,13 +50,13 @@ public class Unit : MonoBehaviour
             _actionTMP = text;
     }
 
-    public void Init(UnitData unitData, HexCoords coords)
+    public void Init(UnitSO unitSO, HexCoords coords)
     {
-        data = Instantiate(unitData);
+        this.unitSO = Instantiate(unitSO);
 
-        _animator.runtimeAnimatorController = this.data.animatorController;
+        _animator.runtimeAnimatorController = this.unitSO.animatorController;
 
-        hp = data.hp;
+        hp = this.unitSO.hp;
         HealthManager.inst.GenerateHealthBar(this);
 
         this.coords = coords;
@@ -94,8 +95,8 @@ public class Unit : MonoBehaviour
         {
             print("Health");
             hp += value;
-            if (hp >= data.hp)
-                hp = data.hp;
+            if (hp >= unitSO.hp)
+                hp = unitSO.hp;
             
             HealthManager.inst.UpdateHealthBar(this);
             UIManager.inst.ShowRecoveryTMP(this, value);

@@ -17,9 +17,8 @@ MonoBehaviour:
   animatorController: {fileID: 22100000, guid: 4d0859ceee32a8a4b9fb213bb1426c85, type: 2}
   hp: 16
   onTargetToEnemy: 0
-  rangeType: 1
-  range: 2
   cost: 1
+  enemyMoveRange: 2
   isJump: 0
   cardInfo:
   - unit: {fileID: 0}

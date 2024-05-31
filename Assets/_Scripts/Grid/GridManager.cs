@@ -65,11 +65,12 @@ public class GridManager : MonoBehaviour
     {
         //print("RevertTiles / Unit: " + unit.data.name);
         foreach (var t in Tiles.Values) t.RevertTile(unit);
-        RevertAbles();
+        
+        RevertSelects();
     }
-    public void RevertAbles()
+    public void RevertSelects()
     {
-        foreach (var t in Tiles.Values) t.RevertAble();
+        foreach (var t in Tiles.Values) t.RevertSelect();
     }
     /*public List<GameObject> InstantiateSelectNodes(List<HexNode> tiles)
     {

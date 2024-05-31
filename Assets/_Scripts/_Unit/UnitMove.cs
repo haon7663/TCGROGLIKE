@@ -22,7 +22,7 @@ public class UnitMove : MonoBehaviour
     {
         List<HexCoords> selectCoords = new();
 
-        var maxRange = TurnManager.Inst.maxMoveCost / (_unit.data.cost == 0 ? 1 : _unit.data.cost);
+        var maxRange = _unit.unitSO.type == UnitType.Enemy ? _unit.unitSO.enemyMoveRange : TurnManager.Inst.maxMoveCost / (_unit.unitSO.cost == 0 ? 1 : _unit.unitSO.cost);
         selectCoords.AddRange(HexDirectionExtension.ReachArea(_unit.coords, maxRange).Select(hexNode => hexNode.Coords));
         if (onSelf)
             selectCoords.Add(_unit.coords);
@@ -64,6 +64,7 @@ public class UnitMove : MonoBehaviour
     public void PassMove(HexCoords targetCoords, bool useDotween = true, float dotweenTime = 0.1f, Ease ease = Ease.Linear)
     {
         GridManager.inst.RevertTiles(_unit);
+        GridManager.inst.SetTileUnit(_unit.coords, targetCoords, _unit);
         
         if (useDotween)
         {
@@ -83,7 +84,7 @@ public class UnitMove : MonoBehaviour
     public void OnMoved(HexDirection direction, int range, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
     {
         GridManager.inst.RevertTiles(_unit);
-        TurnManager.UseMoveCost(_unit.data.cost);
+        TurnManager.UseMoveCost(_unit.unitSO.cost);
 
         var sequence = DOTween.Sequence();
         for (var i = 1; i <= range; i++)
@@ -105,19 +106,16 @@ public class UnitMove : MonoBehaviour
     public IEnumerator OnMoveInRange(HexCoords targetCoords, int range, bool useDotween = true, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
     {
         GridManager.inst.RevertTiles(_unit);
-        TurnManager.UseMoveCost(_unit.data.cost);
+        TurnManager.UseMoveCost(_unit.unitSO.cost);
 
         var targetTile = GridManager.inst.GetNode(targetCoords);
         var path = Pathfinding.FindPath(GridManager.inst.GetNode(_unit), targetTile, _unit.coords == targetCoords || !targetTile.OnUnit);
 
         if(path.Count > 0)
         {
-            int i = 0;
-            foreach (var node in path)
+            var i = 0;
+            foreach (var node in path.TakeWhile(node => i++ < range))
             {
-                if (i++ >= range)
-                    break;
-
                 transform.DOMove(node.Coords.Pos - Vector3.forward, dotweenTime).SetEase(ease);
                 GridManager.inst.SetTileUnit(_unit.coords, node.Coords, _unit);
                 _unit.coords = node.Coords;

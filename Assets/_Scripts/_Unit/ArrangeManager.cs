@@ -17,7 +17,7 @@ public class ArrangeManager : MonoBehaviour
     public int arrangeRange;
 
     [SerializeField] private SpriteRenderer spriteRenderer;
-    private UnitData _unitData;
+    private UnitSO _unitSO;
 
     private GridManager _gridManager;
     private LightManager _lightManager;
@@ -36,31 +36,31 @@ public class ArrangeManager : MonoBehaviour
 
         spriteRenderer.transform.position = _gridManager.selectedNode ? _gridManager.selectedNode.Coords.Pos + new Vector3(0, 1.25f) : Utils.MousePos;
     }
-    public void MouseExit(UnitData unitData)
+    public void MouseExit(UnitSO unitSO)
     {
         
     }
-    public void MouseDown(UnitData unitData)
+    public void MouseDown(UnitSO unitSO)
     {
         _lightManager.ChangeLight(true);
-        _unitData = unitData;
+        _unitSO = unitSO;
         
         _gridManager.AreaDisplay(AreaType.Arrange, true, HexDirectionExtension.Area(_unitManager.commander.coords, arrangeRange), _unitManager.commander);
-        spriteRenderer.sprite = _unitData.sprite;
+        spriteRenderer.sprite = _unitSO.sprite;
 
         isArrange = true;
     }
-    public void MouseUp(UnitData unitData)
+    public void MouseUp(UnitSO unitSO)
     {
         if (_gridManager.selectedNode)
         {
-            _unitManager.SpawnUnit(unitData, GridManager.inst.selectedNode);
+            _unitManager.SpawnUnit(unitSO, GridManager.inst.selectedNode);
         }
 
         _lightManager.ChangeLight(false);
         _gridManager.RevertTiles(_unitManager.commander);
         spriteRenderer.sprite = null;
-        _unitData = null;
+        _unitSO = null;
 
         isArrange = false;
     }

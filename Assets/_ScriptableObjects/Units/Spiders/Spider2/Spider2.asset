@@ -16,9 +16,9 @@ MonoBehaviour:
   sprite: {fileID: 1217611797, guid: 1c15c24f7fa789f45858754fb1ce56fb, type: 3}
   animatorController: {fileID: 22100000, guid: bd077d97608a2234ba7177017abef1c2, type: 2}
   hp: 20
-  rangeType: 1
-  range: 2
-  cost: 0
+  onTargetToEnemy: 1
+  cost: 4
+  enemyMoveRange: 2
   isJump: 0
   cardInfo:
   - unit: {fileID: 0}

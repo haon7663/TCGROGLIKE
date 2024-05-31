@@ -21,10 +21,10 @@ public class Card : MonoBehaviour
         this.cardInfo = cardInfo;
         unit = this.cardInfo.unit;
 
-        character.sprite = this.cardInfo.data.sprite;
-        nameTMP.text = this.cardInfo.data.name;
-        attackTMP.text = StatusManager.Calculate(unit, this.cardInfo.data).ToString();
-        energyTMP.text = this.cardInfo.data.energy.ToString();
+        character.sprite = this.cardInfo.cardSO.sprite;
+        nameTMP.text = this.cardInfo.cardSO.name;
+        attackTMP.text = StatusManager.Calculate(unit, this.cardInfo.cardSO).ToString();
+        energyTMP.text = this.cardInfo.cardSO.energy.ToString();
     }
 
     private void OnMouseOver()

@@ -91,7 +91,7 @@ public class HexNode : MonoBehaviour
     {
         if (!CanMove().Item1 && !CanCard().Item1 && !CanArrange().Item1) return;
 
-        GridManager.inst.RevertAbles();
+        GridManager.inst.RevertSelects();
     }
 
     public void PutUnit(Unit unit)
@@ -113,7 +113,7 @@ public class HexNode : MonoBehaviour
     }
     private (bool, Unit) CanCard()
     {
-        foreach (var rangeDisplay in RangeDisplays.Where(display => display.gameObject.activeSelf && display.AreaType != AreaType.Attack && display.AreaType != AreaType.Buff && display.CanSelect))
+        foreach (var rangeDisplay in RangeDisplays.Where(display => display.gameObject.activeSelf && display.AreaType is AreaType.Attack or AreaType.Buff && display.CanSelect))
             return (true, rangeDisplay.Unit);
         return (false, null);
     }
@@ -140,7 +140,7 @@ public class HexNode : MonoBehaviour
         }
     }
 
-    public void RevertAble(Unit unit = null)
+    public void RevertSelect(Unit unit = null)
     {
         foreach (var rangeDisplay in RangeDisplays.Where(displayNode => displayNode.AreaType == AreaType.Select).ToList())
         {

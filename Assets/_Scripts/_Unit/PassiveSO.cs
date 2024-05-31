@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Passive", menuName = "Scriptable Object/Passive")]
-public abstract class Passive : ScriptableObject
+[CreateAssetMenu(fileName = "PassiveSO", menuName = "Scriptable Object/PassiveSO")]
+public abstract class PassiveSO : ScriptableObject
 {
     public new string name;
     

@@ -7,44 +7,44 @@ using UnityEngine.Pool;
 public abstract class Action : MonoBehaviour
 {
     protected Unit unit;
-    protected CardData data;
+    protected CardSO cardSO;
     protected HexCoords coords;
     protected List<HexNode> nodes = new List<HexNode>();
 
     HexDirection saveDirection = HexDirection.Default;
     int value;
 
-    public virtual void Init(Unit unit, HexDirection direction, CardData data, int value = -999)
+    public virtual void Init(Unit unit, HexDirection direction, CardSO cardSO, int value = -999)
     {
         this.unit = unit;
-        this.data = data;
+        this.cardSO = cardSO;
         coords = unit.coords;
         transform.position = unit.coords.Pos;
         saveDirection = direction;
         this.value = value;
     }
-    public virtual void Init(Unit unit, HexNode node, CardData data, int value = -999)
+    public virtual void Init(Unit unit, HexNode node, CardSO cardSO, int value = -999)
     {
         this.unit = unit;
-        this.data = data;
+        this.cardSO = cardSO;
         coords = node.Coords;
         transform.position = coords.Pos;
         this.value = value;
     }
-    public virtual void Init(Unit unit, HexNode node, List<HexNode> nodes, CardData data, int value = -999)
+    public virtual void Init(Unit unit, HexNode node, List<HexNode> nodes, CardSO cardSO, int value = -999)
     {
         this.unit = unit;
-        this.data = data;
+        this.cardSO = cardSO;
         this.nodes = nodes;
         coords = node.Coords;
         transform.position = coords.Pos;
         this.value = value;
     }
 
-    public bool ActiveEventValue(HexCoords coords, CardData data)
+    public bool ActiveEventValue(HexCoords coords, CardSO cardSO)
     {
         this.coords = coords;
-        this.data = data;
+        this.cardSO = cardSO;
         return ActiveEvent();
     }
     public bool ActiveEvent()
@@ -80,8 +80,8 @@ public abstract class Action : MonoBehaviour
 
     bool TypeToEffect(Unit targetUnit)
     {
-        var lastValue = value == -999 ? data.value : value;
-        switch (data.activeType)
+        var lastValue = value == -999 ? cardSO.value : value;
+        switch (cardSO.activeType)
         {
             case ActiveType.Attack:
                 targetUnit.OnDamage(StatusManager.CalculateDamage(unit, targetUnit, lastValue));
@@ -97,7 +97,7 @@ public abstract class Action : MonoBehaviour
         if (!targetUnit) 
             return false;
 
-        StartCoroutine(StatusManager.Inst.AddUnitStatus(data.statuses, targetUnit));
+        StartCoroutine(StatusManager.Inst.AddUnitStatus(cardSO.statuses, targetUnit));
         return true;
     }
     void AfterEvent(List<Unit> units)
@@ -105,12 +105,12 @@ public abstract class Action : MonoBehaviour
         units = units.OrderByDescending(unit => unit.coords.GetDistance(this.unit.coords)).ToList();
         foreach(Unit unit in units)
         {
-            if (data.isKnockback)
+            if (cardSO.isKnockback)
             {
-                var direction = (unit.coords - (data.knockbackType == KnockbackType.FromUnit ? this.unit.coords : coords)).GetSignDirection();
+                var direction = (unit.coords - (cardSO.knockbackType == KnockbackType.FromUnit ? this.unit.coords : coords)).GetSignDirection();
                 if ((int)direction != -1)
                     saveDirection = direction;
-                unit.move.OnMoved(saveDirection, data.knockbackPower);
+                unit.move.OnMoved(saveDirection, cardSO.knockbackPower);
             }
         }
     }

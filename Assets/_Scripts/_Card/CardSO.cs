@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Serialization;
 
 public enum CardType { Attack, Buff, }
 public enum ActiveType { Attack, Defence, Recovery, }
@@ -12,8 +13,8 @@ public enum KnockbackType { FromUnit, FromPoint }
 public enum RecommendedDistanceType { Far, Close, Custom }
 public enum ActionTriggerType { Instant, Custom }
 
-[CreateAssetMenu(fileName = "CardData", menuName = "Scriptable Object/CardData")]
-public class CardData : ScriptableObject
+[CreateAssetMenu(fileName = "CardSO", menuName = "Scriptable Object/CardSO")]
+public class CardSO : ScriptableObject
 {
     public Sprite sprite;
     public GameObject prefab;
@@ -67,14 +68,14 @@ public class CardData : ScriptableObject
 public class CardInfo
 {
     [HideInInspector] public Unit unit;
-    public CardData data;
+    [FormerlySerializedAs("data")] public CardSO cardSO;
     public int count;
     public int priority;
     public int turnCount;
 
     public CardInfo(CardInfo cardInfo)
     {
-        data = cardInfo.data;
+        cardSO = cardInfo.cardSO;
         count = cardInfo.count;
         unit = cardInfo.unit;
         priority = cardInfo.priority;

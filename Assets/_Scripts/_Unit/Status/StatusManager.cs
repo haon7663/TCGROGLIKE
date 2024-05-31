@@ -86,10 +86,10 @@ public class StatusManager : MonoBehaviour
     }
 
     #region Calculate
-    public static int Calculate(Unit unit, CardData data, int value = -999)
+    public static int Calculate(Unit unit, CardSO cardSO, int value = -999)
     {
-        value = value == -999 ? data.value : value;
-        switch (data.activeType)
+        value = value == -999 ? cardSO.value : value;
+        switch (cardSO.activeType)
         {
             case ActiveType.Attack:
                 return CalculateDamage(unit, value);
@@ -102,16 +102,16 @@ public class StatusManager : MonoBehaviour
         }
         return 0;
     }
-    public static int Calculate(Unit unit, Unit targetUnit, CardData data)
+    public static int Calculate(Unit unit, Unit targetUnit, CardSO cardSO)
     {
-        switch (data.activeType)
+        switch (cardSO.activeType)
         {
             case ActiveType.Attack:
-                return CalculateDamage(unit, targetUnit, data.value);
+                return CalculateDamage(unit, targetUnit, cardSO.value);
             case ActiveType.Defence:
-                return CalculateDefence(unit, targetUnit, data.value);
+                return CalculateDefence(unit, targetUnit, cardSO.value);
             case ActiveType.Recovery:
-                return CalculateHealth(unit, targetUnit, data.value);
+                return CalculateHealth(unit, targetUnit, cardSO.value);
             default:
                 break;
         }

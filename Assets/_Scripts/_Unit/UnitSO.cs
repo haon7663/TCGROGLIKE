@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "UnitData", menuName = "Scriptable Object/UnitData")]
-public class UnitData : ScriptableObject
+[CreateAssetMenu(fileName = "UnitSO", menuName = "Scriptable Object/UnitSO")]
+public class UnitSO : ScriptableObject
 {
     public UnitType type;
 
@@ -19,6 +19,7 @@ public class UnitData : ScriptableObject
     
     [Header("이동")]
     public int cost;
+    public int enemyMoveRange;
     public bool isJump = false;
 
     [Header("카드")]

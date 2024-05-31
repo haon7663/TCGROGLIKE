@@ -91,8 +91,8 @@ public class TurnManager : MonoBehaviour
             enemy.targetUnit = UnitManager.inst.GetNearestUnit(enemy);
         }
 
-        var ableEnemies = enemies.FindAll(x => x.card.CardData.useType == UseType.Able);
-        var shouldEnemies = enemies.FindAll(x => x.card.CardData.useType == UseType.Should);
+        var ableEnemies = enemies.FindAll(x => x.card.CardSO.useType == UseType.Able);
+        var shouldEnemies = enemies.FindAll(x => x.card.CardSO.useType == UseType.Should);
         for (var i = shouldEnemies.Count - 1; i >= 0; i--)
         {
             var unit = shouldEnemies[i];

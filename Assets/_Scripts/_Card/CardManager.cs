@@ -63,7 +63,7 @@ public class CardManager : MonoBehaviour
 
         for(var i = units.Count - 1; i >= 0; i--)
         {
-            foreach (var cardInfo in units[i].data.cardInfo)
+            foreach (var cardInfo in units[i].unitSO.cardInfo)
             {
                 for (var j = 0; j < cardInfo.count; j++)
                 {
@@ -221,7 +221,7 @@ public class CardManager : MonoBehaviour
             EnlargeCard(true, card);
             var unit = card.GetUnit();
             UnitManager.inst.SelectUnit(unit, true);
-            unit.card.DrawRange(card.cardInfo.data, eCardState == ECardState.CanMouseDrag);
+            unit.card.DrawRange(card.cardInfo.cardSO, eCardState == ECardState.CanMouseDrag);
         }
     }
     public void CardMouseExit(Card card)
@@ -284,7 +284,7 @@ public class CardManager : MonoBehaviour
         else
         {
             _selectedCard.ShowLiner();
-            if(_selectedCard.cardInfo.data.rangeType == RangeType.Self)
+            if(_selectedCard.cardInfo.cardSO.rangeType == RangeType.Self)
             {
                 var tile = GridManager.inst.GetNode(_selectedCard.unit);
                 //tile.OnDisplay(AreaType.Select);
@@ -366,7 +366,7 @@ public class CardManager : MonoBehaviour
         cardDeck.gameObject.SetActive(_onCardDeck);
         if (_onCardDeck)
         {
-            cardsInfo = cardsInfo.OrderBy(x => x.data.name).ToList();
+            cardsInfo = cardsInfo.OrderBy(x => x.cardSO.name).ToList();
             for (int i = 0; i < cardsInfo.Count; i++)
             {
                 var cardObject = Instantiate(cardPrefab);

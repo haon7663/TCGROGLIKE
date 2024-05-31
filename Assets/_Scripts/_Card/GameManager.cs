@@ -3,37 +3,38 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using TMPro;
+using UnityEngine.Serialization;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Inst { get; private set; }
-    void Awake() => Inst = this;
+    private void Awake() => Inst = this;
 
-    [SerializeField] NotificationPanel notificationPanel;
-    [SerializeField] TMP_Text pazeText;
-    [SerializeField] TMP_Text displayActionText;
-    [SerializeField] TMP_Text moveAbleText;
+    [SerializeField] private NotificationPanel notificationPanel;
+    [SerializeField] private TMP_Text phaseTMP;
+    [SerializeField] private TMP_Text displayActionTMP;
+    [SerializeField] private TMP_Text moveAbleTMP;
 
-    [SerializeField] TMP_Text energyText;
-    [SerializeField] TMP_Text moveCostText;
+    [SerializeField] private TMP_Text energyTMP;
+    [SerializeField] private TMP_Text moveCostTMP;
     public bool onDisplayActions;
     public bool moveAble;
 
-    void Start()
+    private void Start()
     {
         StartGame();
     }
 
-    void Update()
+    private void Update()
     {
-        pazeText.text = "Paze: " + TurnManager.Inst.phase.ToString();
-        energyText.text = TurnManager.Inst.Energy + " / " + TurnManager.Inst.maxEnergy;
-        moveCostText.text = TurnManager.Inst.CommanderCost + " / " + TurnManager.Inst.maxMoveCost;
+        phaseTMP.text = "Phase: " + TurnManager.Inst.phase;
+        energyTMP.text = TurnManager.Inst.Energy + " / " + TurnManager.Inst.maxEnergy;
+        moveCostTMP.text = TurnManager.Inst.CommanderCost + " / " + TurnManager.Inst.maxMoveCost;
 
         if(Input.GetKeyDown(KeyCode.Q))
         {
             onDisplayActions = !onDisplayActions;
-            displayActionText.text = "DisplayActions: " + onDisplayActions;
+            displayActionTMP.text = "DisplayActions: " + onDisplayActions;
 
             if (onDisplayActions)
             {
@@ -56,7 +57,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.W))
         {
             moveAble = !moveAble;
-            moveAbleText.text = "MoveAble: " + moveAble;
+            moveAbleTMP.text = "MoveAble: " + moveAble;
         }
 
         if (Input.GetMouseButtonDown(1))

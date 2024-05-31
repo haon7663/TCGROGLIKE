@@ -14,6 +14,8 @@ public class RangeDisplay : MonoBehaviour
     [SerializeField] private SpriteRenderer[] directionSpriteRenderers;
 
     private HexNode _node;
+    
+    private readonly int _select = Animator.StringToHash("canSelect");
 
     public void Setup(AreaType areaType, Unit unit, HexNode node, List<HexNode> nodes, bool canSelect, Color color)
     {
@@ -25,7 +27,7 @@ public class RangeDisplay : MonoBehaviour
             directionSpriteRenderers[(int)direction].gameObject.SetActive(isContain);
             directionSpriteRenderers[(int)direction].color = color;
         }
-        animator.enabled = !canSelect;
+        animator.SetBool(_select, canSelect);
         
         AreaType = areaType;
         CanSelect = canSelect;

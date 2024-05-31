@@ -4,21 +4,21 @@ using UnityEngine;
 
 public class Single : Action
 {
-    public override void Init(Unit unit, HexDirection direction, CardData data, int value = -999)
+    public override void Init(Unit unit, HexDirection direction, CardSO cardSO, int value = -999)
     {
-        base.Init(unit, direction, data, value);
+        base.Init(unit, direction, cardSO, value);
         if (!TryGetComponent(out Animator animator))
             ActiveEvent();
     }
-    public override void Init(Unit unit, HexNode node, CardData data, int value = -999)
+    public override void Init(Unit unit, HexNode node, CardSO cardSO, int value = -999)
     {
-        base.Init(unit, node, data, value);
+        base.Init(unit, node, cardSO, value);
         if (!TryGetComponent(out Animator animator))
             ActiveEvent();
     }
-    public override void Init(Unit unit, HexNode node, List<HexNode> nodes, CardData data, int value = -999)
+    public override void Init(Unit unit, HexNode node, List<HexNode> nodes, CardSO cardSO, int value = -999)
     {
-        base.Init(unit, node, nodes, data, value);
+        base.Init(unit, node, nodes, cardSO, value);
         if (!TryGetComponent(out Animator animator))
             ActiveEvent();
     }
