@@ -23,7 +23,7 @@ public class Card : MonoBehaviour
 
         character.sprite = this.cardInfo.cardSO.sprite;
         nameTMP.text = this.cardInfo.cardSO.name;
-        attackTMP.text = StatusManager.Calculate(unit, this.cardInfo.cardSO).ToString();
+        attackTMP.text = StatusEffectManager.Calculate(unit, this.cardInfo.cardSO).ToString();
         energyTMP.text = this.cardInfo.cardSO.energy.ToString();
     }
 

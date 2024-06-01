@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Events;
 using TMPro;
-using UnityEngine.Serialization;
+using UnityEngine.Rendering;
+using GDX.Collections.Generic;
+
+public enum StatType { MaxHealth = 100, Cost = 200, GetDamage = 300, TakeDamage = 400, TakeDefence = 500, TakeRecovery = 600, }
 
 public class Unit : MonoBehaviour
 {
@@ -19,17 +20,21 @@ public class Unit : MonoBehaviour
     private TMP_Text _actionTMP;
 
     public HexCoords coords;
-    [FormerlySerializedAs("data")] public UnitSO unitSO;
+    public UnitSO unitSO;
 
-    [Header("Stats")]
+    public Dictionary<StatType, UnitStat> Stats = new();
+    [Header("스탯")]
     public int hp;
     public int defence;
-    private int _value;
 
-    [Header("Systems")]
+    [Header("상태")]
+    public bool canMove;
+    public bool canAction;
+
+    [Header("시스템")]
     public Unit targetUnit;
     public HexCoords targetCoords;
-    public List<StatusInfo> statuses;
+    public List<StatusEffectSO> statuses;
 
     private void Awake()
     {
@@ -44,10 +49,10 @@ public class Unit : MonoBehaviour
             _animator = animator;
 
         _actionObject = transform.GetChild(3).gameObject;
-        if (_actionObject.transform.GetChild(0).TryGetComponent(out SpriteRenderer renderer))
-            _actionSpriteRenderer = renderer;
-        if (_actionObject.transform.GetChild(1).TryGetComponent(out TMP_Text text))
-            _actionTMP = text;
+        if (_actionObject.transform.GetChild(0).TryGetComponent(out SpriteRenderer actionSpriteRenderer))
+            _actionSpriteRenderer = actionSpriteRenderer;
+        if (_actionObject.transform.GetChild(1).TryGetComponent(out TMP_Text actionTMP))
+            _actionTMP = actionTMP;
     }
 
     public void Init(UnitSO unitSO, HexCoords coords)
@@ -55,8 +60,18 @@ public class Unit : MonoBehaviour
         this.unitSO = Instantiate(unitSO);
 
         _animator.runtimeAnimatorController = this.unitSO.animatorController;
+    
+        Stats = new Dictionary<StatType, UnitStat>
+        {
+            { StatType.MaxHealth, new UnitStat() },
+            { StatType.Cost, new UnitStat() },
+            { StatType.GetDamage, new UnitStat() },
+            { StatType.TakeDamage, new UnitStat() },
+            { StatType.TakeDefence, new UnitStat() },
+            { StatType.TakeRecovery, new UnitStat() }
+        };
 
-        hp = this.unitSO.hp;
+        hp = Stats[StatType.MaxHealth].GetValue(this.unitSO.hp);
         HealthManager.inst.GenerateHealthBar(this);
 
         this.coords = coords;
@@ -138,12 +153,10 @@ public class Unit : MonoBehaviour
     #endregion
 
     public void SetMaterial(Material material) => _spriteRenderer.material = material;
-    public void SetFlipX(bool value) => _spriteRenderer.flipX = value;
-    public void Repeat(float x) => SetFlipX(coords.Pos.x < x);
+    public void Repeat(float x) => _spriteRenderer.flipX = coords.Pos.x < x;
 
     public void ShowAction(Sprite sprite, int value)
     {
-        this._value = value;
         _actionObject.SetActive(true);
         _actionSpriteRenderer.sprite = sprite;
         SetActionText();

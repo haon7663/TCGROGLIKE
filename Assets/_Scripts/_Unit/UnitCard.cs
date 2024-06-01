@@ -27,7 +27,7 @@ public class UnitCard : MonoBehaviour
 
     public void DrawRange(CardSO cardSO = null, bool canSelect = true)
     {
-        if (!StatusManager.CanAction(_unit))
+        if (!_unit.canAction)
             canSelect = false;
 
         if (cardSO)

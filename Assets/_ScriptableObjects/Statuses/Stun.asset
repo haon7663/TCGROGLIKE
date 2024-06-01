@@ -9,11 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3c4dbc203c5ad147bb61c0283cbd2dd, type: 3}
+  m_Script: {fileID: 11500000, guid: c98e5566d7dd6db47b64d8700b94ba7d, type: 3}
   m_Name: Stun
   m_EditorClassIdentifier: 
   stackType: 0
   calculateType: 1
   sprite: {fileID: 0}
+  name: Stun
   explain: 
-  displayExplain: "\uAE30\uC808\uD568"
+  displayExplain: "\uAE30\uC808"
+  unableMove: 1
+  unableAction: 1

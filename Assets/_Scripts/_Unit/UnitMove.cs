@@ -11,7 +11,7 @@ public class UnitMove : MonoBehaviour
 
     public void DrawArea(bool canSelect = true)
     {
-        if (!StatusManager.CanMove(_unit))
+        if (!_unit.canMove)
             canSelect = false;
 
         var selectCoords = GetArea();
@@ -22,7 +22,7 @@ public class UnitMove : MonoBehaviour
     {
         List<HexCoords> selectCoords = new();
 
-        var maxRange = _unit.unitSO.type == UnitType.Enemy ? _unit.unitSO.enemyMoveRange : TurnManager.Inst.maxMoveCost / (_unit.unitSO.cost == 0 ? 1 : _unit.unitSO.cost);
+        var maxRange = _unit.unitSO.type == UnitType.Enemy ? _unit.unitSO.enemyMoveRange : TurnManager.Inst.MoveCost / (_unit.unitSO.cost == 0 ? 1 : _unit.unitSO.cost);
         selectCoords.AddRange(HexDirectionExtension.ReachArea(_unit.coords, maxRange).Select(hexNode => hexNode.Coords));
         if (onSelf)
             selectCoords.Add(_unit.coords);
@@ -106,7 +106,6 @@ public class UnitMove : MonoBehaviour
     public IEnumerator OnMoveInRange(HexCoords targetCoords, int range, bool useDotween = true, float dotweenTime = 0.05f, Ease ease = Ease.Linear)
     {
         GridManager.inst.RevertTiles(_unit);
-        TurnManager.UseMoveCost(_unit.unitSO.cost);
 
         var targetTile = GridManager.inst.GetNode(targetCoords);
         var path = Pathfinding.FindPath(GridManager.inst.GetNode(_unit), targetTile, _unit.coords == targetCoords || !targetTile.OnUnit);

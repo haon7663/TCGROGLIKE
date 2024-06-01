@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
     {
         phaseTMP.text = "Phase: " + TurnManager.Inst.phase;
         energyTMP.text = TurnManager.Inst.Energy + " / " + TurnManager.Inst.maxEnergy;
-        moveCostTMP.text = TurnManager.Inst.CommanderCost + " / " + TurnManager.Inst.maxMoveCost;
+        moveCostTMP.text = TurnManager.Inst.MoveCost + " / " + TurnManager.Inst.maxMoveCost;
 
         if(Input.GetKeyDown(KeyCode.Q))
         {
@@ -39,7 +39,7 @@ public class GameManager : MonoBehaviour
             if (onDisplayActions)
             {
                 List<HexNode> selectedTiles = new();
-                foreach (Unit unit in UnitManager.inst.enemies)
+                foreach (var unit in UnitManager.inst.enemies)
                 {
                     if (!unit.card.canDisplay) return;
                     selectedTiles.AddRange(unit.card.SelectedArea);
@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                foreach (Unit unit in UnitManager.inst.enemies)
+                foreach (var unit in UnitManager.inst.enemies)
                 {
                     GridManager.inst.RevertTiles(unit);
                 }
@@ -77,12 +77,12 @@ public class GameManager : MonoBehaviour
             TurnManager.UseEnergy(TurnManager.Inst.Energy);
 
         if (Input.GetKeyDown(KeyCode.X))
-            TurnManager.UseMoveCost(TurnManager.Inst.CommanderCost);
+            TurnManager.UseMoveCost(TurnManager.Inst.MoveCost);
 
         if (Input.GetKeyDown(KeyCode.C))
         {
             TurnManager.UseEnergy(TurnManager.Inst.Energy);
-            TurnManager.UseMoveCost(TurnManager.Inst.CommanderCost);
+            TurnManager.UseMoveCost(TurnManager.Inst.MoveCost);
         }
     }
 

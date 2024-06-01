@@ -21,7 +21,7 @@ public class HexNode : MonoBehaviour
     [SerializeField] private TMP_Text damageText;
     
     [Header("장판효과")]
-    public List<StatusInfo> statuses;
+    public List<StatusEffectData> statuses;
     
     [Header("디버그")]
     [SerializeField] private TMP_Text coordsText;
@@ -48,6 +48,7 @@ public class HexNode : MonoBehaviour
 
         if (canMove.Item1)
         {
+            TurnManager.UseMoveCost(canMove.Item2.coords.GetPathDistance(Coords) * canMove.Item2.unitSO.cost);
             canMove.Item2.move.Move(Coords);
         }
         else if (canCard.Item1)

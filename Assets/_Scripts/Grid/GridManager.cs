@@ -149,8 +149,7 @@ public class GridManager : MonoBehaviour
     {
         foreach (var tile in Tiles.Where(t => t.Value.OnUnit && t.Value.statuses.Count != 0))
         {
-            print(tile.Value.statuses[0].data.name);
-            StartCoroutine(StatusManager.Inst.AddUnitStatus(tile.Value.statuses, GetUnit(tile.Value)));
+            StartCoroutine(StatusEffectManager.inst.AddStatusEffects(tile.Value.statuses, GetUnit(tile.Value)));
         }
     }
 }

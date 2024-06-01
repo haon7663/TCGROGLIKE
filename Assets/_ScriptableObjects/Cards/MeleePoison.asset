@@ -30,7 +30,7 @@ MonoBehaviour:
   bulletNumber: 1
   isPenetrate: 0
   statuses:
-  - data: {fileID: 11400000, guid: fc35b4b79d67e3b4da48fdab22b0077a, type: 2}
+  - effectSO: {fileID: 11400000, guid: fc35b4b79d67e3b4da48fdab22b0077a, type: 2}
     stack: 3
   isMove: 0
   isJump: 0
@@ -38,6 +38,7 @@ MonoBehaviour:
   knockbackType: 0
   knockbackPower: 0
   useType: 0
+  compareByMove: 0
   recommendedDistanceType: 1
   recommendedDistance: 1
   isBeforeMove: 0

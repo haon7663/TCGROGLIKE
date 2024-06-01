@@ -9,11 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3c4dbc203c5ad147bb61c0283cbd2dd, type: 3}
+  m_Script: {fileID: 11500000, guid: cafae1d39aadb534c8c8ceca3abecc87, type: 3}
   m_Name: Poison
   m_EditorClassIdentifier: 
-  stackType: 0
+  stackType: 2
   calculateType: 0
   sprite: {fileID: 0}
+  name: Poison
   explain: 
   displayExplain: "\uC911\uB3C5"

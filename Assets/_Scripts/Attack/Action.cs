@@ -84,20 +84,20 @@ public abstract class Action : MonoBehaviour
         switch (cardSO.activeType)
         {
             case ActiveType.Attack:
-                targetUnit.OnDamage(StatusManager.CalculateDamage(unit, targetUnit, lastValue));
+                targetUnit.OnDamage(StatusEffectManager.CalculateDamage(unit, targetUnit, lastValue));
                 break;
             case ActiveType.Defence:
-                targetUnit.OnDefence(StatusManager.CalculateDefence(unit, targetUnit, lastValue));
+                targetUnit.OnDefence(StatusEffectManager.CalculateDefence(unit, targetUnit, lastValue));
                 break;
             case ActiveType.Recovery:
-                targetUnit.OnHealth(StatusManager.CalculateHealth(unit, targetUnit, lastValue));
+                targetUnit.OnHealth(StatusEffectManager.CalculateHealth(unit, targetUnit, lastValue));
                 break;
         }
 
         if (!targetUnit) 
             return false;
 
-        StartCoroutine(StatusManager.Inst.AddUnitStatus(cardSO.statuses, targetUnit));
+        StartCoroutine(StatusEffectManager.inst.AddStatusEffects(cardSO.statuses, targetUnit));
         return true;
     }
     void AfterEvent(List<Unit> units)

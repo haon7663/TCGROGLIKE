@@ -63,7 +63,6 @@ public class HealthManager : MonoBehaviour
     {
         healthBars[unit].healthFilled.fillAmount = (float)unit.hp / unit.unitSO.hp;
         healthBars[unit].healthText.text = unit.hp.ToString();
-        healthBars[unit].defenceText.text = unit.defence.ToString();
     }
 
     public void DestroyHealthBar(Unit unit)

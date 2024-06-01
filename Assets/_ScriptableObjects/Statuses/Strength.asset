@@ -9,11 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3c4dbc203c5ad147bb61c0283cbd2dd, type: 3}
+  m_Script: {fileID: 11500000, guid: 55077e324f035094396e3b5ed55ffdf5, type: 3}
   m_Name: Strength
   m_EditorClassIdentifier: 
   stackType: 1
   calculateType: 0
   sprite: {fileID: 0}
+  name: Strength
   explain: 
-  displayExplain: "\uAC15\uD654"
+  displayExplain: "\uD798"
+  statType: 300
+  statModifierType: 100
+  value: 1

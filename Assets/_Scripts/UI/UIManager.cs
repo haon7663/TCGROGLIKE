@@ -23,10 +23,10 @@ public class UIManager : MonoBehaviour
     [Header("표시")]
     [SerializeField] private GameObject unitInfoPanel;
 
-    public void ShowStatusTMP(Unit unit, StatusSO statusData)
+    public void ShowStatusTMP(Unit unit, StatusEffectSO statusEffectSO)
     {
         var statusTMP = Instantiate(statusTextPrefab, canvasWorld);
-        statusTMP.Setup(unit, statusData.displayExplain);
+        statusTMP.Setup(unit, statusEffectSO.displayExplain);
     }
     public void ShowDamageTMP(Unit unit, int value)
     {

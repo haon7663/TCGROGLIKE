@@ -10,11 +10,11 @@ public enum Phase { Draw, Card, End, Enemy }
 public class TurnManager : MonoBehaviour
 {
     public static TurnManager Inst { get; private set; }
-    void Awake() => Inst = this;
+    private void Awake() => Inst = this;
 
     [Header("Develop")]
-    [SerializeField][Tooltip("시작 턴 모드를 정합니다")] ETurnMode eTurnMode;
-    [SerializeField][Tooltip("시작 카드 개수를 정합니다")] int startCardCount;
+    [SerializeField][Tooltip("시작 턴 모드를 정합니다")] private ETurnMode eTurnMode;
+    [SerializeField][Tooltip("시작 카드 개수를 정합니다")] private int startCardCount;
 
     [Header("Properties")]
     public Phase phase = Phase.Draw;
@@ -23,7 +23,8 @@ public class TurnManager : MonoBehaviour
     [Header("Resources")]
     public int maxMoveCost;
     public int maxEnergy;
-    public int CommanderCost { get; private set; }
+    
+    public int MoveCost { get; private set; }
     public int Energy { get; private set; }
 
     enum ETurnMode { My, Other }
@@ -51,7 +52,7 @@ public class TurnManager : MonoBehaviour
     {
         yield return delay05;
 
-        CommanderCost = maxMoveCost;
+        MoveCost = maxMoveCost;
         Energy = maxEnergy;
         
         OnTurnStarted?.Invoke(true);
@@ -76,7 +77,7 @@ public class TurnManager : MonoBehaviour
         var allies = UnitManager.inst.allies;
         for (var i = allies.Count - 1; i >= 0; i--)
         {
-            StatusManager.Inst.StatusActive(allies[i]);
+            StatusEffectManager.inst.UpdateStatusEffects(allies[i]);
         }
 
         phase = Phase.Enemy;
@@ -99,12 +100,13 @@ public class TurnManager : MonoBehaviour
 
             UnitManager.inst.SelectUnit(unit);
 
-            bool canAction = StatusManager.CanAction(unit);
-            bool canMove = StatusManager.CanMove(unit);
+            var canAction = unit.canAction;
+            var canMove = unit.canMove;
 
             print(unit.name + "/ act: " + canAction + "/ move: " + canMove);
-
-            StatusManager.Inst.StatusActive(unit);
+            
+            StatusEffectManager.inst.UpdateStatusEffects(unit);
+            StatusEffectManager.inst.UpdateRenewals(unit);
 
             if (canMove)
             {
@@ -119,12 +121,15 @@ public class TurnManager : MonoBehaviour
         {
             var unit = ableEnemies[i];
 
-            bool canAction = StatusManager.CanAction(unit);
-            bool canMove = StatusManager.CanMove(unit);
+            var canAction = unit.canAction;
+            var canMove = unit.canMove;
 
             print(unit.name + "/ act: " + canAction + "/ move: " + canMove);
 
-            StatusManager.Inst.StatusActive(unit);
+            StatusEffectManager.inst.UpdateStatusEffects(unit);
+            StatusEffectManager.inst.UpdateRenewals(unit);
+            
+            yield return delay7;
 
             if (canMove)
             {
@@ -141,7 +146,7 @@ public class TurnManager : MonoBehaviour
         StartCoroutine(StartTurnCo());
     }
 
-    public static void UseMoveCost(int value) => Inst.CommanderCost = Inst.CommanderCost >= value ? Inst.CommanderCost - value : 0;
+    public static void UseMoveCost(int value) => Inst.MoveCost = Inst.MoveCost >= value ? Inst.MoveCost - value : 0;
     public static void UseEnergy(int value) => Inst.Energy = Inst.Energy >= value ? Inst.Energy - value : 0;
 
     public void EndTurn()

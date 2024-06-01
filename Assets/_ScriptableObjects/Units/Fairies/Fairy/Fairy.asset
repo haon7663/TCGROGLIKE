@@ -22,7 +22,7 @@ MonoBehaviour:
   isJump: 0
   cardInfo:
   - unit: {fileID: 0}
-    data: {fileID: 11400000, guid: 5a7ed4f8a7253d743a96abc815048b07, type: 2}
+    cardSO: {fileID: 11400000, guid: 5a7ed4f8a7253d743a96abc815048b07, type: 2}
     count: 1
     priority: 0
     turnCount: 0

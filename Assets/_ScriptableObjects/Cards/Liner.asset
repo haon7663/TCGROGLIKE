@@ -36,6 +36,7 @@ MonoBehaviour:
   knockbackType: 0
   knockbackPower: 0
   useType: 1
+  compareByMove: 0
   recommendedDistanceType: 1
   recommendedDistance: 1
   isBeforeMove: 0

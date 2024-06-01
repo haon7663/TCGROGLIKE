@@ -18,30 +18,31 @@ MonoBehaviour:
   hp: 30
   onTargetToEnemy: 1
   cost: 5
+  enemyMoveRange: 0
   isJump: 0
   cardInfo:
   - unit: {fileID: 0}
-    data: {fileID: 11400000, guid: fb31c414d60c4a544b182720ee9cc06f, type: 2}
-    count: 1
-    priority: 0
-    turnCount: 0
-  - unit: {fileID: 0}
-    data: {fileID: 11400000, guid: 783d9860ddd060140bfccdb6dc649d79, type: 2}
+    cardSO: {fileID: 11400000, guid: 2a79fe02400061246ac82459864844b3, type: 2}
     count: 2
     priority: 0
     turnCount: 0
   - unit: {fileID: 0}
-    data: {fileID: 11400000, guid: db8aed033d6f36140b81f191adfcc69e, type: 2}
+    cardSO: {fileID: 11400000, guid: db8aed033d6f36140b81f191adfcc69e, type: 2}
     count: 2
     priority: 0
     turnCount: 0
   - unit: {fileID: 0}
-    data: {fileID: 11400000, guid: 6ed21fa72e9da5548bcb8ac6ec9049fb, type: 2}
+    cardSO: {fileID: 11400000, guid: 10cb6a27a9bf69a4799f23e619a580c8, type: 2}
     count: 2
     priority: 0
     turnCount: 0
   - unit: {fileID: 0}
-    data: {fileID: 11400000, guid: 4eacc02dc57ec594e9a2f65a4689a13f, type: 2}
+    cardSO: {fileID: 11400000, guid: cd1b76076500eda42b6f73d582e28185, type: 2}
+    count: 3
+    priority: 0
+    turnCount: 0
+  - unit: {fileID: 0}
+    cardSO: {fileID: 11400000, guid: 6ed21fa72e9da5548bcb8ac6ec9049fb, type: 2}
     count: 3
     priority: 0
     turnCount: 0

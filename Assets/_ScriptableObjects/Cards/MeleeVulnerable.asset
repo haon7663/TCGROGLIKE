@@ -24,12 +24,23 @@ MonoBehaviour:
   canSelectAll: 1
   lineWidth: 1
   selectType: 0
-  splashRange: 1
   multiShot: 1
+  splashRange: 1
+  realRange: 0
+  bulletNumber: 1
   isPenetrate: 0
-  statuses:
-  - data: {fileID: 11400000, guid: 4b045bbb4f0b3ba4cb52a0dc92bf16a4, type: 2}
-    stack: 2
+  statuses: []
   isMove: 0
+  isJump: 0
   isKnockback: 0
-  shouldClose: 1
+  knockbackType: 0
+  knockbackPower: 0
+  useType: 0
+  compareByMove: 0
+  recommendedDistanceType: 1
+  recommendedDistance: 1
+  isBeforeMove: 0
+  isAfterMove: 0
+  conditions: []
+  actionTriggerType: 0
+  actionTriggerTime: 0.1

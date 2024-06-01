@@ -306,9 +306,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   move: {fileID: 0}
   card: {fileID: 0}
-  data: {fileID: 0}
+  unitSO: {fileID: 0}
   hp: 0
   defence: 0
+  canMove: 1
+  canAction: 1
   targetUnit: {fileID: 0}
   statuses: []
 --- !u!114 &1700028537984334969
@@ -1036,7 +1038,7 @@ MonoBehaviour:
   - {x: 0.2306673, y: 0.072422534, z: 0}
   m_ShapePathHash: -2737179
   m_Mesh: {fileID: 0}
-  m_InstanceId: 39228
+  m_InstanceId: 63774
   m_LocalBounds:
     m_Center: {x: 0.0035080314, y: 0.31596392, z: 0}
     m_Extent: {x: 0.4906538, y: 0.24726856, z: 0}

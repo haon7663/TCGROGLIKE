@@ -801,6 +801,7 @@ MonoBehaviour:
   damageText: {fileID: 7133309346249023639}
   statuses: []
   coordsText: {fileID: 9185826340887873900}
+  RangeDisplays: []
 --- !u!60 &5512704671833790995
 PolygonCollider2D:
   m_ObjectHideFlags: 0

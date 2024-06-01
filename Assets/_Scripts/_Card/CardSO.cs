@@ -43,7 +43,7 @@ public class CardSO : ScriptableObject
     [DrawIf("selectType", SelectType.Liner)] public bool isPenetrate = false;
 
     [Header("특수 효과")]
-    public List<StatusInfo> statuses;
+    public List<StatusEffectData> statuses;
     public bool isMove;
     [DrawIf("isMove", true)] public bool isJump;
     public bool isKnockback;
@@ -68,7 +68,7 @@ public class CardSO : ScriptableObject
 public class CardInfo
 {
     [HideInInspector] public Unit unit;
-    [FormerlySerializedAs("data")] public CardSO cardSO;
+    public CardSO cardSO;
     public int count;
     public int priority;
     public int turnCount;
