@@ -13,7 +13,6 @@ public class UnitManager : MonoBehaviour
     public static UnitManager inst;
     private void Awake() => inst = this;
 
-
     public List<Unit> units;
 
     public Unit commander;

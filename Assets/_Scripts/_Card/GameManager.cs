@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using TMPro;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 public class GameManager : MonoBehaviour
@@ -83,6 +84,11 @@ public class GameManager : MonoBehaviour
         {
             TurnManager.UseEnergy(TurnManager.Inst.Energy);
             TurnManager.UseMoveCost(TurnManager.Inst.MoveCost);
+        }
+        
+        if (Input.GetKeyDown(KeyCode.Pause))
+        {
+            SceneManager.LoadScene(gameObject.scene.name);
         }
     }
 

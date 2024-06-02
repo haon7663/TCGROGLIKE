@@ -28,9 +28,9 @@ public class StatusEffectManager : MonoBehaviour
                 case StatusEffectCalType.Accumulate:
                     if (targetUnit.statuses.Exists(item => item.name.Equals(status.effectSO.name)))
                     {
-                        newStatusEffect = targetUnit.statuses.Find(item => item.name.Equals(status.effectSO.name));
-                        newStatusEffect.AddStack(status.stack);
-                        newStatusEffect.InitEffect(targetUnit);
+                        var statusEffectSO = targetUnit.statuses.Find(item => item.name.Equals(status.effectSO.name));
+                        statusEffectSO.AddStack(status.stack);
+                        statusEffectSO.InitEffect(targetUnit);
                     }
                     else
                         newStatusEffect = Instantiate(status.effectSO);
@@ -38,9 +38,9 @@ public class StatusEffectManager : MonoBehaviour
                 case StatusEffectCalType.Initialization:
                     if (targetUnit.statuses.Exists(item => item.name.Equals(status.effectSO.name)))
                     {
-                        newStatusEffect = targetUnit.statuses.Find(item => item.name.Equals(status.effectSO.name));
-                        newStatusEffect.SetStack(status.stack);
-                        newStatusEffect.InitEffect(targetUnit);
+                        var statusEffectSO = targetUnit.statuses.Find(item => item.name.Equals(status.effectSO.name));
+                        statusEffectSO.SetStack(status.stack);
+                        statusEffectSO.InitEffect(targetUnit);
                     }
                     else
                         newStatusEffect = Instantiate(status.effectSO);
@@ -55,8 +55,8 @@ public class StatusEffectManager : MonoBehaviour
             if (newStatusEffect)
             {
                 targetUnit.statuses.Add(newStatusEffect);
-                newStatusEffect.AddEffect(targetUnit);
                 newStatusEffect.SetStack(status.stack);
+                newStatusEffect.AddEffect(targetUnit);
             }
             
             UIManager.inst.ShowStatusTMP(targetUnit, status.effectSO);
@@ -90,20 +90,6 @@ public class StatusEffectManager : MonoBehaviour
             print(status.name + ": " + status.Stack);
         }
     }
-
-    /*public static bool CanMove(Unit unit)
-    {
-        var root = unit.statuses.Exists(item => item.name.Equals("Root"));
-        var stun = unit.statuses.Exists(item => item.name.Equals("Stun"));
-
-        return !(root || stun);
-    }
-    public static bool CanAction(Unit unit)
-    {
-        var stun = unit.statuses.Exists(item => item.name.Equals("Stun"));
-
-        return !stun;
-    }*/
 
     #region Calculate
     public static int Calculate(Unit unit, CardSO cardSO, int value = -999)

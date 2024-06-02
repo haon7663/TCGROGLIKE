@@ -38,7 +38,7 @@ public class StatStatusEffectSO : StatusEffectSO
         _statModifier = statModifierType switch
         {
             StatModifierType.Multiply => new StatModifier(statModifierType, value),
-            StatModifierType.Add => new StatModifier(statModifierType, 1),
+            StatModifierType.Add => new StatModifier(statModifierType, Stack),
             _ => _statModifier
         };
     }
