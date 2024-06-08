@@ -8,7 +8,7 @@ public class StatStatusEffectSO : StatusEffectSO
     [Header("능력치 변경")]
     [SerializeField] private StatType statType;
     [SerializeField] private StatModifierType statModifierType;
-    [DrawIf("statModifierType", StatModifierType.Multiply)] [SerializeField] private int value;
+    [DrawIf("statModifierType", StatModifierType.Multiply)] [SerializeField] private float value;
 
     private StatModifier _statModifier;
     

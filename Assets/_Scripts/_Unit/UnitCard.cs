@@ -10,19 +10,11 @@ public class UnitCard : MonoBehaviour
     private Unit _unit;
     private void Awake() => _unit = GetComponent<Unit>();
 
-    public CardInfo CardInfo { get; private set; }
     public CardSO CardSO { get; private set; }
-    
-    [HideInInspector] public HexCoords directionCoords; 
-    [HideInInspector] public bool canDisplay = false;
-    private bool isDisplay = false;
-    private int value = -999;
 
-    public void SetUp(CardInfo cardInfo, int value)
+    public void SetUp(CardSO cardSO)
     {
-        CardInfo = cardInfo;
-        CardSO = cardInfo.cardSO;
-        this.value = value;
+        CardSO = cardSO;
     }
 
     public void DrawRange(CardSO cardSO = null, bool canSelect = true)
@@ -49,7 +41,7 @@ public class UnitCard : MonoBehaviour
     }
     public List<HexCoords> GetArea(CardSO cardSO, Unit otherUnit = null)
     {
-        var selectCoords = new List<HexCoords>();
+        List<HexCoords> selectCoords = new();
         
         switch (cardSO.rangeType)
         {
@@ -81,20 +73,11 @@ public class UnitCard : MonoBehaviour
                 break;
             case RangeType.Area:
                 if (cardSO.canSelectAll)
-                    foreach (var hexNode in HexDirectionExtension.Area(_unit.coords, cardSO.range, cardSO.onSelf))
-                    {
-                        selectCoords.Add(hexNode.Coords);
-                    }
+                    selectCoords.AddRange(HexDirectionExtension.Area(_unit.coords, cardSO.range, cardSO.onSelf).Select(hexNode => hexNode.Coords));
                 else
                 {
-                    foreach (var hexDirection in HexDirectionExtension.Loop())
-                    {
-                        selectCoords.Add(_unit.coords + hexDirection.Coords());
-                    }
-                    foreach (var hexNode in HexDirectionExtension.Area(_unit.coords, cardSO.range, cardSO.onSelf))
-                    {
-                        selectCoords.Add(hexNode.Coords);
-                    }
+                    selectCoords.AddRange(HexDirectionExtension.Loop().Select(hexDirection => _unit.coords + hexDirection.Coords()));
+                    selectCoords.AddRange(HexDirectionExtension.Area(_unit.coords, cardSO.range, cardSO.onSelf).Select(hexNode => hexNode.Coords));
                 }
                 break;
             case RangeType.OurArea:
@@ -113,8 +96,7 @@ public class UnitCard : MonoBehaviour
         }
         return selectCoords;
     }
-
-    public List<HexNode> SelectedArea => GetSelectedArea(GridManager.inst.GetNode(_unit.coords + directionCoords));
+    
     public List<HexNode> GetSelectedArea(HexNode node)
     {
         //_unit.Anim_SetTrigger("attackReady");
@@ -179,7 +161,7 @@ public class UnitCard : MonoBehaviour
                 for (var i = 0; i < CardSO.multiShot; i++)
                 {
                     yield return YieldInstructionCache.WaitForSeconds(0.05f);
-                    Instantiate(CardSO.prefab).GetComponent<Action>().Init(_unit, node, CardSO, value);
+                    Instantiate(CardSO.actionPrefab).Init(_unit, node, CardSO);
                 }
                 break;
             case SelectType.Liner:
@@ -188,14 +170,14 @@ public class UnitCard : MonoBehaviour
                 {
                     yield return YieldInstructionCache.WaitForSeconds(0.05f);
                     for (int j = -CardSO.bulletNumber / 2; j <= this.CardSO.bulletNumber / 2; j++)
-                        Instantiate(CardSO.prefab).GetComponent<Action>().Init(_unit, direction.Rotate(j), CardSO, value);
+                        Instantiate(CardSO.actionPrefab).Init(_unit, direction.Rotate(j), CardSO);
                 }
                 break;
             default:
                 for (var i = 0; i < CardSO.multiShot; i++)
                 {
                     yield return YieldInstructionCache.WaitForSeconds(0.05f);
-                    Instantiate(CardSO.prefab).GetComponent<Action>().Init(_unit, node, GetSelectedArea(node), CardSO, value);
+                    Instantiate(CardSO.actionPrefab).Init(_unit, node, GetSelectedArea(node), CardSO);
                 }
                 break;
         }
@@ -207,8 +189,6 @@ public class UnitCard : MonoBehaviour
             else
                 _unit.move.Move(node.Coords);
         }
-
-        canDisplay = false;
         GridManager.inst.RevertTiles(_unit);
     }
 

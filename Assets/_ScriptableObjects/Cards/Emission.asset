@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Emission
   m_EditorClassIdentifier: 
   sprite: {fileID: 0}
-  prefab: {fileID: 6037482832087054386, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
+  actionPrefab: {fileID: 7133120729427397383, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
   energy: 1
   value: 5
   cardType: 0
@@ -35,6 +35,13 @@ MonoBehaviour:
   isKnockback: 1
   knockbackType: 0
   knockbackPower: 1
-  shouldClose: 0
+  priority: 0
   useType: 0
+  compareByMove: 0
+  recommendedDistanceType: 1
+  recommendedDistance: 1
+  isBeforeMove: 0
+  isAfterMove: 0
   conditions: []
+  actionTriggerType: 0
+  actionTriggerTime: 0.1

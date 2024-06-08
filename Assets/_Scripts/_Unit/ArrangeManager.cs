@@ -54,7 +54,7 @@ public class ArrangeManager : MonoBehaviour
     {
         if (_gridManager.selectedNode)
         {
-            _unitManager.SpawnUnit(unitSO, GridManager.inst.selectedNode);
+            CardManager.Inst.AddCardsFromUnit(_unitManager.SpawnUnit(unitSO, GridManager.inst.selectedNode));
         }
 
         _lightManager.ChangeLight(false);

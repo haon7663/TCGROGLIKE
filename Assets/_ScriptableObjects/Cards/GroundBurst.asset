@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GroundBurst
   m_EditorClassIdentifier: 
   sprite: {fileID: 0}
-  prefab: {fileID: 6037482832087054386, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
+  actionPrefab: {fileID: 7133120729427397383, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
   energy: 2
   value: 8
   cardType: 0
@@ -24,9 +24,10 @@ MonoBehaviour:
   canSelectAll: 1
   lineWidth: 1
   selectType: 2
+  multiShot: 1
   splashRange: 1
   realRange: 0
-  multiShot: 1
+  bulletNumber: 1
   isPenetrate: 0
   statuses: []
   isMove: 1
@@ -34,6 +35,13 @@ MonoBehaviour:
   isKnockback: 0
   knockbackType: 1
   knockbackPower: 1
-  shouldClose: 1
+  priority: 0
   useType: 0
+  compareByMove: 0
+  recommendedDistanceType: 1
+  recommendedDistance: 1
+  isBeforeMove: 0
+  isAfterMove: 0
   conditions: []
+  actionTriggerType: 0
+  actionTriggerTime: 0.1

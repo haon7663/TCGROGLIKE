@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MeleeWeak
   m_EditorClassIdentifier: 
   sprite: {fileID: 0}
-  prefab: {fileID: 6037482832087054386, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
+  actionPrefab: {fileID: 7133120729427397383, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
   energy: 1
   value: 4
   cardType: 0
@@ -37,6 +37,7 @@ MonoBehaviour:
   isKnockback: 0
   knockbackType: 0
   knockbackPower: 1
+  priority: 0
   useType: 0
   compareByMove: 0
   recommendedDistanceType: 1

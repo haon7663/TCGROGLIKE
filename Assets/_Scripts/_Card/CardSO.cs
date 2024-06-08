@@ -10,14 +10,20 @@ public enum ActiveType { Attack, Defence, Recovery, }
 public enum RangeType { Liner, Area, TransitLiner, TransitDiagonal, TransitAround, OurArea, Self }
 public enum SelectType { Single, Wide, Splash, Liner, Emission, Entire, }
 public enum KnockbackType { FromUnit, FromPoint }
+
+public enum TargetTraceType {  }
 public enum RecommendedDistanceType { Far, Close, Custom }
 public enum ActionTriggerType { Instant, Custom }
+public enum UseType { Able, Should }
 
 [CreateAssetMenu(fileName = "CardSO", menuName = "Scriptable Object/CardSO")]
 public class CardSO : ScriptableObject
 {
+    public Unit Unit { get; private set; }
+    public void SetUnit(Unit unit) => Unit = unit;
+    
     public Sprite sprite;
-    public GameObject prefab;
+    public Action actionPrefab;
     [Space]
     public int energy;
     public int value;
@@ -51,6 +57,7 @@ public class CardSO : ScriptableObject
     [DrawIf("isKnockback", true)] public int knockbackPower;
 
     [Header("인공지능")]
+    public int priority;
     public UseType useType;
     public bool compareByMove;
     public RecommendedDistanceType recommendedDistanceType = RecommendedDistanceType.Close;
@@ -58,6 +65,9 @@ public class CardSO : ScriptableObject
     [DrawIf("useType", UseType.Should)] public bool isBeforeMove;
     [DrawIf("useType", UseType.Should)] public bool isAfterMove;
     public List<Condition> conditions;
+    
+    public int CurrentDuration { get; private set; }
+    public int UpdateDuration() => CurrentDuration--;
 
     [Header("애니메이션")]
     public ActionTriggerType actionTriggerType;
@@ -67,29 +77,18 @@ public class CardSO : ScriptableObject
 [Serializable]
 public class CardInfo
 {
-    [HideInInspector] public Unit unit;
     public CardSO cardSO;
     public int count;
-    public int priority;
-    public int turnCount;
-
-    public CardInfo(CardInfo cardInfo)
-    {
-        cardSO = cardInfo.cardSO;
-        count = cardInfo.count;
-        unit = cardInfo.unit;
-        priority = cardInfo.priority;
-    }
 }
-public enum UseType { Able, Should }
+
+public enum ActivatedType { Duration, Health, Range }
+public enum ConditionType { Less, Greater, Equal }
 
 [Serializable]
 public struct Condition
 {
     public ActivatedType activatedType;
-    [DrawIf("activatedType", ActivatedType.Count)] public int turnCount;
+    [FormerlySerializedAs("turnCount")] [DrawIf("activatedType", ActivatedType.Duration)] public int duration;
     [DrawIf("activatedType", ActivatedType.Health)] public ConditionType conditionType;
     [DrawIf("activatedType", ActivatedType.Health)] public int value;
 }
-public enum ActivatedType { Count, Health, Range }
-public enum ConditionType { Less, Greater, Equal }

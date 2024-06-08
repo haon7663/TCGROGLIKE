@@ -1,30 +1,39 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using DG.Tweening;
+using UnityEngine.Serialization;
 
 public class Card : MonoBehaviour
 {
-    [SerializeField] SpriteRenderer character;
-    [SerializeField] LineRenderer lineRenderer;
-    [SerializeField] TMP_Text nameTMP;
-    [SerializeField] TMP_Text attackTMP;
-    [SerializeField] TMP_Text energyTMP;
+    [SerializeField] private SpriteRenderer character;
+    [SerializeField] private LineRenderer lineRenderer;
+    [SerializeField] private TMP_Text nameTMP;
+    [SerializeField] private TMP_Text attackTMP;
+    [SerializeField] private TMP_Text energyTMP;
 
     public PRS originPRS;
-    public CardInfo cardInfo;
-    public Unit unit;
+    public CardSO CardSO { get; private set; }
+    public Unit Unit { get; private set; }
 
-    public void SetUp(CardInfo cardInfo)
+    private Camera _camera;
+
+    private void Start()
     {
-        this.cardInfo = cardInfo;
-        unit = this.cardInfo.unit;
+        _camera = Camera.main;
+    }
 
-        character.sprite = this.cardInfo.cardSO.sprite;
-        nameTMP.text = this.cardInfo.cardSO.name;
-        attackTMP.text = StatusEffectManager.Calculate(unit, this.cardInfo.cardSO).ToString();
-        energyTMP.text = this.cardInfo.cardSO.energy.ToString();
+    public void SetUp(CardSO cardSO)
+    {
+        CardSO = cardSO;
+        Unit = cardSO.Unit;
+
+        character.sprite = CardSO.sprite;
+        nameTMP.text = CardSO.name;
+        attackTMP.text = StatusEffectManager.Calculate(Unit, CardSO).ToString();
+        energyTMP.text = CardSO.energy.ToString();
     }
 
     private void OnMouseOver()
@@ -80,15 +89,14 @@ public class Card : MonoBehaviour
     public void ShowLiner(bool isVisible = true)
     {
         lineRenderer.enabled = isVisible;
-        if(isVisible)
-        {
-            lineRenderer.SetPosition(0, new Vector2(transform.position.x, transform.position.y + 1.75f));
-            lineRenderer.SetPosition(1, Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0)));
-        }
+        
+        if (!isVisible) return;
+        lineRenderer.SetPosition(0, new Vector2(transform.position.x, transform.position.y + 1.75f));
+        lineRenderer.SetPosition(1, _camera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0)));
     }
 
     public Unit GetUnit()
     {
-        return unit;
+        return Unit;
     }
 }

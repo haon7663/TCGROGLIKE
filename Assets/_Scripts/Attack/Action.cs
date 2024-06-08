@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,111 +7,99 @@ using UnityEngine.Pool;
 
 public abstract class Action : MonoBehaviour
 {
-    protected Unit unit;
-    protected CardSO cardSO;
-    protected HexCoords coords;
-    protected List<HexNode> nodes = new List<HexNode>();
+    protected Unit Unit;
+    protected CardSO CardSO;
+    protected HexCoords TargetCoords;
+    protected List<HexNode> TargetNodes = new List<HexNode>();
+    protected HexDirection StartDirection = HexDirection.Default;
 
-    HexDirection saveDirection = HexDirection.Default;
-    int value;
-
-    public virtual void Init(Unit unit, HexDirection direction, CardSO cardSO, int value = -999)
+    public virtual void Init(Unit unit, HexDirection direction, CardSO cardSO)
     {
-        this.unit = unit;
-        this.cardSO = cardSO;
-        coords = unit.coords;
+        Unit = unit;
+        CardSO = cardSO;
+        TargetCoords = unit.coords;
         transform.position = unit.coords.Pos;
-        saveDirection = direction;
-        this.value = value;
+        StartDirection = direction;
     }
-    public virtual void Init(Unit unit, HexNode node, CardSO cardSO, int value = -999)
+    public virtual void Init(Unit unit, HexNode node, CardSO cardSO)
     {
-        this.unit = unit;
-        this.cardSO = cardSO;
-        coords = node.Coords;
-        transform.position = coords.Pos;
-        this.value = value;
+        Unit = unit;
+        CardSO = cardSO;
+        TargetCoords = node.Coords;
+        transform.position = TargetCoords.Pos;
     }
-    public virtual void Init(Unit unit, HexNode node, List<HexNode> nodes, CardSO cardSO, int value = -999)
+    public virtual void Init(Unit unit, HexNode node, List<HexNode> nodes, CardSO cardSO)
     {
-        this.unit = unit;
-        this.cardSO = cardSO;
-        this.nodes = nodes;
-        coords = node.Coords;
-        transform.position = coords.Pos;
-        this.value = value;
+        Unit = unit;
+        CardSO = cardSO;
+        TargetNodes = nodes;
+        TargetCoords = node.Coords;
+        transform.position = TargetCoords.Pos;
     }
 
     public bool ActiveEventValue(HexCoords coords, CardSO cardSO)
     {
-        this.coords = coords;
-        this.cardSO = cardSO;
+        TargetCoords = coords;
+        CardSO = cardSO;
         return ActiveEvent();
     }
     public bool ActiveEvent()
     {
         List<Unit> afterEventUnits = new();
-        if (nodes.Count <= 1)
+        if (TargetNodes.Count <= 1)
         {
-            var onUnit = GridManager.inst.GetUnit(coords);
-            if (onUnit != null)
-            {
-                TypeToEffect(onUnit);
-                afterEventUnits.Add(onUnit);
-                AfterEvent(afterEventUnits);
-                return true;
-            }
+            var onUnit = GridManager.inst.GetUnit(TargetCoords);
+            if (!onUnit)
+                return false;
+            
+            TypeToEffect(onUnit);
+            afterEventUnits.Add(onUnit);
+            AfterEvent(afterEventUnits);
+            return true;
         }
         else
         {
-            foreach(HexNode node in nodes)
-            {
-                var onUnit = GridManager.inst.GetUnit(node);
-                if (onUnit != null)
-                {
-                    if(TypeToEffect(onUnit))
-                        afterEventUnits.Add(onUnit);
-                }
-            }
+            afterEventUnits.AddRange(from node in TargetNodes select GridManager.inst.GetUnit(node) into onUnit where onUnit where TypeToEffect(onUnit) select onUnit);
             AfterEvent(afterEventUnits);
             return true;
         }
         return false;
     }
 
-    bool TypeToEffect(Unit targetUnit)
+    private bool TypeToEffect(Unit targetUnit)
     {
-        var lastValue = value == -999 ? cardSO.value : value;
-        switch (cardSO.activeType)
+        switch (CardSO.activeType)
         {
             case ActiveType.Attack:
-                targetUnit.OnDamage(StatusEffectManager.CalculateDamage(unit, targetUnit, lastValue));
+                targetUnit.OnDamage(StatusEffectManager.CalculateDamage(Unit, targetUnit, CardSO.value));
                 break;
             case ActiveType.Defence:
-                targetUnit.OnDefence(StatusEffectManager.CalculateDefence(unit, targetUnit, lastValue));
+                targetUnit.OnDefence(StatusEffectManager.CalculateDefence(Unit, targetUnit, CardSO.value));
                 break;
             case ActiveType.Recovery:
-                targetUnit.OnHealth(StatusEffectManager.CalculateHealth(unit, targetUnit, lastValue));
+                targetUnit.OnHealth(StatusEffectManager.CalculateHealth(Unit, targetUnit, CardSO.value));
                 break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         if (!targetUnit) 
             return false;
 
-        StartCoroutine(StatusEffectManager.inst.AddStatusEffects(cardSO.statuses, targetUnit));
+        StartCoroutine(StatusEffectManager.inst.AddStatusEffects(CardSO.statuses, targetUnit));
         return true;
     }
-    void AfterEvent(List<Unit> units)
+    private void AfterEvent(List<Unit> units)
     {
-        units = units.OrderByDescending(unit => unit.coords.GetDistance(this.unit.coords)).ToList();
+        units = units.OrderByDescending(unit => unit.coords.GetDistance(this.Unit.coords)).ToList();
         foreach(Unit unit in units)
         {
-            if (cardSO.isKnockback)
+            if (CardSO.isKnockback)
             {
-                var direction = (unit.coords - (cardSO.knockbackType == KnockbackType.FromUnit ? this.unit.coords : coords)).GetSignDirection();
+                var direction = (unit.coords - (CardSO.knockbackType == KnockbackType.FromUnit ? this.Unit.coords : TargetCoords)).GetSignDirection();
                 if ((int)direction != -1)
-                    saveDirection = direction;
-                unit.move.OnMoved(saveDirection, cardSO.knockbackPower);
+                    StartDirection = direction;
+                unit.move.OnMoved(StartDirection, CardSO.knockbackPower);
             }
         }
     }

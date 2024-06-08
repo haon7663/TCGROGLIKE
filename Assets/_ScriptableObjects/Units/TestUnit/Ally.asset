@@ -20,4 +20,8 @@ MonoBehaviour:
   cost: 3
   enemyMoveRange: 0
   isJump: 1
-  cardInfo: []
+  cardInfo:
+  - cardSO: {fileID: 11400000, guid: fb31c414d60c4a544b182720ee9cc06f, type: 2}
+    count: 2
+  - cardSO: {fileID: 11400000, guid: 783d9860ddd060140bfccdb6dc649d79, type: 2}
+    count: 3

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Swing_SwordFairy
   m_EditorClassIdentifier: 
   sprite: {fileID: 857815337, guid: dd636b6bbd103cf43b7180c4e41da6c9, type: 3}
-  prefab: {fileID: 6037482832087054386, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
+  actionPrefab: {fileID: 7133120729427397383, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
   energy: 1
   value: 9
   cardType: 0
@@ -35,7 +35,9 @@ MonoBehaviour:
   isKnockback: 0
   knockbackType: 0
   knockbackPower: 0
+  priority: 0
   useType: 0
+  compareByMove: 0
   recommendedDistanceType: 1
   recommendedDistance: 1
   isBeforeMove: 0

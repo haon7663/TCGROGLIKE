@@ -19,5 +19,5 @@ MonoBehaviour:
   explain: 
   displayExplain: "\uD798"
   statType: 300
-  statModifierType: 100
+  statModifierType: 0
   value: 1

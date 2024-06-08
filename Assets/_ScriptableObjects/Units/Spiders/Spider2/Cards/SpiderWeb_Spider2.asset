@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SpiderWeb_Spider2
   m_EditorClassIdentifier: 
   sprite: {fileID: 0}
-  prefab: {fileID: 6037482832087054386, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
+  actionPrefab: {fileID: 1586748954276004714, guid: 24d062b8a3423604ab4f86026dba1f25, type: 3}
   energy: 1
   value: 8
   cardType: 0
@@ -37,6 +37,7 @@ MonoBehaviour:
   isKnockback: 0
   knockbackType: 0
   knockbackPower: 0
+  priority: 1
   useType: 1
   compareByMove: 0
   recommendedDistanceType: 1
@@ -45,11 +46,11 @@ MonoBehaviour:
   isAfterMove: 0
   conditions:
   - activatedType: 0
-    turnCount: 3
+    duration: 3
     conditionType: 0
     value: 0
   - activatedType: 2
-    turnCount: 3
+    duration: 3
     conditionType: 0
     value: 0
   actionTriggerType: 0

@@ -21,10 +21,10 @@ public class CardManager : MonoBehaviour
     [SerializeField] private GameObject cardPrefab;
     
     [Header("덱")]
-    [SerializeField] private List<CardInfo> cardBuffer;
+    [SerializeField] private List<CardSO> cardBuffer;
     [SerializeField] private List<Card> cards;
-    [SerializeField] private List<CardInfo> trashCards;
-    [SerializeField] private List<CardInfo> exhaustCards;
+    [SerializeField] private List<CardSO> trashCards;
+    [SerializeField] private List<CardSO> exhaustCards;
     
     [Header("트랜스폼")]
     [SerializeField] private Transform cardSpawnPoint;
@@ -46,20 +46,20 @@ public class CardManager : MonoBehaviour
     private bool _onCardArea;
     private bool _onCardDeck;
 
-    public CardInfo PopItem()
+    public CardSO PopItem()
     {
         if (cardBuffer.Count == 0)
             SetupItemBuffer(UnitManager.inst.allies);
 
-        CardInfo card = cardBuffer[0];
+        var card = cardBuffer[0];
         cardBuffer.RemoveAt(0);
         return card;
     }
 
     private void SetupItemBuffer(List<Unit> units)
     {
-        cardBuffer = new List<CardInfo>();
-        trashCards = new List<CardInfo>();
+        cardBuffer = new List<CardSO>();
+        trashCards = new List<CardSO>();
 
         for(var i = units.Count - 1; i >= 0; i--)
         {
@@ -67,8 +67,9 @@ public class CardManager : MonoBehaviour
             {
                 for (var j = 0; j < cardInfo.count; j++)
                 {
-                    cardInfo.unit = units[i];
-                    cardBuffer.Add(new CardInfo(cardInfo));
+                    var cardSO = Instantiate(cardInfo.cardSO);
+                    cardSO.SetUnit(units[i]);
+                    cardBuffer.Add(cardSO);
                 }
             }
         }
@@ -76,6 +77,34 @@ public class CardManager : MonoBehaviour
         {
             var rand = Random.Range(i, cardBuffer.Count);
             (cardBuffer[rand], cardBuffer[i]) = (cardBuffer[i], cardBuffer[rand]);
+        }
+    }
+    public void AddCardsFromUnit(Unit unit)
+    {
+        var cardSOs = new List<CardSO>();
+        foreach (var cardInfo in unit.unitSO.cardInfo)
+        {
+            for (var j = 0; j < cardInfo.count; j++)
+            {
+                var cardSO = Instantiate(cardInfo.cardSO);
+                cardSO.SetUnit(unit);
+                cardSOs.Add(cardSO);
+            }
+        }
+        for(var i = 0; i < cardSOs.Count; i++)
+        {
+            var rand = Random.Range(i, cardSOs.Count);
+            (cardSOs[rand], cardSOs[i]) = (cardSOs[i], cardSOs[rand]);
+        }
+        
+        var cardRatio = cardBuffer.Count / ((float)(cardBuffer.Count + cards.Count + trashCards.Count) / cardSOs.Count);
+        print(cardRatio);
+        for(var i = 0; i < cardSOs.Count; i++)
+        {
+            if(i < cardRatio)
+                cardBuffer.Insert(Random.Range(0, cardBuffer.Count), cardSOs[i]);
+            else
+                trashCards.Insert(Random.Range(0, trashCards.Count), cardSOs[i]);
         }
     }
 
@@ -122,20 +151,20 @@ public class CardManager : MonoBehaviour
 
     public void RemoveCards()
     {
-        PRS trashCardPRS = new PRS(cardTrashPoint.localPosition, Quaternion.identity, Vector3.one);
-        foreach (Card card in cards)
+        var trashCardPRS = new PRS(cardTrashPoint.localPosition, Quaternion.identity, Vector3.one);
+        foreach (var card in cards)
         {
             card.MoveTransform(trashCardPRS, true, 0.7f);
-            trashCards.Add(card.cardInfo);
+            trashCards.Add(card.CardSO);
             Destroy(card.gameObject, 0.7f);
         }
-        cards = new();
+        cards = new List<Card>();
     }
 
     void SetOriginOrder()
     {
-        int count = cards.Count;
-        for(int i = 0; i < count; i++)
+        var count = cards.Count;
+        for(var i = 0; i < count; i++)
         {
             var targetCard = cards[i];
             targetCard?.GetComponent<Order>().SetOriginOrder(i);
@@ -189,10 +218,10 @@ public class CardManager : MonoBehaviour
 
         if (selectedNode)
         {
-            StartCoroutine(card.unit.card.UseCard(selectedNode));
+            StartCoroutine(card.Unit.card.UseCard(selectedNode));
         
             cards.Remove(card);
-            trashCards.Add(card.cardInfo);
+            trashCards.Add(card.CardSO);
             card.transform.DOKill();
             DestroyImmediate(card.gameObject);
         }
@@ -221,7 +250,7 @@ public class CardManager : MonoBehaviour
             EnlargeCard(true, card);
             var unit = card.GetUnit();
             UnitManager.inst.SelectUnit(unit, true);
-            unit.card.DrawRange(card.cardInfo.cardSO, eCardState == ECardState.CanMouseDrag);
+            unit.card.DrawRange(card.CardSO, eCardState == ECardState.CanMouseDrag);
         }
     }
     public void CardMouseExit(Card card)
@@ -230,12 +259,12 @@ public class CardManager : MonoBehaviour
             return;
 
         EnlargeCard(false, card);
-        UnitManager.inst.DeSelectUnit(card.unit);
+        UnitManager.inst.DeSelectUnit(card.Unit);
         LightManager.inst.ChangeLight(false);
 
         if (!_selectedCard)
         {
-            GridManager.inst.RevertTiles(card.unit);
+            GridManager.inst.RevertTiles(card.Unit);
         }
         if (hoveredCard == card) hoveredCard = null;
     }
@@ -284,9 +313,9 @@ public class CardManager : MonoBehaviour
         else
         {
             _selectedCard.ShowLiner();
-            if(_selectedCard.cardInfo.cardSO.rangeType == RangeType.Self)
+            if(_selectedCard.CardSO.rangeType == RangeType.Self)
             {
-                var tile = GridManager.inst.GetNode(_selectedCard.unit);
+                var tile = GridManager.inst.GetNode(_selectedCard.Unit);
                 //tile.OnDisplay(AreaType.Select);
             }
         }
@@ -359,32 +388,31 @@ public class CardManager : MonoBehaviour
     #endregion
 
     #region CardDeck
-    List<Card> openedCards = new List<Card>();
-    void OpenDeck(List<CardInfo> cardsInfo)
+    private List<Card> _openedCards = new List<Card>();
+    private void OpenDeck(List<CardSO> cardSOs)
     {
         _onCardDeck = !_onCardDeck;
         cardDeck.gameObject.SetActive(_onCardDeck);
         if (_onCardDeck)
         {
-            cardsInfo = cardsInfo.OrderBy(x => x.cardSO.name).ToList();
-            for (int i = 0; i < cardsInfo.Count; i++)
+            cardSOs = cardSOs.OrderBy(cardSO => cardSO.name).ToList();
+            for (var i = 0; i < cardSOs.Count; i++)
             {
-                var cardObject = Instantiate(cardPrefab);
-                cardObject.transform.SetParent(cardDeck);
+                var cardObject = Instantiate(cardPrefab, cardDeck, true);
 
                 var card = cardObject.GetComponent<Card>();
                 card.originPRS = new PRS(new Vector3(((i % deckCount) - (deckCount - 1f) / 2) * 3.5f, i / deckCount * -4.5f + 7f, -5), Utils.QI, Vector2.one);
                 card.MoveTransform(card.originPRS, false);
-                card.SetUp(cardsInfo[i]);
+                card.SetUp(cardSOs[i]);
                 card.GetComponent<Order>().SetOriginOrder(99);
-                openedCards.Add(card);
+                _openedCards.Add(card);
             }
         }
         else
         {
-            foreach(Card card in openedCards)
+            foreach(var card in _openedCards)
                 Destroy(card.gameObject);
-            openedCards = new List<Card>();
+            _openedCards = new List<Card>();
         }
     }
     public void CallCardBuffer() => OpenDeck(cardBuffer);

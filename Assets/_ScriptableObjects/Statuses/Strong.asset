@@ -19,6 +19,5 @@ MonoBehaviour:
   explain: 
   displayExplain: "\uAC15\uD654"
   statType: 300
-  statModifier:
-    statModifierType: 200
-    value: 1.5
+  statModifierType: 1
+  value: 1.25

@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 8401807875922123065}
   - component: {fileID: 8358961175132607982}
   - component: {fileID: 1339376136151948037}
-  - component: {fileID: 3241740516425972038}
+  - component: {fileID: 5141877278510844819}
   m_Layer: 5
-  m_Name: StatusTMP
+  m_Name: StatusEffectTMP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -135,7 +135,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &3241740516425972038
+--- !u!114 &5141877278510844819
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

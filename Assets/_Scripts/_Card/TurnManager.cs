@@ -27,12 +27,17 @@ public class TurnManager : MonoBehaviour
     public int MoveCost { get; private set; }
     public int Energy { get; private set; }
 
-    enum ETurnMode { My, Other }
+    private enum ETurnMode { My, Other }
     readonly WaitForSeconds delay05 = YieldInstructionCache.WaitForSeconds(0.05f);
     readonly WaitForSeconds delay7 = YieldInstructionCache.WaitForSeconds(0.7f);
 
     public static System.Action OnAddCard;
     public static event Action<bool> OnTurnStarted;
+
+    private void Start()
+    {
+        GameSetUp();
+    }
 
     public void GameSetUp()
     {

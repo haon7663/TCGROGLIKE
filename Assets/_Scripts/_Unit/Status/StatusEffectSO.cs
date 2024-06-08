@@ -20,7 +20,6 @@ public class StatusEffectSO : ScriptableObject
 
     public virtual void AddEffect(Unit unit)
     {
-        Debug.Log("AddEffect");
     }
     public virtual void UpdateEffect(Unit unit)
     {
@@ -41,19 +40,15 @@ public class StatusEffectSO : ScriptableObject
             default:
                 throw new ArgumentOutOfRangeException();
         }
-        Debug.Log("UpdateEffect");
     }
     public virtual void UpdateRenewal(Unit unit)
     {
-        Debug.Log("UpdateRenewal");
     }
     public virtual void RemoveEffect(Unit unit)
     {
-        Debug.Log("RemoveEffect");
     }
     public virtual void InitEffect(Unit unit)
     {
-        Debug.Log("InitEffect");
     }
     
     public void SetStack(int stack) => Stack = stack;

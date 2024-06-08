@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Liner
   m_EditorClassIdentifier: 
   sprite: {fileID: 0}
-  prefab: {fileID: 253454770491110429, guid: 47b824ccd26e83841b6d5339a0288450, type: 3}
+  actionPrefab: {fileID: 7133120729427397383, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
   energy: 1
   value: 5
   cardType: 0
@@ -35,6 +35,7 @@ MonoBehaviour:
   isKnockback: 0
   knockbackType: 0
   knockbackPower: 0
+  priority: 0
   useType: 1
   compareByMove: 0
   recommendedDistanceType: 1
@@ -43,7 +44,7 @@ MonoBehaviour:
   isAfterMove: 0
   conditions:
   - activatedType: 2
-    turnCount: 0
+    duration: 0
     conditionType: 0
     value: 0
   actionTriggerType: 0

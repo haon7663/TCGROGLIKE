@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SelfHealth
   m_EditorClassIdentifier: 
   sprite: {fileID: 0}
-  prefab: {fileID: 6037482832087054386, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
+  actionPrefab: {fileID: 7133120729427397383, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
   energy: 0
   value: 4
   cardType: 1
@@ -35,14 +35,16 @@ MonoBehaviour:
   isKnockback: 0
   knockbackType: 0
   knockbackPower: 0
+  priority: 0
   useType: 1
+  compareByMove: 0
   recommendedDistanceType: 2
   recommendedDistance: 2
   isBeforeMove: 1
   isAfterMove: 0
   conditions:
   - activatedType: 1
-    turnCount: 0
+    duration: 0
     conditionType: 0
     value: 30
   actionTriggerType: 0

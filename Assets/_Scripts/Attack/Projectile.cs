@@ -6,25 +6,25 @@ using DG.Tweening;
 
 public class Projectile : Action
 {
-    public override void Init(Unit unit, HexDirection direction, CardSO cardSO, int value = -999)
+    public override void Init(Unit unit, HexDirection direction, CardSO cardSO)
     {
-        base.Init(unit, direction, cardSO, value);
+        base.Init(unit, direction, cardSO);
         StartCoroutine(Fire(direction, cardSO));
     }
 
-    IEnumerator Fire(HexDirection direction, CardSO cardSO)
+    private IEnumerator Fire(HexDirection direction, CardSO cardSO)
     {
-        for (int i = 1; i <= cardSO.realRange; i++)
+        for (var i = 1; i <= cardSO.realRange; i++)
         {
-            coords += direction.Coords();
-            if (GridManager.inst.GetNode(coords)?.OnObstacle != false)
+            TargetCoords += direction.Coords();
+            if (GridManager.inst.GetNode(TargetCoords)?.OnObstacle != false)
                 break;
 
-            transform.DOMove(coords.Pos, 0.05f).SetEase(Ease.Linear);
+            transform.DOMove(TargetCoords.Pos, 0.05f).SetEase(Ease.Linear);
 
             yield return YieldInstructionCache.WaitForSeconds(0.05f);
 
-            if(ActiveEventValue(coords, cardSO) && !cardSO.isPenetrate)
+            if(ActiveEventValue(TargetCoords, cardSO) && !cardSO.isPenetrate)
                 break;
         }
         Destroy(gameObject);

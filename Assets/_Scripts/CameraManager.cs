@@ -30,6 +30,12 @@ public class CameraManager : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (Input.GetMouseButtonDown(1))
+        {
+            UnitManager.inst.DeSelectUnit(UnitManager.sUnit);
+            SetOrthographicSize(false);
+        }
+        
         if (CardManager.Inst.hoveredCard || ArrangeManager.inst.isArrange || UnitManager.inst.isDrag || _isZoom)
             return;
 

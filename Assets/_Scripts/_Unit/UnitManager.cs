@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -60,13 +61,18 @@ public class UnitManager : MonoBehaviour
                     enemies.Add(unit);
                     break;
                 default:
-                    break;
+                    throw new ArgumentOutOfRangeException();
             }
             units.Add(unit);
         }
     }
-    public void SpawnUnit(UnitSO unitSO, HexNode tile)
+    public Unit SpawnUnit(UnitSO unitSO, HexNode tile)
     {
+        if (TurnManager.Inst.MoveCost < unitSO.cost)
+            return null;
+
+        TurnManager.UseMoveCost(unitSO.cost);
+        
         var unit = Instantiate(unitPrefab);
         unit.Init(unitSO, tile.Coords);
 
@@ -84,9 +90,11 @@ public class UnitManager : MonoBehaviour
                 unit.transform.SetParent(enemyBundle);
                 break;
             default:
-                break;
+                throw new ArgumentOutOfRangeException();
         }
         units.Add(unit);
+
+        return unit;
     }
     public void Death(Unit unit)
     {
@@ -110,6 +118,8 @@ public class UnitManager : MonoBehaviour
             case UnitType.Enemy:
                 enemies.Remove(unit);
                 break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         units.Remove(unit);
@@ -149,7 +159,7 @@ public class UnitManager : MonoBehaviour
     {
         unit.SetMaterial(outlineMaterial);
 
-        if (!(GameManager.Inst.moveAble && unit.unitSO.type == UnitType.Ally))
+        if (unit.unitSO.type != UnitType.Ally)
             return;
         
         GridManager.inst.RevertTiles(unit);
@@ -158,7 +168,7 @@ public class UnitManager : MonoBehaviour
     }
     public void UnitMouseExit(Unit unit)
     {
-        if (GameManager.Inst.moveAble && unit.unitSO.type == UnitType.Ally)
+        if (unit.unitSO.type == UnitType.Ally)
         {
             if (isDrag)
             {
@@ -182,7 +192,7 @@ public class UnitManager : MonoBehaviour
     }
     public void UnitMouseDown(Unit unit)
     {
-        if (GameManager.Inst.moveAble && unit.unitSO.type == UnitType.Ally)
+        if (unit.unitSO.type == UnitType.Ally)
         {
             isDrag = true;
         }
@@ -274,16 +284,17 @@ public class UnitManager : MonoBehaviour
 
     private void EnemySelectCard(Unit unit)
     {
-        List<CardInfo> cardInfos = new();
+        List<CardSO> cardSOs = new();
         foreach (var cardInfo in unit.unitSO.cardInfo)
         {
             if (cardInfo.cardSO.conditions.Count == 0)
             {
                 for (var i = 0; i < cardInfo.count; i++)
-                    cardInfos.Add(cardInfo);
+                    cardSOs.Add(cardInfo.cardSO);
             }
             else
             {
+                var cardSO = cardInfo.cardSO;
                 var contentCondition = true;
                 foreach (var condition in cardInfo.cardSO.conditions)
                 {
@@ -303,7 +314,7 @@ public class UnitManager : MonoBehaviour
                                         contentCondition = false;
                                     break;
                                 case ConditionType.Equal:
-                                    if (leftValue == rightValue)
+                                    if (Mathf.Approximately(leftValue, rightValue))
                                         contentCondition = false;
                                     break;
                             }
@@ -315,58 +326,42 @@ public class UnitManager : MonoBehaviour
                             if (!(cardInfo.cardSO.isBeforeMove ? targetArea.Exists(x => unit.move.GetArea(true).Contains(x)) : targetArea.Contains(unit.coords)))
                                 contentCondition = false;
                             break;
-                        case ActivatedType.Count:
-                            if (cardInfo.turnCount-- > 0)
-                            {
+                        case ActivatedType.Duration:
+                            if (cardSO.UpdateDuration() > 0)
                                 contentCondition = false;
-                            }
                             break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
-                if (contentCondition)
-                    for (var i = 0; i < cardInfo.count; i++)
-                        cardInfos.Add(cardInfo);
+
+                if (!contentCondition) continue;
+                for (var i = 0; i < cardInfo.count; i++)
+                    cardSOs.Add(cardSO);
             }
         }
 
-        List<CardInfo> highCardInfos = new();
-        var maxPriority = 0;
-        foreach (var cardInfo in cardInfos)
-        {
-            if (cardInfo.priority >= maxPriority)
-            {
-                maxPriority = cardInfo.priority;
-                highCardInfos.Add(cardInfo);
-            }
-        }
+        var maxPriority = cardSOs.Max(cardSO => cardSO.priority);
+        cardSOs = cardSOs.FindAll(cardSO => cardSO.priority == maxPriority);
 
-        cardInfos = highCardInfos.FindAll(x => x.priority == maxPriority);
-        var rand = Random.Range(0, cardInfos.Count);
-
-        var info = cardInfos[rand];
-        if (info.cardSO.conditions.Exists(x => x.activatedType == ActivatedType.Count))
-            info.turnCount = info.cardSO.conditions.Find(x => x.activatedType == ActivatedType.Count).turnCount;
-        var value = info.cardSO.value + Mathf.CeilToInt(info.cardSO.value * 0.1f) * Random.Range(-1, 2);
-        unit.card.SetUp(info, value);
-        if (info.cardSO.useType == UseType.Should)
+        var selectedCardSO = cardSOs[Random.Range(0, cardSOs.Count)];
+        //var value = selectedCardSO.value + Mathf.CeilToInt(selectedCardSO.value * Random.Range(-0.15f, 0.15f));
+        unit.card.SetUp(selectedCardSO);
+        
+        if (selectedCardSO.useType == UseType.Should)
         {
             var targetUnit = GetNearestUnit(unit);
             
-            unit.card.canDisplay = true;
             unit.targetCoords = targetUnit.coords;
-            if(info.cardSO.isBeforeMove)
+            if(selectedCardSO.isBeforeMove)
                 StartCoroutine(MoveUnit(unit, targetUnit));
-
-            unit.card.directionCoords = targetUnit.coords - unit.coords;
         }
 
         var sprite = attackSprite;
-        if (info.cardSO.activeType == ActiveType.Attack)
-            sprite = attackSprite;
         unit.Repeat(unit.targetCoords.Pos.x);
-
-        unit.ShowAction(sprite, value);
+        unit.ShowAction(sprite);
     }
+    
     public IEnumerator EnemyMove(Unit unit, bool ableAction)
     {
         if (ableAction)
@@ -425,17 +420,17 @@ public class UnitManager : MonoBehaviour
 
         var targetArea = cardData.compareByMove ? unit.move.GetArea(true) : targetUnit.card.GetArea(unit.card.CardSO, unit);
         targetArea = targetArea.FindAll(x => GridManager.inst.GetNode(x).CanWalk() || x == unit.coords);
-        var targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance && unit.move.GetArea(true).Contains(x));
+        var targetCoordses = targetArea.FindAll(x => Mathf.Approximately(x.GetDistance(targetUnit.coords), targetDistance) && unit.move.GetArea(true).Contains(x));
         for (int i = targetDistance - 1; i > 0 && targetCoordses.Count == 0; i--)
         {
-            targetCoordses = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == i && unit.move.GetArea(true).Contains(x));
+            targetCoordses = targetArea.FindAll(x => Mathf.Approximately(x.GetDistance(targetUnit.coords), i) && unit.move.GetArea(true).Contains(x));
         }
 
 
         HexCoords targetCoords;
         if (targetCoordses.Count == 0)
         {
-            targetArea = targetArea.FindAll(x => x.GetDistance(targetUnit.coords) == targetDistance).OrderBy(x => x.GetPathDistance(unit.coords)).ToList(); //수정필요
+            targetArea = targetArea.FindAll(x => Mathf.Approximately(x.GetDistance(targetUnit.coords), targetDistance)).OrderBy(x => x.GetPathDistance(unit.coords)).ToList(); //수정필요
             if (targetArea.Count == 0)
                 targetCoords = targetUnit.coords;
             else
@@ -463,7 +458,7 @@ public class UnitManager : MonoBehaviour
     
     #endregion
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         TurnManager.OnTurnStarted -= OnTurnStarted;
     }

@@ -30,11 +30,11 @@ public class Unit : MonoBehaviour
     [Header("상태")]
     public bool canMove;
     public bool canAction;
+    public List<StatusEffectSO> statuses;
 
     [Header("시스템")]
     public Unit targetUnit;
     public HexCoords targetCoords;
-    public List<StatusEffectSO> statuses;
 
     private void Awake()
     {
@@ -155,7 +155,7 @@ public class Unit : MonoBehaviour
     public void SetMaterial(Material material) => _spriteRenderer.material = material;
     public void Repeat(float x) => _spriteRenderer.flipX = coords.Pos.x < x;
 
-    public void ShowAction(Sprite sprite, int value)
+    public void ShowAction(Sprite sprite)
     {
         _actionObject.SetActive(true);
         _actionSpriteRenderer.sprite = sprite;

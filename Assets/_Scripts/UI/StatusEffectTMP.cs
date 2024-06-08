@@ -4,7 +4,7 @@ using DG.Tweening;
 using UnityEngine;
 using TMPro;
 
-public class StatusTMP : MonoBehaviour
+public class StatusEffectTMP : MonoBehaviour
 {
     [SerializeField] private TMP_Text statusTMP;
     public void Setup(Unit unit, string text)

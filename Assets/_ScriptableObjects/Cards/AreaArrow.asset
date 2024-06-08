@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AreaArrow
   m_EditorClassIdentifier: 
   sprite: {fileID: 0}
-  prefab: {fileID: 6286644868738343175, guid: dc8e9c6497610fb4480b3ecb4f1d7b68, type: 3}
+  actionPrefab: {fileID: 7133120729427397383, guid: a19eaad00321bfa449c3238f6e98a243, type: 3}
   energy: 0
   value: 7
   cardType: 0
@@ -35,14 +35,16 @@ MonoBehaviour:
   isKnockback: 0
   knockbackType: 0
   knockbackPower: 0
+  priority: 0
   useType: 0
+  compareByMove: 0
   recommendedDistanceType: 0
   recommendedDistance: 1
   isBeforeMove: 1
   isAfterMove: 0
   conditions:
   - activatedType: 0
-    count: 0
+    duration: 0
     conditionType: 0
     value: 0
   actionTriggerType: 0
