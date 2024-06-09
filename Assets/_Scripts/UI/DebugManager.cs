@@ -33,6 +33,11 @@ public class DebugManager : MonoBehaviour
         {
             SceneManager.LoadScene(gameObject.scene.name);
         }
+
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            TurnManager.Inst.FastMode(true);
+        }
     }
 #endif
 }

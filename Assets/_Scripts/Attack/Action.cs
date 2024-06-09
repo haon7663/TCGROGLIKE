@@ -55,15 +55,13 @@ public abstract class Action : MonoBehaviour
             TypeToEffect(onUnit);
             afterEventUnits.Add(onUnit);
             AfterEvent(afterEventUnits);
-            return true;
         }
         else
         {
             afterEventUnits.AddRange(from node in TargetNodes select GridManager.inst.GetUnit(node) into onUnit where onUnit where TypeToEffect(onUnit) select onUnit);
             AfterEvent(afterEventUnits);
-            return true;
         }
-        return false;
+        return true;
     }
 
     private bool TypeToEffect(Unit targetUnit)

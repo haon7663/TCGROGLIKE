@@ -28,8 +28,8 @@ public class TurnManager : MonoBehaviour
     public int Energy { get; private set; }
 
     private enum ETurnMode { My, Other }
-    readonly WaitForSeconds delay05 = YieldInstructionCache.WaitForSeconds(0.05f);
-    readonly WaitForSeconds delay7 = YieldInstructionCache.WaitForSeconds(0.7f);
+    private WaitForSeconds _delay05 = YieldInstructionCache.WaitForSeconds(0.05f);
+    private WaitForSeconds _delay7 = YieldInstructionCache.WaitForSeconds(0.7f);
 
     public static System.Action OnAddCard;
     public static event Action<bool> OnTurnStarted;
@@ -53,9 +53,14 @@ public class TurnManager : MonoBehaviour
         StartCoroutine(StartTurnCo());
     }
 
-    IEnumerator StartTurnCo()
+    public void FastMode(bool enable)
     {
-        yield return delay05;
+        _delay7 = YieldInstructionCache.WaitForSeconds(enable ? 0.07f : 0.7f);
+    }
+
+    private IEnumerator StartTurnCo()
+    {
+        yield return _delay05;
 
         MoveCost = maxMoveCost;
         Energy = maxEnergy;
@@ -65,17 +70,17 @@ public class TurnManager : MonoBehaviour
         phase = Phase.Draw;
         for (var i = 0; i < startCardCount; i++)
         {
-            yield return delay05;
+            yield return _delay05;
             OnAddCard?.Invoke();
         }
-        yield return delay7;
+        yield return _delay7;
 
         phase = Phase.Card;
         yield return new WaitUntil(() => Energy <= 0);
 
         phase = Phase.End;
         CardManager.Inst.RemoveCards();
-        yield return delay7;
+        yield return _delay7;
 
         GridManager.inst.StatusNode();
 
@@ -88,7 +93,7 @@ public class TurnManager : MonoBehaviour
         phase = Phase.Enemy;
 
         LightManager.inst.ChangeLight(true);
-        yield return delay7;
+        yield return _delay7;
 
         var enemies = UnitManager.inst.enemies;
         foreach(var enemy in enemies.FindAll(x => !x.targetUnit))
@@ -134,7 +139,7 @@ public class TurnManager : MonoBehaviour
             StatusEffectManager.inst.UpdateStatusEffects(unit);
             StatusEffectManager.inst.UpdateRenewals(unit);
             
-            yield return delay7;
+            yield return _delay7;
 
             if (canMove)
             {
@@ -144,10 +149,10 @@ public class TurnManager : MonoBehaviour
             {
                 yield return StartCoroutine(UnitManager.inst.EnemyAct(unit, true));
             }
-            yield return delay7;
+            yield return _delay7;
         }
         LightManager.inst.ChangeLight(false);
-        yield return delay7;
+        yield return _delay7;
         StartCoroutine(StartTurnCo());
     }
 
