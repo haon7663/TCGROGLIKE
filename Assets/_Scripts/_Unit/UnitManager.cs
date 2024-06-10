@@ -351,8 +351,8 @@ public class UnitManager : MonoBehaviour
         if (selectedCardSO.useType == UseType.Should)
         {
             var targetUnit = GetNearestUnit(unit);
-            
             unit.targetCoords = targetUnit.coords;
+            
             if(selectedCardSO.isBeforeMove)
                 StartCoroutine(MoveUnit(unit, targetUnit));
         }

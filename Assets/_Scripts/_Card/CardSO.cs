@@ -9,9 +9,8 @@ public enum CardType { Attack, Buff, }
 public enum ActiveType { Attack, Defence, Recovery, }
 public enum RangeType { Liner, Area, TransitLiner, TransitDiagonal, TransitAround, OurArea, Self }
 public enum SelectType { Single, Wide, Splash, Liner, Emission, Entire, }
+public enum TargetTraceType { Direction, Follow, Anchor }
 public enum KnockbackType { FromUnit, FromPoint }
-
-public enum TargetTraceType {  }
 public enum RecommendedDistanceType { Far, Close, Custom }
 public enum ActionTriggerType { Instant, Custom }
 public enum UseType { Able, Should }
@@ -58,10 +57,11 @@ public class CardSO : ScriptableObject
 
     [Header("인공지능")]
     public int priority;
-    public UseType useType;
     public bool compareByMove;
     public RecommendedDistanceType recommendedDistanceType = RecommendedDistanceType.Close;
     [DrawIf("recommendedDistanceType", RecommendedDistanceType.Custom)] public int recommendedDistance = 1;
+    public UseType useType;
+    [DrawIf("useType", UseType.Should)] public TargetTraceType targetTraceType;
     [DrawIf("useType", UseType.Should)] public bool isBeforeMove;
     [DrawIf("useType", UseType.Should)] public bool isAfterMove;
     public List<Condition> conditions;

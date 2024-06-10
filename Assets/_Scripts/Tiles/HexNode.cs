@@ -81,7 +81,7 @@ public class HexNode : MonoBehaviour
         }
         else if (canCard.Item1)
         {
-            GridManager.inst.AreaDisplay(AreaType.Select, true, canCard.Item2.card.GetSelectedArea(this), null);
+            GridManager.inst.AreaDisplay(AreaType.Select, true, canCard.Item2.card.GetSelectedArea(Coords), null);
         }
         else if (canArrange.Item1)
         {

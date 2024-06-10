@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,9 +13,51 @@ public class UnitCard : MonoBehaviour
 
     public CardSO CardSO { get; private set; }
 
+    public HexCoords OffsetCoords;
+
     public void SetUp(CardSO cardSO)
     {
         CardSO = cardSO;
+    }
+
+    private void Update()
+    {
+        if (!CardSO)
+            return;
+
+        switch (CardSO.targetTraceType)
+        {
+            case TargetTraceType.Direction:
+                _unit.targetCoords = _unit.coords + OffsetCoords;
+                break;
+            case TargetTraceType.Follow:
+                _unit.targetCoords = _unit.targetUnit.coords;
+                break;
+            case TargetTraceType.Anchor:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    public void SetOffsetCoords()
+    {
+        if (!CardSO)
+            return;
+        
+        switch (CardSO.targetTraceType)
+        {
+            case TargetTraceType.Direction:
+                OffsetCoords = _unit.targetUnit - _unit.coords;
+                break;
+            case TargetTraceType.Follow:
+                _unit.targetCoords = _unit.targetUnit.coords;
+                break;
+            case TargetTraceType.Anchor:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     public void DrawRange(CardSO cardSO = null, bool canSelect = true)
@@ -97,18 +140,18 @@ public class UnitCard : MonoBehaviour
         return selectCoords;
     }
     
-    public List<HexNode> GetSelectedArea(HexNode node)
+    public List<HexNode> GetSelectedArea(HexCoords coords)
     {
         //_unit.Anim_SetTrigger("attackReady");
 
-        var targetCoords = node.Coords - _unit.coords;
+        var targetCoords = coords - _unit.coords;
         var direction = targetCoords.GetSignDirection();
         if (!targetCoords.ContainsDirection())
         {
             if (_unit.unitSO.type != UnitType.Enemy)
                 direction = _unit.coords.GetNearlyMouseDirection();
             else
-                direction = _unit.coords.GetNearlyDirection(node.Coords);
+                direction = _unit.coords.GetNearlyDirection(coords);
         }
 
         GridManager.inst.RevertSelects();
@@ -118,7 +161,7 @@ public class UnitCard : MonoBehaviour
         switch (CardSO.selectType)
         {
             case SelectType.Single:
-                hexNodes.Add(node);
+                hexNodes.Add(GridManager.inst.GetNode(coords));
                 break;
             case SelectType.Wide:
                 hexNodes.AddRange(HexDirectionExtension.Diagonal(_unit.coords, direction, CardSO.range));
@@ -128,7 +171,7 @@ public class UnitCard : MonoBehaviour
                     hexNodes.AddRange(HexDirectionExtension.Liner(_unit.coords, direction.Rotate(i), CardSO.realRange, CardSO.lineWidth, CardSO.isPenetrate));
                 break;
             case SelectType.Splash:
-                hexNodes.AddRange(HexDirectionExtension.Area(node.Coords, CardSO.splashRange, true));
+                hexNodes.AddRange(HexDirectionExtension.Area(coords, CardSO.splashRange, true));
                 break;
             case SelectType.Emission:
                 hexNodes.AddRange(HexDirectionExtension.Diagonal(_unit.coords + direction, direction, CardSO.range - 1, true));
@@ -177,7 +220,7 @@ public class UnitCard : MonoBehaviour
                 for (var i = 0; i < CardSO.multiShot; i++)
                 {
                     yield return YieldInstructionCache.WaitForSeconds(0.05f);
-                    Instantiate(CardSO.actionPrefab).Init(_unit, node, GetSelectedArea(node), CardSO);
+                    Instantiate(CardSO.actionPrefab).Init(_unit, node, GetSelectedArea(node.Coords), CardSO);
                 }
                 break;
         }
