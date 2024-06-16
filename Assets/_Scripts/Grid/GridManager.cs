@@ -31,7 +31,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private Color arrangeAreaColor;
     [SerializeField] private RuntimeAnimatorController hatch;
 
-    public void AreaDisplay(AreaType areaType, bool canSelect, List<HexNode> tiles, Unit unit)
+    public void AreaDisplay(AreaType areaType, bool isFocus, List<HexNode> tiles, Unit unit)
     {
         foreach (var t in tiles)
         {
@@ -56,8 +56,9 @@ public class GridManager : MonoBehaviour
                 rangeDisplay.transform.localPosition = Vector2.zero;
                 t.RangeDisplays.Add(rangeDisplay);
             }
+            
             rangeDisplay.gameObject.SetActive(true);
-            rangeDisplay.Setup(areaType, unit, t, tiles, canSelect, color);
+            rangeDisplay.Setup(areaType, unit, t, tiles, isFocus, color);
         }
     }
 

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 090f8a7b5dc4ecd4d8509fbd1619f90f, type: 3}
+  m_Name: WarriorSkull
+  m_EditorClassIdentifier: 
+  type: 0
+  sprite: {fileID: -46636147, guid: 7e49a16b143089749b190101df5c1d78, type: 3}
+  animatorController: {fileID: 22100000, guid: cb500bb5e99fa454bb55175816320702, type: 2}
+  hp: 21
+  onTargetToEnemy: 1
+  cost: 4
+  enemyMoveRange: 3
+  isJump: 0
+  cardInfo:
+  - cardSO: {fileID: 11400000, guid: 2d412613f633f62409e117798d791c5d, type: 2}
+    count: 2
+  - cardSO: {fileID: 11400000, guid: 4989afe60387a5f41a888fb621d7e1fb, type: 2}
+    count: 2

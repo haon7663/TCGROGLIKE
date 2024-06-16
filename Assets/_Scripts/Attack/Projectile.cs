@@ -14,7 +14,7 @@ public class Projectile : Action
 
     private IEnumerator Fire(HexDirection direction, CardSO cardSO)
     {
-        for (var i = 1; i <= cardSO.realRange; i++)
+        for (var i = 1; i <= cardSO.range; i++)
         {
             TargetCoords += direction.Coords();
             if (GridManager.inst.GetNode(TargetCoords)?.OnObstacle != false)

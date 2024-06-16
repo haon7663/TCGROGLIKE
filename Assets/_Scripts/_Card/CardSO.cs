@@ -43,7 +43,6 @@ public class CardSO : ScriptableObject
     public SelectType selectType;
     public int multiShot = 1;
     [DrawIf("selectType", SelectType.Splash)] public int splashRange = 1;
-    [DrawIf("selectType", SelectType.Liner)] public int realRange;
     [DrawIf("selectType", SelectType.Liner)] public int bulletNumber = 1;
     [DrawIf("selectType", SelectType.Liner)] public bool isPenetrate = false;
 

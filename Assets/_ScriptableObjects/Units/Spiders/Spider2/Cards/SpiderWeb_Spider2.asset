@@ -13,20 +13,19 @@ MonoBehaviour:
   m_Name: SpiderWeb_Spider2
   m_EditorClassIdentifier: 
   sprite: {fileID: 0}
-  actionPrefab: {fileID: 1586748954276004714, guid: 24d062b8a3423604ab4f86026dba1f25, type: 3}
+  actionPrefab: {fileID: 5968820080333660237, guid: 47b824ccd26e83841b6d5339a0288450, type: 3}
   energy: 1
   value: 8
   cardType: 0
   activeType: 0
-  rangeType: 1
+  rangeType: 0
   onSelf: 0
   range: 2
   canSelectAll: 1
   lineWidth: 1
-  selectType: 0
+  selectType: 3
   multiShot: 1
   splashRange: 1
-  realRange: 0
   bulletNumber: 1
   isPenetrate: 0
   statuses:
@@ -38,10 +37,11 @@ MonoBehaviour:
   knockbackType: 0
   knockbackPower: 0
   priority: 1
-  useType: 1
   compareByMove: 0
   recommendedDistanceType: 1
   recommendedDistance: 1
+  useType: 1
+  targetTraceType: 0
   isBeforeMove: 0
   isAfterMove: 0
   conditions:

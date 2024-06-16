@@ -15,16 +15,39 @@ public class UnitCard : MonoBehaviour
 
     public HexCoords OffsetCoords;
 
+    public bool isShouldAction;
+
     public void SetUp(CardSO cardSO)
     {
         CardSO = cardSO;
     }
 
-    private void Update()
+    public void SetOffsetCoords()
     {
         if (!CardSO)
             return;
 
+        isShouldAction = true;
+        
+        switch (CardSO.targetTraceType)
+        {
+            case TargetTraceType.Direction:
+                OffsetCoords = _unit.targetUnit.coords - _unit.coords;
+                break;
+            case TargetTraceType.Follow:
+                break;
+            case TargetTraceType.Anchor:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    public void SetTargetCoords()
+    {
+        if (!CardSO || CardSO.useType != UseType.Should)
+            return;
+        
         switch (CardSO.targetTraceType)
         {
             case TargetTraceType.Direction:
@@ -38,35 +61,26 @@ public class UnitCard : MonoBehaviour
             default:
                 throw new ArgumentOutOfRangeException();
         }
+
+        Draw(false);
     }
 
-    public void SetOffsetCoords()
+    public void Draw(bool isFocus)
     {
-        if (!CardSO)
-            return;
-        
-        switch (CardSO.targetTraceType)
-        {
-            case TargetTraceType.Direction:
-                OffsetCoords = _unit.targetUnit - _unit.coords;
-                break;
-            case TargetTraceType.Follow:
-                _unit.targetCoords = _unit.targetUnit.coords;
-                break;
-            case TargetTraceType.Anchor:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+        GridManager.inst.RevertTiles(_unit);
+        if(isShouldAction)
+            DrawSelectedArea(null, isFocus);
+        else
+            DrawArea(null, isFocus);
     }
 
-    public void DrawRange(CardSO cardSO = null, bool canSelect = true)
+    public void DrawArea(CardSO cardSO = null, bool isFocus = false)
     {
-        if (!_unit.canAction)
-            canSelect = false;
-
         if (cardSO)
             CardSO = cardSO;
+        
+        if (!CardSO)
+            return;
         
         var selectCoords = GetArea(CardSO);
 
@@ -80,8 +94,31 @@ public class UnitCard : MonoBehaviour
                 areaType = AreaType.Buff;
                 break;
         }
-        GridManager.inst.AreaDisplay(areaType, canSelect, GridManager.inst.GetTiles(selectCoords), _unit);
+        GridManager.inst.AreaDisplay(areaType, isFocus, GridManager.inst.GetTiles(selectCoords), _unit);
     }
+    public void DrawSelectedArea(CardSO cardSO = null, bool isFocus = false)
+    {
+        if (cardSO)
+            CardSO = cardSO;
+
+        if (!CardSO)
+            return;
+        
+        var selectCoords = GetSelectedArea(_unit.targetCoords);
+
+        var areaType = AreaType.Attack;
+        switch(CardSO.cardType)
+        {
+            case CardType.Attack:
+                areaType = AreaType.Attack;
+                break;
+            case CardType.Buff:
+                areaType = AreaType.Buff;
+                break;
+        }
+        GridManager.inst.AreaDisplay(areaType, isFocus, selectCoords, _unit);
+    }
+    
     public List<HexCoords> GetArea(CardSO cardSO, Unit otherUnit = null)
     {
         List<HexCoords> selectCoords = new();
@@ -168,7 +205,7 @@ public class UnitCard : MonoBehaviour
                 break;
             case SelectType.Liner:
                 for (var i = -CardSO.bulletNumber/2; i <= CardSO.bulletNumber/2; i++)
-                    hexNodes.AddRange(HexDirectionExtension.Liner(_unit.coords, direction.Rotate(i), CardSO.realRange, CardSO.lineWidth, CardSO.isPenetrate));
+                    hexNodes.AddRange(HexDirectionExtension.Liner(_unit.coords, direction.Rotate(i), CardSO.range, CardSO.lineWidth, CardSO.isPenetrate));
                 break;
             case SelectType.Splash:
                 hexNodes.AddRange(HexDirectionExtension.Area(coords, CardSO.splashRange, true));
@@ -190,6 +227,8 @@ public class UnitCard : MonoBehaviour
             yield break;
         if (CardSO.rangeType == RangeType.Self)
             node = GridManager.inst.GetNode(_unit);
+
+        isShouldAction = false;
         
         _unit.Anim_SetTrigger("attack");
 
@@ -224,7 +263,6 @@ public class UnitCard : MonoBehaviour
                 }
                 break;
         }
-
         if (CardSO.isMove)
         {
             if (CardSO.isJump)
@@ -232,7 +270,9 @@ public class UnitCard : MonoBehaviour
             else
                 _unit.move.Move(node.Coords);
         }
+        
         GridManager.inst.RevertTiles(_unit);
+        CardSO = null;
     }
 
     public void Cancel()

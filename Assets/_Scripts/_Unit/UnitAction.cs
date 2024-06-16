@@ -10,12 +10,16 @@ public class UnitAction : MonoBehaviour
     public void ShowAction()
     {
         isShowed = true;
-        unit.card.DrawRange(null, false);
+        GridManager.inst.RevertTiles(unit);
+        unit.card.Draw(true);
     }
 
     public void HideAction()
     {
         isShowed = false;
         GridManager.inst.RevertTiles(unit);
+        
+        if(unit.card.isShouldAction)
+            unit.card.DrawSelectedArea();
     }
 }

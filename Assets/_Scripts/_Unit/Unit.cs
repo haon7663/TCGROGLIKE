@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using UnityEngine.Rendering;
-using GDX.Collections.Generic;
+using System.Collections;
+using DG.Tweening;
+using Unity.VisualScripting;
 
 public enum StatType { MaxHealth = 100, Cost = 200, GetDamage = 300, TakeDamage = 400, TakeDefence = 500, TakeRecovery = 600, }
 
@@ -93,6 +94,13 @@ public class Unit : MonoBehaviour
                 defence = 0;
                 StartCoroutine(HealthManager.inst.WhiteMaterial(this));
                 Anim_SetTrigger("hit");
+                
+                CameraMovement.inst.VibrationForTime(0.15f);
+                DOVirtual.Float(0.25f, 1, 0.5f, t =>
+                {
+                    Time.timeScale = t;
+                    Time.fixedDeltaTime = Time.timeScale * 0.02f;
+                }).SetEase(Ease.OutCubic);
             }
             HealthManager.inst.UpdateHealthBar(this);
             UIManager.inst.ShowDamageTMP(this, value);
@@ -161,6 +169,12 @@ public class Unit : MonoBehaviour
         _actionSpriteRenderer.sprite = sprite;
         SetActionText();
     }
+
+    public void ShowInfo()
+    {
+        UnitManager.inst.ShowUnitInfo(this);
+    }
+    
     public void SetActionText()
     {
         //if(actionObject.activeSelf)

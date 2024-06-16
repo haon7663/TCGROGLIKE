@@ -108,8 +108,6 @@ public class TurnManager : MonoBehaviour
         {
             var unit = shouldEnemies[i];
 
-            UnitManager.inst.SelectUnit(unit);
-
             var canAction = unit.canAction;
             var canMove = unit.canMove;
 

@@ -9,13 +9,10 @@ public class UnitMove : MonoBehaviour
     private Unit _unit;
     private void Awake() => _unit = GetComponent<Unit>();
 
-    public void DrawArea(bool canSelect = true)
+    public void DrawArea(bool isFocus = false)
     {
-        if (!_unit.canMove)
-            canSelect = false;
-
         var selectCoords = GetArea();
-        GridManager.inst.AreaDisplay(AreaType.Move, canSelect, GridManager.inst.GetTiles(selectCoords), _unit);
+        GridManager.inst.AreaDisplay(AreaType.Move, isFocus, GridManager.inst.GetTiles(selectCoords), _unit);
     }
 
     public List<HexCoords> GetArea(bool onSelf = false)
@@ -58,6 +55,7 @@ public class UnitMove : MonoBehaviour
         else
             transform.position = targetCoords.Pos - Vector3.forward;
         
+        UnitManager.inst.InitEnemiesArea();
         UnitManager.inst.SetOrderUnits(true);
     }
 
@@ -78,6 +76,7 @@ public class UnitMove : MonoBehaviour
         }
         
         transform.position = targetCoords.Pos - Vector3.forward;
+        UnitManager.inst.InitEnemiesArea();
         UnitManager.inst.SetOrderUnits(true);
     }
 
@@ -100,6 +99,8 @@ public class UnitMove : MonoBehaviour
                 sequence.AppendCallback(() => _unit.coords = targetCoords);
             }
         }
+
+        UnitManager.inst.InitEnemiesArea();
         UnitManager.inst.SetOrderUnits(true);
     }
 
@@ -122,6 +123,7 @@ public class UnitMove : MonoBehaviour
                 yield return YieldInstructionCache.WaitForSeconds(dotweenTime);
             }
         }
+        UnitManager.inst.InitEnemiesArea();
         UnitManager.inst.SetOrderUnits(true);
     }
 }

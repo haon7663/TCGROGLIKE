@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BowSkull
+  m_Controller: {fileID: 9100000, guid: 114fe81abea4d4643a0db20b2a566f92, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: d13052fd58243f745aaedcf63da3976b, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 8fd7cc36b660f2447ab4a60404290a10, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 96dbdd56395d4c849b318c2ce0cf602a, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 7ebc521ee92372f4db000ef8ae4464e4, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: d0aa1533e948eb64eba659b449889e4b, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: ce817cd4c84745341a543a110f1a4986, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 9c261e538b5cc2943948f3402f3a6a99, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 0005921a3f69d4b4c8b7c60904287ada, type: 2}

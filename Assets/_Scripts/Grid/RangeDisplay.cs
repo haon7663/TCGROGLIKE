@@ -6,7 +6,6 @@ public class RangeDisplay : MonoBehaviour
 {
     public AreaType AreaType { get; private set; }
     public Unit Unit { get; private set; }
-    public bool CanSelect { get; private set; }
     public bool Active { get; private set; }
 
     [SerializeField] private SpriteRenderer spriteRenderer;
@@ -17,9 +16,9 @@ public class RangeDisplay : MonoBehaviour
     
     private readonly int _select = Animator.StringToHash("canSelect");
 
-    public void Setup(AreaType areaType, Unit unit, HexNode node, List<HexNode> nodes, bool canSelect, Color color)
+    public void Setup(AreaType areaType, Unit unit, HexNode node, List<HexNode> nodes, bool isFocus, Color color)
     {
-        spriteRenderer.color = canSelect ? new Color(color.r, color.g, color.b, 0.2f) : new Color(color.r, color.g, color.b, 0.5f);
+        spriteRenderer.color = isFocus ? new Color(color.r, color.g, color.b, 0.5f) : new Color(color.r, color.g, color.b, 0.2f);
 
         foreach (var direction in HexDirectionExtension.Loop())
         {
@@ -27,10 +26,9 @@ public class RangeDisplay : MonoBehaviour
             directionSpriteRenderers[(int)direction].gameObject.SetActive(isContain);
             directionSpriteRenderers[(int)direction].color = color;
         }
-        animator.SetBool(_select, canSelect);
+        animator.SetBool(_select, !isFocus);
         
         AreaType = areaType;
-        CanSelect = canSelect;
         Unit = unit;
         Active = true;
 

@@ -36,6 +36,8 @@ public class UnitManager : MonoBehaviour
     
     [Header("스프라이트")]
     [SerializeField] private Sprite attackSprite;
+    
+    public static event Action<bool> OnUnitMove;
 
     private void Start()
     {
@@ -136,8 +138,7 @@ public class UnitManager : MonoBehaviour
             for (var i = enemies.Count - 1; i >= 0; i--)
             {
                 var enemy = enemies[i];
-                EnemySelectCard(enemy);
-                enemy.targetUnit = GetNearestUnit(enemy);
+                StartCoroutine(EnemySelectCard(enemy));
             }
             
             enemies = enemies.OrderByDescending(x => x.coords.GetPathDistance(x.targetUnit.coords)).ToList();
@@ -212,6 +213,14 @@ public class UnitManager : MonoBehaviour
         LightManager.inst.ChangeLight(false);
     }
 
+    public void ShowUnitInfo(Unit unit)
+    {
+        unit.SetMaterial(outlineMaterial);
+        LightManager.inst.ChangeLight(true);
+        CameraManager.inst.SetOrthographicSize(true);
+        CameraManager.inst.SetViewPoint(unit.transform.position + new Vector3(0, 0.5f));
+        UIManager.inst.OpenInfoPanel();
+    }
     public void SelectUnit(Unit unit, bool isCard = false)
     {
         if (sUnit)
@@ -223,32 +232,17 @@ public class UnitManager : MonoBehaviour
 
         unit.SetMaterial(outlineMaterial);
 
-        LightManager.inst.ChangeLight(true);
-        if (enemies.Contains(unit))
-        {
-            CameraManager.inst.SetOrthographicSize(true);
-            CameraManager.inst.SetViewPoint(sUnit.transform.position + new Vector3(0, 0.5f));
-        }
-        else
-        {
-            CameraManager.inst.SetOrthographicSize(false);
-            CameraManager.inst.SetViewPoint(sUnit.transform.position);
-
-            GridManager.inst.RevertTiles(unit);
-            if (isCard) return;
+        if (isCard || unit.unitSO.type == UnitType.Enemy) return;
             
-            switch (TurnManager.Inst.phase)
-            {
-                case Phase.Card:
-                    _sUnitMove.DrawArea();
-                    break;
-                default:
-                    _sUnitMove.DrawArea(false);
-                    break;
-            }
+        switch (TurnManager.Inst.phase)
+        {
+            case Phase.Card:
+                _sUnitMove.DrawArea();
+                break;
+            default:
+                _sUnitMove.DrawArea(true);
+                break;
         }
-        
-        UIManager.inst.OpenInfoPanel();
     }
     public void DeSelectUnit(Unit unit)
     {
@@ -268,21 +262,29 @@ public class UnitManager : MonoBehaviour
         _sUnitMove = null;
         _sUnitCard = null;
     }
+
+    public void InitEnemiesArea()
+    {
+        foreach (var unit in enemies)
+        {
+            unit.card.SetTargetCoords();
+        }
+    }
     
     public void DrawCardArea()
     {
         GridManager.inst.RevertTiles(sUnit);
-        _sUnitCard.DrawRange(null, false);
+        _sUnitCard.DrawArea(null, false);
     }
     public void DrawMoveArea()
     {
         GridManager.inst.RevertTiles(sUnit);
-        _sUnitMove.DrawArea(false);
+        _sUnitMove.DrawArea(true);
     }
 
     #region UnitAlgorithm
 
-    private void EnemySelectCard(Unit unit)
+    private IEnumerator EnemySelectCard(Unit unit)
     {
         List<CardSO> cardSOs = new();
         foreach (var cardInfo in unit.unitSO.cardInfo)
@@ -348,13 +350,16 @@ public class UnitManager : MonoBehaviour
         //var value = selectedCardSO.value + Mathf.CeilToInt(selectedCardSO.value * Random.Range(-0.15f, 0.15f));
         unit.card.SetUp(selectedCardSO);
         
+        var targetUnit = GetNearestUnit(unit);
+        unit.targetUnit = targetUnit;
+        
         if (selectedCardSO.useType == UseType.Should)
         {
-            var targetUnit = GetNearestUnit(unit);
-            unit.targetCoords = targetUnit.coords;
-            
             if(selectedCardSO.isBeforeMove)
-                StartCoroutine(MoveUnit(unit, targetUnit));
+                yield return StartCoroutine(MoveUnit(unit, targetUnit));
+            
+            unit.card.SetOffsetCoords();
+            unit.card.SetTargetCoords();
         }
 
         var sprite = attackSprite;
@@ -393,6 +398,7 @@ public class UnitManager : MonoBehaviour
         }
         else
         {
+            print("ShouldAction");
             yield return StartCoroutine(unit.card.UseCard(GridManager.inst.GetNode(unit.targetCoords)));
             yield return YieldInstructionCache.WaitForSeconds(1f);
         }

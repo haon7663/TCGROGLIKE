@@ -250,7 +250,7 @@ public class CardManager : MonoBehaviour
             EnlargeCard(true, card);
             var unit = card.GetUnit();
             UnitManager.inst.SelectUnit(unit, true);
-            unit.card.DrawRange(card.CardSO, eCardState == ECardState.CanMouseDrag);
+            unit.card.DrawArea(card.CardSO, eCardState != ECardState.CanMouseDrag);
         }
     }
     public void CardMouseExit(Card card)

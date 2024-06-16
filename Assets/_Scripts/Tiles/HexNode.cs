@@ -108,19 +108,19 @@ public class HexNode : MonoBehaviour
     
     private (bool, Unit) CanMove()
     {
-        foreach (var rangeDisplay in RangeDisplays.Where(display => display.gameObject.activeSelf && display.AreaType == AreaType.Move && display.CanSelect))
+        foreach (var rangeDisplay in RangeDisplays.Where(display => display.gameObject.activeSelf && display.AreaType == AreaType.Move && display.Unit.unitSO.type != UnitType.Enemy))
             return (true, rangeDisplay.Unit);
         return (false, null);
     }
     private (bool, Unit) CanCard()
     {
-        foreach (var rangeDisplay in RangeDisplays.Where(display => display.gameObject.activeSelf && display.AreaType is AreaType.Attack or AreaType.Buff && display.CanSelect))
+        foreach (var rangeDisplay in RangeDisplays.Where(display => display.gameObject.activeSelf && display.AreaType is AreaType.Attack or AreaType.Buff && display.Unit.unitSO.type != UnitType.Enemy))
             return (true, rangeDisplay.Unit);
         return (false, null);
     }
     private (bool, Unit) CanArrange()
     {
-        foreach (var rangeDisplay in RangeDisplays.Where(display => display.gameObject.activeSelf && display.AreaType == AreaType.Arrange && display.CanSelect))
+        foreach (var rangeDisplay in RangeDisplays.Where(display => display.gameObject.activeSelf && display.AreaType == AreaType.Arrange && display.Unit.unitSO.type != UnitType.Enemy))
             return (true, rangeDisplay.Unit);
         return (false, null);
     }

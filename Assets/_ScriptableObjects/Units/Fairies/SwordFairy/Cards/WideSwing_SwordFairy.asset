@@ -35,11 +35,12 @@ MonoBehaviour:
   isKnockback: 0
   knockbackType: 0
   knockbackPower: 0
-  priority: 0
-  useType: 1
+  priority: 1
   compareByMove: 0
   recommendedDistanceType: 1
   recommendedDistance: 1
+  useType: 1
+  targetTraceType: 0
   isBeforeMove: 1
   isAfterMove: 0
   conditions:
